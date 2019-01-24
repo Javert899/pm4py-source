@@ -6,6 +6,6 @@ RUN apt-get -y install git
 RUN apt-get -y install python3-pydot python-pydot python-pydot-ng graphviz
 RUN apt-get -y install python3-tk
 RUN apt-get -y install zip unzip
-RUN wget https://github.com/pm4py/pm4py-source/archive/develop.zip
-RUN unzip develop.zip
-RUN cd pm4py-source-develop && pip install -r requirements_stable.txt && python setup.py install
+RUN wget https://github.com/pm4py/pm4py-source/archive/bpmnIntegration2.zip
+RUN unzip bpmnIntegration2.zip
+RUN cd pm4py-source-bpmnIntegration2 && pip install -r requirements_stable.txt && copy tests/test_dockers/setups/setup_bpmnIntegration2.py setup.py && python setup.py install
