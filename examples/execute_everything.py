@@ -10,16 +10,20 @@ if __name__ == "__main__":
     from examples import bpmn_decoration_df
     from examples import alignment_test
     from examples import dec_treplay_imdf
-    from examples import sna_example_df
-    from examples import sna_example_log
     from examples import imdf_example
     from examples import test_evaluation
     from examples import token_replay_alpha
+    from examples import manual_log_generation
+    from examples import simple_miner
+    from examples import example_simulation
+    from examples import simulation_df
     from examples import token_replay_imdf
     from examples import decisiontree_example
     from examples import clustering_example
     from examples import example_diagnostics
     from examples import transition_system_test
+    from examples import tree_dec_mining_wo_replay
+    from examples import tree_activity_duration_root_cause
     from examples import stochastic_petri_nets
     from examples import stochastic_petri_df
     from examples import big_dataframe_filtering
@@ -34,10 +38,6 @@ if __name__ == "__main__":
     bpmn_decoration_log.execute_script()
     print("\n\nbpmn_decoration_df")
     bpmn_decoration_df.execute_script()
-    print("\n\nsna_example_df")
-    sna_example_df.execute_script()
-    print("\n\nsna_variant_log")
-    sna_example_log.execute_script()
     print("\n\nalignment_test")
     alignment_test.execute_script()
     print("\n\ndec_treplay_imdf")
@@ -48,6 +48,8 @@ if __name__ == "__main__":
     test_evaluation.execute_script()
     print("\n\ntokenReplay_alpha")
     token_replay_alpha.execute_script()
+    print("\n\nmanual_log_generation")
+    manual_log_generation.execute_script()
     print("\n\ntokenReplay_imdf")
     token_replay_imdf.execute_script()
     print("\n\ndecisiontree_example")
@@ -58,6 +60,10 @@ if __name__ == "__main__":
     example_diagnostics.execute_script()
     print("\n\ntransition_system_test")
     transition_system_test.execute_script()
+    print("\n\ntree_dec_mining_wo_replay")
+    tree_dec_mining_wo_replay.execute_script()
+    print("\n\ntree_activity_duration_root_cause")
+    tree_activity_duration_root_cause.execute_script()
     print("\n\nstochastic_petri_nets")
     stochastic_petri_nets.execute_script()
     print("\n\nstochastic_petri_df")
@@ -66,5 +72,11 @@ if __name__ == "__main__":
     big_dataframe_filtering.execute_script()
     print("\n\nbig_dataframe_management")
     big_dataframe_management.execute_script()
+    print("\n\nsimple_miner")
+    simple_miner.execute_script()
+    print("\n\nexample_simulation")
+    example_simulation.execute_script()
+    print("\n\nsimulation_df")
+    simulation_df.execute_script()
     print("\n\ngraphs_visualization")
     graphs_visualization.execute_script()

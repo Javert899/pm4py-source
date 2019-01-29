@@ -41,3 +41,27 @@ def embed_info_into_bpmn(bpmn_graph, bpmn_aggreg_statistics, decoration):
                 node[1][bpmn_python_consts.Consts.decorations].append([decoration + "_" + stat, str(stat_value)])
 
     return bpmn_graph
+
+
+def embed_rules_into_bpmn(bpmn_graph, rules_per_edge):
+    """
+    Embed the rules inside the BPMN 2.0 XML diagram
+
+    Parameters
+    ------------
+    bpmn_graph
+        BPMN graph object
+    rules_per_edge
+        Dictionary that associates the rules per edge
+
+    Returns
+    -----------
+    bpmn_graph
+        Decorated BPMN graph
+    """
+    for edge in rules_per_edge:
+        flow = bpmn_graph.get_flow_by_id(edge)
+        if bpmn_python_consts.Consts.decorations not in flow[2]:
+            flow[2][bpmn_python_consts.Consts.decorations] = []
+        flow[2][bpmn_python_consts.Consts.decorations].append(["decisionRule", rules_per_edge[edge]])
+    return bpmn_graph
