@@ -1,17 +1,16 @@
 import itertools
+import traceback
 from copy import deepcopy
 
 import numpy as np
 
+from pm4py.algo.discovery.dfg import factory as dfg_factory
 from pm4py.algo.other.decisiontree import get_log_representation
 from pm4py.algo.other.decisiontree import log_transforming
 from pm4py.algo.other.decisiontree import mine_decision_tree
-from pm4py.objects.bpmn.util import log_matching
 from pm4py.objects.bpmn.util import gateway_map as gwmap_builder
-from pm4py.objects.log.log import TraceLog
-from pm4py.algo.discovery.dfg import factory as dfg_factory
-
-import traceback
+from pm4py.objects.bpmn.util import log_matching
+from pm4py.objects.log.log import EventLog
 
 DEFAULT_MAX_REC_DEPTH_DEC_MINING = 2
 
@@ -144,6 +143,7 @@ def get_other_activities_connected_to_source(log, source_activity, main_target_a
                 other_activities.append(target_activity)
     return other_activities
 
+
 def get_decision_mining_rules_given_activities(log, activities, parameters=None):
     """
     Performs rules discovery thanks to decision mining from a log and a list of activities
@@ -210,7 +210,7 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
     for i in range(len(list_logs)):
         target = target + [min(i, max_diff_targets)] * len(list_logs[i])
 
-    transf_log = TraceLog(list(itertools.chain.from_iterable(list_logs)))
+    transf_log = EventLog(list(itertools.chain.from_iterable(list_logs)))
 
     data, feature_names = get_log_representation.get_default_representation(transf_log)
 

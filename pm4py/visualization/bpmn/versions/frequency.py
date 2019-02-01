@@ -1,5 +1,5 @@
 from pm4py.algo.discovery.dfg import factory as dfg_factory
-from pm4py.algo.filtering.tracelog.attributes import attributes_filter
+from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.objects.conversion.bpmn_to_petri import factory as bpmn_to_petri
 from pm4py.objects.conversion.petri_to_bpmn import factory as bpmn_converter
 from pm4py.objects.log.util.xes import DEFAULT_NAME_KEY
