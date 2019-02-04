@@ -95,12 +95,13 @@ setup(
         'cvxopt',
         'lxml',
         'graphviz',
-        'pandas==0.23.4',
+        'pandas>=0.24.1',
         'scipy',
         'scikit-learn',
         'pydotplus',
         'bpmn_python==0.0.18',
-        'pulp'
+        'pulp',
+        'pytz>=2018.9'
     ],
     project_urls={
         'Documentation': 'http://pm4py.pads.rwth-aachen.de/documentation/',

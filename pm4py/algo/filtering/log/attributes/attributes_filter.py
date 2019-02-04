@@ -1,7 +1,7 @@
 from pm4py.algo.filtering.common import filtering_constants
 from pm4py.algo.filtering.common.attributes import attributes_common
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.objects.log import transform
+from pm4py.objects.conversion.log import factory as log_conv_fact
 from pm4py.objects.log.log import EventLog, Trace
 from pm4py.objects.log.util import sampling
 from pm4py.objects.log.util import xes
@@ -109,12 +109,35 @@ def select_attributes_from_log_for_tree(log, max_cases_for_attr_selection=DEFAUL
                                                                            numeric_event_attributes_to_consider)
     string_event_attributes_to_consider = check_event_attributes_presence(log,
                                                                           string_event_attributes_to_consider)
-    numeric_trace_attributes_to_consider = check_event_attributes_presence(log,
+    numeric_trace_attributes_to_consider = check_trace_attributes_presence(log,
                                                                            numeric_trace_attributes_to_consider)
-    string_trace_attributes_to_consider = check_event_attributes_presence(log,
+    string_trace_attributes_to_consider = check_trace_attributes_presence(log,
                                                                           string_trace_attributes_to_consider)
 
     return string_trace_attributes_to_consider, string_event_attributes_to_consider, numeric_trace_attributes_to_consider, numeric_event_attributes_to_consider
+
+
+def check_trace_attributes_presence(log, attributes_set):
+    """
+    Check trace attributes presence in all the traces of the log
+
+    Parameters
+    ------------
+    log
+        Log
+    attributes_set
+        Set of attributes
+
+    Returns
+    ------------
+    filtered_set
+        Filtered set of attributes
+    """
+    keys = list(attributes_set)
+    for attr in keys:
+        if not verify_if_trace_attribute_is_in_each_trace(log, attr):
+            attributes_set.remove(attr)
+    return attributes_set
 
 
 def check_event_attributes_presence(log, attributes_set):
@@ -455,7 +478,7 @@ def get_kde_numeric_attribute(log, attribute, parameters=None):
     """
 
     if type(log) is EventLog:
-        event_log = transform.transform_event_log_to_event_stream(log)
+        event_log = log_conv_fact.apply(log, variant=log_conv_fact.TO_EVENT_STREAM)
     else:
         event_log = log
 
@@ -489,7 +512,7 @@ def get_kde_numeric_attribute_json(log, attribute, parameters=None):
     """
 
     if type(log) is EventLog:
-        event_log = transform.transform_event_log_to_event_stream(log)
+        event_log = log_conv_fact.apply(log, variant=log_conv_fact.TO_EVENT_STREAM)
     else:
         event_log = log
 
@@ -522,7 +545,7 @@ def get_kde_date_attribute(log, attribute=DEFAULT_TIMESTAMP_KEY, parameters=None
     """
 
     if type(log) is EventLog:
-        event_log = transform.transform_event_log_to_event_stream(log)
+        event_log = log_conv_fact.apply(log, variant=log_conv_fact.TO_EVENT_STREAM)
     else:
         event_log = log
 
@@ -556,7 +579,7 @@ def get_kde_date_attribute_json(log, attribute=DEFAULT_TIMESTAMP_KEY, parameters
     """
 
     if type(log) is EventLog:
-        event_log = transform.transform_event_log_to_event_stream(log)
+        event_log = log_conv_fact.apply(log, variant=log_conv_fact.TO_EVENT_STREAM)
     else:
         event_log = log
 

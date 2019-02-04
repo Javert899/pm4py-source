@@ -12,3 +12,4 @@ scikit-learn==0.20.2
 pydotplus==2.0.2
 bpmn_python==0.0.18
 pulp==1.6.9
+pytz==2018.9
