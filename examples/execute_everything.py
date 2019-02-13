@@ -20,6 +20,8 @@ if __name__ == "__main__":
     from examples import decisiontree_example
     from examples import clustering_example
     from examples import example_diagnostics
+    from examples import parquet
+    from examples import sna_log
     from examples import transition_system_test
     from examples import tree_dec_mining_wo_replay
     from examples import tree_activity_duration_root_cause
@@ -45,6 +47,8 @@ if __name__ == "__main__":
     imdf_example.execute_script()
     print("\n\ntestEvaluation")
     test_evaluation.execute_script()
+    print("\n\nsna_log")
+    sna_log.execute_script()
     print("\n\ntokenReplay_alpha")
     token_replay_alpha.execute_script()
     print("\n\nmanual_log_generation")
@@ -57,6 +61,8 @@ if __name__ == "__main__":
     clustering_example.execute_script()
     print("\n\nexample_diagnostics")
     example_diagnostics.execute_script()
+    print("\n\nparquet")
+    parquet.execute_script()
     print("\n\ntransition_system_test")
     transition_system_test.execute_script()
     print("\n\ntree_dec_mining_wo_replay")
