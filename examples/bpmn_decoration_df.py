@@ -41,14 +41,11 @@ def execute_script():
     bpmn_stat_performance = convert_performance_map.convert_performance_map_to_bpmn(aggr_stat_performance,
                                                                                   inv_elements_correspondence)
     # obtain and display frequency GVIZ representation of the BPMN through back-conversion to Petri
-    gviz = bpmn_vis_factory.apply(bpmn_diagram, bpmn_stat_frequency,
-                                  variant="frequency", parameters={"format": "svg"})
-    bpmn_vis_factory.view(gviz)
+    #gviz = bpmn_vis_factory.apply(bpmn_diagram, bpmn_stat_frequency, variant="frequency", parameters={"format": "svg"})
+    #bpmn_vis_factory.view(gviz)
     # obtain and display performance GVIZ representation of the BPMN through back-conversion to Petri
-    gviz = bpmn_vis_factory.apply(bpmn_diagram, bpmn_stat_performance,
-                                  variant="performance",
-                                  parameters={"format": "svg"})
-    bpmn_vis_factory.view(gviz)
+    #gviz = bpmn_vis_factory.apply(bpmn_diagram, bpmn_stat_performance, variant="performance", parameters={"format": "svg"})
+    #bpmn_vis_factory.view(gviz)
 
 
 if __name__ == "__main__":
