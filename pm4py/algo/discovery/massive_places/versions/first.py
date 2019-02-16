@@ -21,9 +21,9 @@ def apply(log, parameters=None):
 
     activity_key = parameters[
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] if constants.PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else xes.DEFAULT_NAME_KEY
-    max_no_places_evaluated = parameters[MAX_NO_PLACES_EVALUATED] if MAX_NO_PLACES_EVALUATED in parameters else 10000
-    thresh1 = 0.5
-    thresh2 = 0.001
+    max_no_places_evaluated = parameters[MAX_NO_PLACES_EVALUATED] if MAX_NO_PLACES_EVALUATED in parameters else 1000
+    thresh1 = 0.6
+    thresh2 = 0.000001
     parameters[
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] = activity_key
     parameters[constants.PARAMETER_CONSTANT_ATTRIBUTE_KEY] = activity_key
@@ -33,8 +33,8 @@ def apply(log, parameters=None):
         dict_trans[act] = PetriNet.Transition(act, act)
         net.transitions.add(dict_trans[act])
     ns = null_space(par_var_repr)
-    rand_mat = np.random.rand(ns.shape[1], max_no_places_evaluated)
-    rand_mat = rand_mat / rand_mat.sum(axis=0)
+    rand_mat = 2*np.random.rand(ns.shape[1], max_no_places_evaluated)-1
+    rand_mat = rand_mat / abs(rand_mat).sum(axis=0)
     right_mat = np.matmul(ns, rand_mat)
     right_mat = right_mat / abs(rand_mat).max(axis=0)
     right_mat[right_mat <= -thresh1] = -1
