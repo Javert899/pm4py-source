@@ -15,15 +15,14 @@ def execute_script():
     bpmn_diagram, elements_correspondence, inv_elements_correspondence, el_corr_keys_map = petri_to_bpmn_factory.apply(
         net, initial_marking, final_marking)
     # obtain and display frequency GVIZ representation of the BPMN through back-conversion to Petri
-    #gviz = bpmn_vis_factory.apply_through_conv(bpmn_diagram, log=log, variant="frequency", parameters={"format": "svg"})
-    #bpmn_vis_factory.view(gviz)
+    gviz = bpmn_vis_factory.apply_through_conv(bpmn_diagram, log=log, variant="frequency", parameters={"format": "svg"})
+    bpmn_vis_factory.view(gviz)
     # obtain and display performance GVIZ representation of the BPMN through back-conversion to Petri
-    #gviz = bpmn_vis_factory.apply_through_conv(bpmn_diagram, log=log, variant="performance",
-    #                                           parameters={"format": "svg"})
-    #bpmn_vis_factory.view(gviz)
+    gviz = bpmn_vis_factory.apply_through_conv(bpmn_diagram, log=log, variant="performance", parameters={"format": "svg"})
+    bpmn_vis_factory.view(gviz)
     # annotate the BPMN
-    #bpmn_diagram = bpmn_vis_factory.apply_embedding(bpmn_diagram, log=log, variant="frequency")
-    #bpmn_diagram = bpmn_vis_factory.apply_embedding(bpmn_diagram, log=log, variant="performance")
+    bpmn_diagram = bpmn_vis_factory.apply_embedding(bpmn_diagram, log=log, variant="frequency")
+    bpmn_diagram = bpmn_vis_factory.apply_embedding(bpmn_diagram, log=log, variant="performance")
 
 
 if __name__ == "__main__":

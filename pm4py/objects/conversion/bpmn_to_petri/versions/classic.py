@@ -230,7 +230,8 @@ def apply(bpmn_graph, parameters=None):
         flow_id = flow[2]['id']
         source_ref = flow[2]['sourceRef']
         target_ref = flow[2]['targetRef']
-        if source_ref in corresponding_out_nodes and target_ref in corresponding_in_nodes:
+        if source_ref in corresponding_out_nodes and target_ref in corresponding_in_nodes and corresponding_out_nodes[
+            source_ref] and corresponding_in_nodes[target_ref]:
             trans = PetriNet.Transition(flow_id, None)
             net.transitions.add(trans)
             source_arc = utils.add_arc_from_to(corresponding_out_nodes[source_ref].pop(0), trans, net)
