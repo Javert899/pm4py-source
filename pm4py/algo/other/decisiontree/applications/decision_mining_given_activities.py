@@ -3,14 +3,13 @@ import traceback
 from copy import deepcopy
 
 import numpy as np
+from sklearn import tree
 
 from pm4py.algo.discovery.dfg import factory as dfg_factory
-from pm4py.algo.other.decisiontree import get_log_representation
-from pm4py.algo.other.decisiontree import log_transforming
-from pm4py.algo.other.decisiontree import mine_decision_tree
 from pm4py.objects.bpmn.util import gateway_map as gwmap_builder
 from pm4py.objects.bpmn.util import log_matching
 from pm4py.objects.log.log import EventLog
+from pm4py.objects.log.util import get_log_representation, get_prefixes
 
 DEFAULT_MAX_REC_DEPTH_DEC_MINING = 2
 
@@ -202,8 +201,8 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
 
     max_diff_targets = parameters["max_diff_targets"] if "max_diff_targets" in parameters else 9999999999
 
-    list_logs, considered_activities = log_transforming.get_log_traces_to_activities(log, activities,
-                                                                                     parameters=parameters)
+    list_logs, considered_activities = get_prefixes.get_log_traces_to_activities(log, activities,
+                                                                                 parameters=parameters)
 
     classes = considered_activities
     target = []
@@ -214,7 +213,8 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
 
     data, feature_names = get_log_representation.get_default_representation(transf_log)
 
-    clf = mine_decision_tree.mine(data, target, max_depth=DEFAULT_MAX_REC_DEPTH_DEC_MINING)
+    clf = tree.DecisionTreeClassifier(max_depth=DEFAULT_MAX_REC_DEPTH_DEC_MINING)
+    clf.fit(data, target)
 
     len_list_logs = [len(x) for x in list_logs]
 
