@@ -1,11 +1,28 @@
 import sqlite3
-import time
-from copy import deepcopy
 from datetime import datetime
+
 import pandas as pd
 
 
 def apply(file_path, parameters=None):
+    """
+    Import an OpenSLEX model
+
+    Parameters
+    -------------
+    file_path
+        File path
+    parameters
+        Possible parameters of the algorithm
+
+    Returns
+    -------------
+    dataframe
+        Dataframe
+    """
+    if parameters is None:
+        parameters = {}
+
     conn = sqlite3.connect(file_path)
     classes = {}
     object_classes = {}
@@ -53,11 +70,12 @@ def apply(file_path, parameters=None):
     for event in events:
         if event in event_to_objv:
             activity = activities[activities_instances[events[event][0]]]
-            timestamp = datetime.utcfromtimestamp(events[event][1]/1000.0)
+            timestamp = datetime.utcfromtimestamp(events[event][1] / 1000.0)
             for source_objv in event_to_objv[event]:
                 source_obj_id = object_versions[source_objv]
                 source_obj_class = classes[object_classes[source_obj_id]]
-                stream.append({"event_id": event, "event_activity": activity, "event_timestamp": timestamp, source_obj_class: source_obj_id})
+                stream.append({"event_id": event, "event_activity": activity, "event_timestamp": timestamp,
+                               source_obj_class: source_obj_id})
                 if source_objv in relations:
                     for target_objv in relations[source_objv]:
                         target_obj_id = object_versions[target_objv]
