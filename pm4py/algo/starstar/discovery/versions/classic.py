@@ -2,6 +2,7 @@ import random
 from copy import copy
 
 from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
+from pm4py.algo.filtering.pandas.attributes import attributes_filter
 from pm4py.algo.filtering.pandas.end_activities import end_activities_filter
 from pm4py.algo.filtering.pandas.start_activities import start_activities_filter
 from pm4py.objects.heuristics_net.net import HeuristicsNet
@@ -104,9 +105,12 @@ def apply(df, parameters=None):
             end_activities = end_activities_filter.get_end_activities(proj_df, parameters=parameters_sa_ea)
             start_activities = clean_sa_ea(start_activities, decreasing_factor_sa_ea)
             end_activities = clean_sa_ea(end_activities, decreasing_factor_sa_ea)
+            activities_occurrences = attributes_filter.get_attribute_values(df, "event_activity")
+            activities = list(activities_occurrences.keys())
 
             heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
-                                    default_edges_color=this_color, net_name=p)
+                                    default_edges_color=this_color, net_name=p, activities=activities,
+                                    activities_occurrences=activities_occurrences)
             heu_net.calculate(dependency_thresh=dependency_thresh, and_measure_thresh=and_measure_thresh,
                               min_act_count=min_act_count, min_dfg_occurrences=min_dfg_occurrences,
                               dfg_pre_cleaning_noise_thresh=dfg_pre_cleaning_noise_thresh)
