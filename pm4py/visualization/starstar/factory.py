@@ -11,6 +11,23 @@ VERSIONS = {CLASSIC: classic.apply}
 
 
 def apply(model, parameters=None, variant=CLASSIC):
+    """
+    Visualize StarStar models
+
+    Parameters
+    ------------
+    model
+        StarStar model
+    parameters
+        Possible parameters of the algorithm
+    variant
+        Variants available for the visualizer, possible values: classic
+
+    Returns
+    -----------
+    file_name
+        File name where a representation of the StarStar model is stored
+    """
     return VERSIONS[variant](model, parameters=parameters)
 
 

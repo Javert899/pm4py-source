@@ -2,6 +2,21 @@ from pm4py.visualization.heuristics_net.versions import pydotplus as heu_visuali
 
 
 def apply(model, parameters=None):
+    """
+    Visualize StarStar models
+
+    Parameters
+    ------------
+    model
+        StarStar model
+    parameters
+        Possible parameters of the algorithm
+
+    Returns
+    -----------
+    file_name
+        File name where a representation of the StarStar model is stored
+    """
     if parameters is None:
         parameters = {}
 
