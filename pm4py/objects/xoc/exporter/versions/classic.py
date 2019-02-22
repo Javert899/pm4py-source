@@ -35,7 +35,7 @@ def apply(df, dest_path, parameters=None):
     for eve_id in grouped_stream:
         first = grouped_stream[eve_id][0]
         F.write("\t<event>\n")
-        F.write("\t\t<string key=\"id\" value=\"" + eve_id + "\" />\n")
+        F.write("\t\t<string key=\"id\" value=\"" + str(eve_id) + "\" />\n")
         F.write("\t\t<string key=\"activity\" value=\"" + first["event_activity"] + "\" />\n")
         F.write("\t\t<string key=\"timestamp\" value=\"" + first["event_timestamp"].strftime(
             "%Y-%m-%d %H:%M:%S") + "\" />\n")
@@ -48,7 +48,7 @@ def apply(df, dest_path, parameters=None):
                     obj_class = prop
                     obj_id = obj[prop]
             F.write("\t\t\t<object>\n")
-            F.write("\t\t\t\t<string key=\"id\" value=\""+obj_id+"\" />\n")
+            F.write("\t\t\t\t<string key=\"id\" value=\""+str(obj_id)+"\" />\n")
             F.write("\t\t\t\t<string key=\"class\" value=\""+obj_class+"\" />\n")
             F.write("\t\t\t</object>\n")
         F.write("\t\t</references>\n")
@@ -62,7 +62,7 @@ def apply(df, dest_path, parameters=None):
                     obj_class = prop
                     obj_id = obj[prop]
             F.write("\t\t\t\t<object>\n")
-            F.write("\t\t\t\t\t<string key=\"id\" value=\""+obj_id+"\" />\n")
+            F.write("\t\t\t\t\t<string key=\"id\" value=\""+str(obj_id)+"\" />\n")
             F.write("\t\t\t\t\t<string key=\"class\" value=\""+obj_class+"\" />\n")
             F.write("\t\t\t\t</object>\n")
         F.write("\t\t\t</objects>\n")
