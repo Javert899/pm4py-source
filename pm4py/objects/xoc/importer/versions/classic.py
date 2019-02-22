@@ -24,7 +24,7 @@ def apply(file_path, parameters=None):
     if parameters is None:
         parameters = {}
 
-    import_timestamp = parameters["import_timestamp"] if "import_timestamp" in parameters else False
+    import_timestamp = parameters["import_timestamp"] if "import_timestamp" in parameters else True
 
     F = open(file_path, "r")
     content = F.read()
