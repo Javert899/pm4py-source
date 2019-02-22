@@ -1,3 +1,4 @@
+import random
 from copy import copy
 
 from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
@@ -12,6 +13,10 @@ MIN_ACT_COUNT = "min_act_count"
 MIN_DFG_OCCURRENCES = "min_dfg_occurrences"
 DFG_PRE_CLEANING_NOISE_THRESH = "dfg_pre_cleaning_noise_thresh"
 DECREASING_FACTOR = "decreasingFactor"
+
+COLORS = ["#05B202", "#A13CCD", "#39F6C0", "#BA0D39", "#E90638", "#07B423", "#306A8A", "#678225", "#2742FE", "#4C9A75",
+          "#4C36E9", "#7DB022", "#EDAC54", "#EAC439", "#EAC439", "#1A9C45", "#8A51C4", "#496A63", "#FB9543", "#2B49DD",
+          "#13ADA5", "#2DD8C1", "#2E53D7", "#EF9B77", "#06924F", "#AC2C4D", "#82193F", "#0140D3"]
 
 
 def clean_sa_ea(dictio, decreasing_factor):
@@ -74,17 +79,20 @@ def apply(df, parameters=None):
 
     perspectives_heu = {}
     perspectives = list(df.columns)
+    r = lambda: random.randint(0, 255)
+
     del perspectives[perspectives.index("event_id")]
     del perspectives[perspectives.index("event_activity")]
     if "event_timestamp" in perspectives:
         del perspectives[perspectives.index("event_timestamp")]
 
-        for p in perspectives:
+        perspectives = sorted(perspectives)
+        for p_ind, p in enumerate(perspectives):
             proj_df = df[["event_id", "event_activity", p]].dropna()
             dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
                                                         sort_timestamp_along_case_id=False)
-
             if len(dfg_frequency) > 0:
+                this_color = COLORS[p_ind] if p_ind < len(COLORS) else '#%02X%02X%02X' % (r(), r(), r())
                 parameters_sa_ea = copy(parameters)
                 parameters_sa_ea[constants.PARAMETER_CONSTANT_CASEID_KEY] = p
                 parameters_sa_ea[constants.PARAMETER_CONSTANT_ATTRIBUTE_KEY] = "event_activity"
@@ -94,7 +102,8 @@ def apply(df, parameters=None):
                 start_activities = clean_sa_ea(start_activities, decreasing_factor_sa_ea)
                 end_activities = clean_sa_ea(end_activities, decreasing_factor_sa_ea)
 
-                heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities)
+                heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
+                                        default_edges_color=this_color)
                 heu_net.calculate(dependency_thresh=dependency_thresh, and_measure_thresh=and_measure_thresh,
                                   min_act_count=min_act_count, min_dfg_occurrences=min_dfg_occurrences,
                                   dfg_pre_cleaning_noise_thresh=dfg_pre_cleaning_noise_thresh)
