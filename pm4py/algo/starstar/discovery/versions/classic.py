@@ -45,6 +45,8 @@ def clean_sa_ea(dictio, decreasing_factor):
             ratio = ordered_list[i][1] / ordered_list[i - 1][1]
             if ratio >= decreasing_factor:
                 cleaned_dictio[ordered_list[i][0]] = ordered_list[i][1]
+            else:
+                break
         i = i + 1
     return cleaned_dictio
 
@@ -103,7 +105,7 @@ def apply(df, parameters=None):
                 end_activities = clean_sa_ea(end_activities, decreasing_factor_sa_ea)
 
                 heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
-                                        default_edges_color=this_color)
+                                        default_edges_color=this_color, net_name=p)
                 heu_net.calculate(dependency_thresh=dependency_thresh, and_measure_thresh=and_measure_thresh,
                                   min_act_count=min_act_count, min_dfg_occurrences=min_dfg_occurrences,
                                   dfg_pre_cleaning_noise_thresh=dfg_pre_cleaning_noise_thresh)
