@@ -88,28 +88,29 @@ def apply(df, parameters=None):
     if "event_timestamp" in perspectives:
         del perspectives[perspectives.index("event_timestamp")]
 
-        perspectives = sorted(perspectives)
-        for p_ind, p in enumerate(perspectives):
-            proj_df = df[["event_id", "event_activity", p]].dropna()
-            dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
-                                                        sort_timestamp_along_case_id=False)
-            if len(dfg_frequency) > 0:
-                this_color = COLORS[p_ind] if p_ind < len(COLORS) else '#%02X%02X%02X' % (r(), r(), r())
-                parameters_sa_ea = copy(parameters)
-                parameters_sa_ea[constants.PARAMETER_CONSTANT_CASEID_KEY] = p
-                parameters_sa_ea[constants.PARAMETER_CONSTANT_ATTRIBUTE_KEY] = "event_activity"
-                parameters_sa_ea[constants.PARAMETER_CONSTANT_ACTIVITY_KEY] = "event_activity"
-                start_activities = start_activities_filter.get_start_activities(proj_df, parameters=parameters_sa_ea)
-                end_activities = end_activities_filter.get_end_activities(proj_df, parameters=parameters_sa_ea)
-                start_activities = clean_sa_ea(start_activities, decreasing_factor_sa_ea)
-                end_activities = clean_sa_ea(end_activities, decreasing_factor_sa_ea)
+    perspectives = sorted(perspectives)
+    for p_ind, p in enumerate(perspectives):
+        proj_df = df[["event_id", "event_activity", p]].dropna()
 
-                heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
-                                        default_edges_color=this_color, net_name=p)
-                heu_net.calculate(dependency_thresh=dependency_thresh, and_measure_thresh=and_measure_thresh,
-                                  min_act_count=min_act_count, min_dfg_occurrences=min_dfg_occurrences,
-                                  dfg_pre_cleaning_noise_thresh=dfg_pre_cleaning_noise_thresh)
-                if len(heu_net.nodes) > 0:
-                    perspectives_heu[p] = heu_net
+        dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
+                                                    sort_timestamp_along_case_id=False)
+        if len(dfg_frequency) > 0:
+            this_color = COLORS[p_ind] if p_ind < len(COLORS) else '#%02X%02X%02X' % (r(), r(), r())
+            parameters_sa_ea = copy(parameters)
+            parameters_sa_ea[constants.PARAMETER_CONSTANT_CASEID_KEY] = p
+            parameters_sa_ea[constants.PARAMETER_CONSTANT_ATTRIBUTE_KEY] = "event_activity"
+            parameters_sa_ea[constants.PARAMETER_CONSTANT_ACTIVITY_KEY] = "event_activity"
+            start_activities = start_activities_filter.get_start_activities(proj_df, parameters=parameters_sa_ea)
+            end_activities = end_activities_filter.get_end_activities(proj_df, parameters=parameters_sa_ea)
+            start_activities = clean_sa_ea(start_activities, decreasing_factor_sa_ea)
+            end_activities = clean_sa_ea(end_activities, decreasing_factor_sa_ea)
+
+            heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
+                                    default_edges_color=this_color, net_name=p)
+            heu_net.calculate(dependency_thresh=dependency_thresh, and_measure_thresh=and_measure_thresh,
+                              min_act_count=min_act_count, min_dfg_occurrences=min_dfg_occurrences,
+                              dfg_pre_cleaning_noise_thresh=dfg_pre_cleaning_noise_thresh)
+            if len(heu_net.nodes) > 0:
+                perspectives_heu[p] = heu_net
 
     return perspectives_heu

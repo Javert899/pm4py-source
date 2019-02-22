@@ -24,6 +24,8 @@ def apply(file_path, parameters=None):
     if parameters is None:
         parameters = {}
 
+    import_timestamp = parameters["import_timestamp"] if "import_timestamp" in parameters else False
+
     F = open(file_path, "r")
     content = F.read()
     F.close()
@@ -36,10 +38,11 @@ def apply(file_path, parameters=None):
         event_activity = events[i].split("\"activity\" value=\"")[1].split("\"")[0]
         event_timestamp0 = events[i].split("\"timestamp\" value=\"")[1].split("\"")[0].replace(" CET", "")
         event_timestamp = None
-        try:
-            event_timestamp = parser.parse(event_timestamp0)
-        except:
-            pass
+        if import_timestamp:
+            try:
+                event_timestamp = parser.parse(event_timestamp0)
+            except:
+                pass
         if event_timestamp is not None:
             event_dictio = {"event_id": event_id, "event_activity": event_activity, "event_timestamp": event_timestamp}
         else:
