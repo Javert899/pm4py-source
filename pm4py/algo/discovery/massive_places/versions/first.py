@@ -2,8 +2,8 @@ from pm4py.objects.log.util import xes
 from pm4py.objects.petri.petrinet import PetriNet, Marking
 from pm4py.objects.petri.utils import add_arc_from_to
 from pm4py.util import constants
-from pm4py.algo.discovery.massive_places.utils import log_repr
 from scipy.linalg import null_space
+from pm4py.objects.log.util import prefix_matrix
 import numpy as np
 
 
@@ -27,7 +27,7 @@ def apply(log, parameters=None):
     parameters[
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] = activity_key
     parameters[constants.PARAMETER_CONSTANT_ATTRIBUTE_KEY] = activity_key
-    compl_var_repr, par_var_repr, sum_variants, feature_names = log_repr.get_log_repr(log, parameters)
+    compl_var_repr, par_var_repr, feature_names = prefix_matrix.get_prefix_variants_matrix(log, parameters)
     dict_trans = {}
     for act in feature_names:
         dict_trans[act] = PetriNet.Transition(act, act)
@@ -41,10 +41,18 @@ def apply(log, parameters=None):
     right_mat[right_mat >= thresh1] = 1
     right_mat[abs(right_mat) < thresh1] = 0
     right_mat = np.unique(right_mat, axis=1)
+    check_mat = np.matmul(par_var_repr, right_mat)
+    check_mat_sum_col = list(check_mat.sum(axis=0))
+    zero_indexes = []
+    i = 0
+    while i < len(check_mat_sum_col):
+        if check_mat_sum_col[i] == 0:
+            zero_indexes.append(i)
+        i = i + 1
+    right_mat = right_mat[:, zero_indexes]
     final_mat = np.matmul(compl_var_repr, right_mat)
     final_mat[final_mat < 0] = 0
-    colsum = list(final_mat.sum(axis=0) / sum_variants)
-    colsum = colsum
+    colsum = list(final_mat.sum(axis=0))
     i = 0
     while i < len(colsum):
         if colsum[i] < thresh2:
