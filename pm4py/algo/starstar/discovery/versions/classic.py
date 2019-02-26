@@ -84,7 +84,7 @@ def apply(df, parameters=None):
     dfg_pre_cleaning_noise_thresh = parameters[
         DFG_PRE_CLEANING_NOISE_THRESH] if DFG_PRE_CLEANING_NOISE_THRESH in parameters else defaults.DEFAULT_DFG_PRE_CLEANING_NOISE_THRESH
     decreasing_factor_sa_ea = parameters[DECREASING_FACTOR] if DECREASING_FACTOR in parameters else 0.6
-    performance = parameters[PERFORMANCE] if PERFORMANCE in parameters else True
+    performance = parameters[PERFORMANCE] if PERFORMANCE in parameters else False
 
     perspectives_heu = {}
     perspectives = list(df.columns)

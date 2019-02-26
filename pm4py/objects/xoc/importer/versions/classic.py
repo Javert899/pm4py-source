@@ -4,6 +4,8 @@ from dateutil import parser
 
 import pandas as pd
 
+import random
+
 
 def apply(file_path, parameters=None):
     """
@@ -25,6 +27,7 @@ def apply(file_path, parameters=None):
         parameters = {}
 
     import_timestamp = parameters["import_timestamp"] if "import_timestamp" in parameters else True
+    sample_probability = parameters["sample_probability"] if "sample_probability" in parameters else None
 
     F = open(file_path, "r")
     content = F.read()
@@ -33,7 +36,14 @@ def apply(file_path, parameters=None):
     stream = []
     stream_strings = []
     i = 1
+    considered_events = 0
     while i < len(events) - 1:
+        if sample_probability is not None:
+            r = random.random()
+            if r > sample_probability:
+                i = i + 1
+                continue
+        considered_events = considered_events + 1
         event_id = events[i].split("\"id\" value=\"")[1].split("\"")[0]
         event_activity = events[i].split("\"activity\" value=\"")[1].split("\"")[0]
         event_timestamp0 = events[i].split("\"timestamp\" value=\"")[1].split("\"")[0].replace(" CET", "")
@@ -63,4 +73,7 @@ def apply(file_path, parameters=None):
     dataframe = pd.DataFrame.from_dict(stream)
     if import_timestamp:
         dataframe = dataframe.sort_values("event_timestamp")
+
+    if sample_probability:
+        print(considered_events)
     return dataframe
