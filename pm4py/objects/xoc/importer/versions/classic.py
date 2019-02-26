@@ -61,4 +61,6 @@ def apply(file_path, parameters=None):
             j = j + 1
         i = i + 1
     dataframe = pd.DataFrame.from_dict(stream)
+    if import_timestamp:
+        dataframe = dataframe.sort_values("event_timestamp")
     return dataframe

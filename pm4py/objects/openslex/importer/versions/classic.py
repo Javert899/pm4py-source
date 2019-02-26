@@ -83,4 +83,6 @@ def apply(file_path, parameters=None):
                         stream.append({"event_id": event, "event_activity": activity, "event_timestamp": timestamp,
                                        target_obj_class: target_obj_id})
     dataframe = pd.DataFrame.from_dict(stream)
+    dataframe = dataframe.sort_values("event_timestamp")
+
     return dataframe

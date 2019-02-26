@@ -2,6 +2,22 @@ from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
 
 
 def apply(df, perspectives_list):
+    """
+    Apply the projection of a StarStar dataframe to
+    a DFG built following the list of perspectives
+
+    Parameters
+    ------------
+    df
+        Dataframe
+    perspectives_list
+        List of perspectives
+
+    Returns
+    -----------
+    overall_dfg
+        DFG obtained by merging all the perspectives
+    """
     overall_dfg = {}
 
     for p_ind, p in enumerate(perspectives_list):
