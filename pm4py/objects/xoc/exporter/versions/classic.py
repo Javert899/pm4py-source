@@ -1,3 +1,5 @@
+from pm4py.algo.starstar.utils import df_to_grouped_stream
+
 def apply(df, dest_path, parameters=None):
     """
     Export into a XOC format
@@ -14,20 +16,7 @@ def apply(df, dest_path, parameters=None):
     if parameters is None:
         parameters = {}
 
-    stream = df.to_dict('r')
-    grouped_stream = {}
-
-    i = 0
-    while i < len(stream):
-        keys = list(stream[i].keys())
-        for key in keys:
-            if str(stream[i][key]) == "nan":
-                del stream[i][key]
-        event_id = stream[i]["event_id"]
-        if event_id not in grouped_stream:
-            grouped_stream[event_id] = []
-        grouped_stream[event_id].append(stream[i])
-        i = i + 1
+    grouped_stream = df_to_grouped_stream.apply(df)
 
     F = open(dest_path, "w")
     F.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n")
