@@ -5,8 +5,8 @@ from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
 from pm4py.algo.filtering.pandas.attributes import attributes_filter
 from pm4py.algo.filtering.pandas.end_activities import end_activities_filter
 from pm4py.algo.filtering.pandas.start_activities import start_activities_filter
-from pm4py.objects.heuristics_net.net import HeuristicsNet
 from pm4py.objects.heuristics_net import defaults
+from pm4py.objects.heuristics_net.net import HeuristicsNet
 from pm4py.util import constants
 
 DEPENDENCY_THRESH = "dependency_thresh"
@@ -15,6 +15,7 @@ MIN_ACT_COUNT = "min_act_count"
 MIN_DFG_OCCURRENCES = "min_dfg_occurrences"
 DFG_PRE_CLEANING_NOISE_THRESH = "dfg_pre_cleaning_noise_thresh"
 DECREASING_FACTOR = "decreasingFactor"
+PERFORMANCE = "performance"
 
 COLORS = ["#05B202", "#A13CCD", "#39F6C0", "#BA0D39", "#E90638", "#07B423", "#306A8A", "#678225", "#2742FE", "#4C9A75",
           "#4C36E9", "#7DB022", "#EDAC54", "#EAC439", "#EAC439", "#1A9C45", "#8A51C4", "#496A63", "#FB9543", "#2B49DD",
@@ -73,13 +74,17 @@ def apply(df, parameters=None):
     if parameters is None:
         parameters = {}
 
-    dependency_thresh = parameters[DEPENDENCY_THRESH] if DEPENDENCY_THRESH in parameters else defaults.DEFAULT_DEPENDENCY_THRESH
-    and_measure_thresh = parameters[AND_MEASURE_THRESH] if AND_MEASURE_THRESH in parameters else defaults.DEFAULT_AND_MEASURE_THRESH
+    dependency_thresh = parameters[
+        DEPENDENCY_THRESH] if DEPENDENCY_THRESH in parameters else defaults.DEFAULT_DEPENDENCY_THRESH
+    and_measure_thresh = parameters[
+        AND_MEASURE_THRESH] if AND_MEASURE_THRESH in parameters else defaults.DEFAULT_AND_MEASURE_THRESH
     min_act_count = parameters[MIN_ACT_COUNT] if MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT
-    min_dfg_occurrences = parameters[MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
+    min_dfg_occurrences = parameters[
+        MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
     dfg_pre_cleaning_noise_thresh = parameters[
         DFG_PRE_CLEANING_NOISE_THRESH] if DFG_PRE_CLEANING_NOISE_THRESH in parameters else defaults.DEFAULT_DFG_PRE_CLEANING_NOISE_THRESH
     decreasing_factor_sa_ea = parameters[DECREASING_FACTOR] if DECREASING_FACTOR in parameters else 0.6
+    performance = parameters[PERFORMANCE] if PERFORMANCE in parameters else True
 
     perspectives_heu = {}
     perspectives = list(df.columns)
@@ -92,10 +97,24 @@ def apply(df, parameters=None):
 
     perspectives = sorted(perspectives)
     for p_ind, p in enumerate(perspectives):
-        proj_df = df[["event_id", "event_activity", p]].dropna()
-
-        dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
-                                                    sort_timestamp_along_case_id=False)
+        has_timestamp = False
+        if "event_timestamp" in df.columns:
+            proj_df = df[["event_id", "event_activity", "event_timestamp", p]].dropna()
+            has_timestamp = True
+        else:
+            proj_df = df[["event_id", "event_activity", p]].dropna()
+        if performance:
+            dfg_frequency, dfg_preformance = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity",
+                                                                         case_id_glue=p,
+                                                                         timestamp_key="event_timestamp",
+                                                                         measure="both")
+        else:
+            if has_timestamp:
+                dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
+                                                            timestamp_key="event_timestamp")
+            else:
+                dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
+                                                            sort_timestamp_along_case_id=False)
         if len(dfg_frequency) > 0:
             this_color = COLORS[p_ind] if p_ind < len(COLORS) else '#%02X%02X%02X' % (r(), r(), r())
             parameters_sa_ea = copy(parameters)
@@ -109,9 +128,14 @@ def apply(df, parameters=None):
             activities_occurrences = attributes_filter.get_attribute_values(df, "event_activity")
             activities = list(activities_occurrences.keys())
 
-            heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
-                                    default_edges_color=this_color, net_name=p, activities=activities,
-                                    activities_occurrences=activities_occurrences)
+            if performance:
+                heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
+                                        default_edges_color=this_color, net_name=p, activities=activities,
+                                        activities_occurrences=activities_occurrences, performance_dfg=dfg_preformance)
+            else:
+                heu_net = HeuristicsNet(dfg_frequency, start_activities=start_activities, end_activities=end_activities,
+                                        default_edges_color=this_color, net_name=p, activities=activities,
+                                        activities_occurrences=activities_occurrences)
             heu_net.calculate(dependency_thresh=dependency_thresh, and_measure_thresh=and_measure_thresh,
                               min_act_count=min_act_count, min_dfg_occurrences=min_dfg_occurrences,
                               dfg_pre_cleaning_noise_thresh=dfg_pre_cleaning_noise_thresh)
