@@ -6,6 +6,7 @@ from pm4py.algo.filtering.pandas.attributes import attributes_filter
 from pm4py.algo.filtering.pandas.end_activities import end_activities_filter
 from pm4py.algo.filtering.pandas.start_activities import start_activities_filter
 from pm4py.objects.heuristics_net.net import HeuristicsNet
+from pm4py.objects.heuristics_net import defaults
 from pm4py.util import constants
 
 DEPENDENCY_THRESH = "dependency_thresh"
@@ -72,12 +73,12 @@ def apply(df, parameters=None):
     if parameters is None:
         parameters = {}
 
-    dependency_thresh = parameters[DEPENDENCY_THRESH] if DEPENDENCY_THRESH in parameters else 0.5
-    and_measure_thresh = parameters[AND_MEASURE_THRESH] if AND_MEASURE_THRESH in parameters else 0.75
-    min_act_count = parameters[MIN_ACT_COUNT] if MIN_ACT_COUNT in parameters else 1
-    min_dfg_occurrences = parameters[MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else 1
+    dependency_thresh = parameters[DEPENDENCY_THRESH] if DEPENDENCY_THRESH in parameters else defaults.DEFAULT_DEPENDENCY_THRESH
+    and_measure_thresh = parameters[AND_MEASURE_THRESH] if AND_MEASURE_THRESH in parameters else defaults.DEFAULT_AND_MEASURE_THRESH
+    min_act_count = parameters[MIN_ACT_COUNT] if MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT
+    min_dfg_occurrences = parameters[MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
     dfg_pre_cleaning_noise_thresh = parameters[
-        DFG_PRE_CLEANING_NOISE_THRESH] if DFG_PRE_CLEANING_NOISE_THRESH in parameters else 0.05
+        DFG_PRE_CLEANING_NOISE_THRESH] if DFG_PRE_CLEANING_NOISE_THRESH in parameters else defaults.DEFAULT_DFG_PRE_CLEANING_NOISE_THRESH
     decreasing_factor_sa_ea = parameters[DECREASING_FACTOR] if DECREASING_FACTOR in parameters else 0.6
 
     perspectives_heu = {}
