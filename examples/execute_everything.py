@@ -24,6 +24,7 @@ if __name__ == "__main__":
     from examples import concept_drift
     from examples import sna_log
     from examples import transition_system_test
+    from examples import heu_miner_test
     from examples import stochastic_petri_nets
     from examples import stochastic_petri_df
     from examples import big_dataframe_filtering
@@ -68,6 +69,8 @@ if __name__ == "__main__":
     concept_drift.execute_script()
     print("\n\ntransition_system_test")
     transition_system_test.execute_script()
+    print("\n\nheu_miner_test")
+    heu_miner_test.execute_script()
     print("\n\nstochastic_petri_nets")
     stochastic_petri_nets.execute_script()
     print("\n\nstochastic_petri_df")
