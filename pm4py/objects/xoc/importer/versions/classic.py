@@ -37,6 +37,9 @@ def apply(file_path, parameters=None):
     stream_strings = []
     i = 1
     considered_events = 0
+    considered_objects = set()
+    considered_activities = set()
+    considered_classes = set()
     while i < len(events) - 1:
         if sample_probability is not None:
             r = random.random()
@@ -46,6 +49,7 @@ def apply(file_path, parameters=None):
         considered_events = considered_events + 1
         event_id = events[i].split("\"id\" value=\"")[1].split("\"")[0]
         event_activity = events[i].split("\"activity\" value=\"")[1].split("\"")[0]
+        considered_activities.add(event_activity)
         event_timestamp0 = events[i].split("\"timestamp\" value=\"")[1].split("\"")[0].replace(" CET", "")
         event_timestamp = None
         if import_timestamp:
@@ -62,7 +66,9 @@ def apply(file_path, parameters=None):
         while j < len(references):
             this_event_dictio = copy(event_dictio)
             object_id = references[j].split("\"id\" value=\"")[1].split("\"")[0]
+            considered_objects.add(object_id)
             object_class = references[j].split("\"class\" value=\"")[1].split("\"")[0]
+            considered_classes.add(object_class)
             this_event_dictio[object_class] = object_id
             this_event_dictio_stri = str(this_event_dictio)
             if this_event_dictio_stri not in stream_strings:
@@ -74,6 +80,5 @@ def apply(file_path, parameters=None):
     if import_timestamp:
         dataframe = dataframe.sort_values("event_timestamp")
 
-    if sample_probability or not import_timestamp:
-        print(considered_events)
+    print("events: ",considered_events,"objects: ",len(considered_objects),"activities: ",len(considered_activities),"classes: ",len(considered_classes))
     return dataframe
