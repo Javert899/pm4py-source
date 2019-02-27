@@ -29,6 +29,7 @@ def apply(df, parameters=None):
             else:
                 e = pydotplus.Edge(src=obj_corr[item], dst=ne, label=item[1]+" (class="+item[0]+")")
                 graph.add_edge(e)
+                obj_corr[item] = ne
     file_name = tempfile.NamedTemporaryFile(suffix='.' + image_format)
     file_name.close()
     graph.write(file_name.name, format=image_format)

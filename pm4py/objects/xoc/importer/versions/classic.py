@@ -74,6 +74,6 @@ def apply(file_path, parameters=None):
     if import_timestamp:
         dataframe = dataframe.sort_values("event_timestamp")
 
-    if sample_probability:
+    if sample_probability or not import_timestamp:
         print(considered_events)
     return dataframe

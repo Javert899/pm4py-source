@@ -84,6 +84,8 @@ def apply(heu_net, parameters=None):
     graph = pydotplus.Dot()
     corr_nodes = {}
     corr_nodes_names = {}
+    count_nodes = 0
+    count_edges = 0
     is_frequency = False
 
     for node_name in heu_net.nodes:
@@ -97,6 +99,7 @@ def apply(heu_net, parameters=None):
         else:
             n = pydotplus.Node(name=node_name, shape="box", style="filled",
                                label=node_name, fillcolor=graycolor)
+        count_nodes = count_nodes + 1
         corr_nodes[node] = n
         corr_nodes_names[node_name] = n
         graph.add_node(n)
@@ -140,12 +143,14 @@ def apply(heu_net, parameters=None):
                                                fontcolor=edge.repr_color, penwidth=this_pen_width)
 
                     graph.add_edge(e)
+                    count_edges = count_edges + 1
 
     for index, sa_list in enumerate(heu_net.start_activities):
         effective_sa_list = [n for n in sa_list if n in corr_nodes_names]
         if effective_sa_list:
             start_i = pydotplus.Node(name="start_" + str(index), label="", color=heu_net.default_edges_color[index],
                                      fillcolor=heu_net.default_edges_color[index], style="filled")
+            count_nodes = count_nodes + 1
             graph.add_node(start_i)
             for node_name in effective_sa_list:
                 sa = corr_nodes_names[node_name]
@@ -170,12 +175,14 @@ def apply(heu_net, parameters=None):
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index])
                 graph.add_edge(e)
+                count_edges = count_edges + 1
 
     for index, ea_list in enumerate(heu_net.end_activities):
         effective_ea_list = [n for n in ea_list if n in corr_nodes_names]
         if effective_ea_list:
             end_i = pydotplus.Node(name="end_" + str(index), label="", color=heu_net.default_edges_color[index],
                                    fillcolor=heu_net.default_edges_color[index], style="filled")
+            count_nodes = count_nodes + 1
             graph.add_node(end_i)
             for node_name in effective_ea_list:
                 ea = corr_nodes_names[node_name]
@@ -200,6 +207,9 @@ def apply(heu_net, parameters=None):
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index])
                 graph.add_edge(e)
+                count_edges = count_edges + 1
+
+    #print(count_nodes, count_edges)
 
     file_name = tempfile.NamedTemporaryFile(suffix='.' + image_format)
     file_name.close()
