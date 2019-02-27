@@ -150,7 +150,6 @@ def apply(heu_net, parameters=None):
         if effective_sa_list:
             start_i = pydotplus.Node(name="start_" + str(index), label="", color=heu_net.default_edges_color[index],
                                      fillcolor=heu_net.default_edges_color[index], style="filled")
-            count_nodes = count_nodes + 1
             graph.add_node(start_i)
             for node_name in effective_sa_list:
                 sa = corr_nodes_names[node_name]
@@ -182,7 +181,6 @@ def apply(heu_net, parameters=None):
         if effective_ea_list:
             end_i = pydotplus.Node(name="end_" + str(index), label="", color=heu_net.default_edges_color[index],
                                    fillcolor=heu_net.default_edges_color[index], style="filled")
-            count_nodes = count_nodes + 1
             graph.add_node(end_i)
             for node_name in effective_ea_list:
                 ea = corr_nodes_names[node_name]
@@ -209,7 +207,7 @@ def apply(heu_net, parameters=None):
                 graph.add_edge(e)
                 count_edges = count_edges + 1
 
-    #print(count_nodes, count_edges)
+    print(count_nodes, count_edges)
 
     file_name = tempfile.NamedTemporaryFile(suffix='.' + image_format)
     file_name.close()
