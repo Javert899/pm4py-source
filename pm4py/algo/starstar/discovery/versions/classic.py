@@ -16,6 +16,7 @@ MIN_DFG_OCCURRENCES = "min_dfg_occurrences"
 DFG_PRE_CLEANING_NOISE_THRESH = "dfg_pre_cleaning_noise_thresh"
 DECREASING_FACTOR = "decreasingFactor"
 PERFORMANCE = "performance"
+PERSPECTIVES = "perspectives"
 
 COLORS = ["#05B202", "#A13CCD", "#39F6C0", "#BA0D39", "#E90638", "#07B423", "#306A8A", "#678225", "#2742FE", "#4C9A75",
           "#4C36E9", "#7DB022", "#EDAC54", "#EAC439", "#EAC439", "#1A9C45", "#8A51C4", "#496A63", "#FB9543", "#2B49DD",
@@ -85,17 +86,19 @@ def apply(df, parameters=None):
         DFG_PRE_CLEANING_NOISE_THRESH] if DFG_PRE_CLEANING_NOISE_THRESH in parameters else defaults.DEFAULT_DFG_PRE_CLEANING_NOISE_THRESH
     decreasing_factor_sa_ea = parameters[DECREASING_FACTOR] if DECREASING_FACTOR in parameters else 0.6
     performance = parameters[PERFORMANCE] if PERFORMANCE in parameters else False
+    perspectives = parameters[PERSPECTIVES] if PERSPECTIVES in parameters else None
 
     perspectives_heu = {}
-    perspectives = list(df.columns)
+
     r = lambda: random.randint(0, 255)
+    if perspectives is None:
+        perspectives = list(df.columns)
 
-    del perspectives[perspectives.index("event_id")]
-    del perspectives[perspectives.index("event_activity")]
-    if "event_timestamp" in perspectives:
-        del perspectives[perspectives.index("event_timestamp")]
-
-    perspectives = sorted(perspectives)
+        del perspectives[perspectives.index("event_id")]
+        del perspectives[perspectives.index("event_activity")]
+        if "event_timestamp" in perspectives:
+            del perspectives[perspectives.index("event_timestamp")]
+        perspectives = sorted(perspectives)
     for p_ind, p in enumerate(perspectives):
         has_timestamp = False
         if "event_timestamp" in df.columns:
