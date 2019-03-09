@@ -1,8 +1,9 @@
-from pm4py.algo.other.clustering.versions import decisiontree
+from pm4py.algo.other.clustering.versions import decisiontree, duration
 
 DECISIONTREE = "decisiontree"
+DURATION = "duration"
 
-VERSIONS = {DECISIONTREE: decisiontree.apply}
+VERSIONS = {DECISIONTREE: decisiontree.apply, DURATION: duration.apply}
 
 
 def apply(log, parameters=None, variant=DECISIONTREE):

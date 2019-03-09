@@ -55,7 +55,8 @@ def apply(log, parameters=None):
         constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
 
     log = sorting.sort_timestamp(log, timestamp_key=timestamp_key)
-    data, feature_names = get_log_representation.get_default_representation(log, enable_succattr=enable_succattr)
+    data, feature_names = get_log_representation.get_default_representation(log, parameters={
+        get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION: enable_succattr})
 
     start_end_timestamp = np.zeros((len(log), 2))
 
@@ -143,7 +144,8 @@ def apply(log, parameters=None):
 
                 i = i + 1
 
-            logs_list = [conversion_factory.apply(EventStream(x), variant=conversion_factory.TO_EVENT_LOG) for x in event_streams_list]
+            logs_list = [conversion_factory.apply(EventStream(x), variant=conversion_factory.TO_EVENT_LOG) for x in
+                         event_streams_list]
 
             possible_outputs.append(([True, logs_list, endpoints, change_date_repr], cluster_size, silh_score))
 

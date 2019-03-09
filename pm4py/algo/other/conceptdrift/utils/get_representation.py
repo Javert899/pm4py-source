@@ -39,7 +39,8 @@ def get_data_classes(log1, log2, parameters=None):
 
     log = EventLog(list(log1) + list(log2))
 
-    data, feature_names = get_log_representation.get_default_representation(log, enable_succattr=enable_succattr)
+    data, feature_names = get_log_representation.get_default_representation(log, parameters={
+        get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION: enable_succattr})
 
     target = np.array([0] * len(log1) + [1] * len(log2))
     classes = ["before", "after"]
