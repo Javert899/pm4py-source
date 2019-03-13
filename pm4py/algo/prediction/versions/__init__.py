@@ -1,1 +1,1 @@
-from pm4py.algo.prediction.versions import elasticnet
+from pm4py.algo.prediction.versions import elasticnet, keras_rnn
