@@ -26,7 +26,7 @@ def train(log, variant=ELASTICNET, parameters=None):
     return VERSIONS_TRAIN[variant](log, parameters=parameters)
 
 
-def test(model, trace, variant=ELASTICNET, parameters=None):
+def test(model, trace, parameters=None):
     """
     Test the prediction model
 
@@ -38,12 +38,11 @@ def test(model, trace, variant=ELASTICNET, parameters=None):
         Object to predict (Trace / EventLog)
     parameters
         Possible parameters of the algorithm
-    variant
-        Variant of the algorithm, possible values: elasticnet
 
     Returns
     ------------
     pred
         Result of the prediction (single value / list)
     """
+    variant = model["variant"]
     return VERSIONS_TEST[variant](model, trace, parameters=parameters)
