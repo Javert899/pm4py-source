@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 
-from pm4py.visualization.starstar.versions import classic
+from pm4py.visualization.mvp.versions import classic
 
 CLASSIC = "classic"
 

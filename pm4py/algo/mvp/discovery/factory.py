@@ -1,4 +1,4 @@
-from pm4py.algo.starstar.discovery.versions import classic
+from pm4py.algo.mvp.discovery.versions import classic
 
 CLASSIC = "classic"
 

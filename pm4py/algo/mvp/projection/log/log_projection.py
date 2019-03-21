@@ -1,4 +1,4 @@
-from pm4py.algo.starstar.utils import df_to_grouped_stream
+from pm4py.algo.mvp.utils import df_to_grouped_stream
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.log.util import sorting
 

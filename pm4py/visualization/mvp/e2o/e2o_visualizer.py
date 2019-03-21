@@ -7,7 +7,7 @@ import sys
 import subprocess
 
 
-from pm4py.algo.starstar.utils import df_to_grouped_stream
+from pm4py.algo.mvp.utils import df_to_grouped_stream
 
 
 def apply(df, parameters=None):
