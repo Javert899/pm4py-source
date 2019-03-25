@@ -1,4 +1,5 @@
 import random
+import time
 from copy import copy
 
 from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
@@ -17,6 +18,8 @@ DFG_PRE_CLEANING_NOISE_THRESH = "dfg_pre_cleaning_noise_thresh"
 DECREASING_FACTOR = "decreasingFactor"
 PERFORMANCE = "performance"
 PERSPECTIVES = "perspectives"
+USE_TIMESTAMP = "use_timestamp"
+SORT_CASEID_REQUIRED = "sort_caseid_required"
 
 COLORS = ["#05B202", "#A13CCD", "#39F6C0", "#BA0D39", "#E90638", "#07B423", "#306A8A", "#678225", "#2742FE", "#4C9A75",
           "#4C36E9", "#7DB022", "#EDAC54", "#EAC439", "#EAC439", "#1A9C45", "#8A51C4", "#496A63", "#FB9543", "#2B49DD",
@@ -87,6 +90,8 @@ def apply(df, parameters=None):
     decreasing_factor_sa_ea = parameters[DECREASING_FACTOR] if DECREASING_FACTOR in parameters else 0.6
     performance = parameters[PERFORMANCE] if PERFORMANCE in parameters else False
     perspectives = parameters[PERSPECTIVES] if PERSPECTIVES in parameters else None
+    use_timestamp = parameters[USE_TIMESTAMP] if USE_TIMESTAMP in parameters else True
+    sort_caseid_required = parameters[SORT_CASEID_REQUIRED] if SORT_CASEID_REQUIRED in parameters else True
 
     perspectives_heu = {}
 
@@ -101,23 +106,27 @@ def apply(df, parameters=None):
         perspectives = sorted(perspectives)
     for p_ind, p in enumerate(perspectives):
         has_timestamp = False
-        if "event_timestamp" in df.columns:
+        if "event_timestamp" in df.columns and use_timestamp:
             proj_df = df[["event_id", "event_activity", "event_timestamp", p]].dropna()
             has_timestamp = True
         else:
             proj_df = df[["event_id", "event_activity", p]].dropna()
+
         if performance:
             dfg_frequency, dfg_preformance = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity",
                                                                          case_id_glue=p,
                                                                          timestamp_key="event_timestamp",
-                                                                         measure="both")
+                                                                         measure="both",
+                                                                         sort_caseid_required=sort_caseid_required)
         else:
             if has_timestamp:
                 dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
-                                                            timestamp_key="event_timestamp")
+                                                            timestamp_key="event_timestamp",
+                                                            sort_caseid_required=sort_caseid_required)
             else:
                 dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
-                                                            sort_timestamp_along_case_id=False)
+                                                            sort_timestamp_along_case_id=False,
+                                                            sort_caseid_required=sort_caseid_required)
         if len(dfg_frequency) > 0:
             this_color = COLORS[p_ind] if p_ind < len(COLORS) else '#%02X%02X%02X' % (r(), r(), r())
             parameters_sa_ea = copy(parameters)

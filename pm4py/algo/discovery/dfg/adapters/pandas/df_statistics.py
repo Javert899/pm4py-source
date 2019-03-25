@@ -3,7 +3,7 @@ import pandas as pd
 
 def get_dfg_graph(df, measure="frequency", activity_key="concept:name", case_id_glue="case:concept:name",
                   timestamp_key="time:timestamp", perf_aggregation_key="mean", sort_caseid_required=True,
-                  sort_timestamp_along_case_id=True):
+                  sort_timestamp_along_case_id=True, reduction_required=True):
     """
     Get DFG graph from Pandas dataframe
 
@@ -25,6 +25,8 @@ def get_dfg_graph(df, measure="frequency", activity_key="concept:name", case_id_
         Specify if a sort on the Case ID is required
     sort_timestamp_along_case_id
         Specifying if sorting by timestamp along the CaseID is required
+    reduction_required
+        Specify if the reduction operation should be operated
 
     Returns
     -----------
