@@ -107,10 +107,10 @@ def apply(df, parameters=None):
     for p_ind, p in enumerate(perspectives):
         has_timestamp = False
         if "event_timestamp" in df.columns and use_timestamp:
-            proj_df = df[["event_id", "event_activity", "event_timestamp", p]].dropna()
+            proj_df = df[["event_id", "event_activity", "event_timestamp", p]].dropna(subset=[p])
             has_timestamp = True
         else:
-            proj_df = df[["event_id", "event_activity", p]].dropna()
+            proj_df = df[["event_id", "event_activity", p]].dropna(subset=[p])
 
         if performance:
             dfg_frequency, dfg_preformance = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity",
