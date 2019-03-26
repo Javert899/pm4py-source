@@ -69,7 +69,7 @@ def apply(log, petri_net, initial_marking, final_marking, parameters=None):
         PARAMETER_CONSTANT_ACTIVITY_KEY] if PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else DEFAULT_NAME_KEY
 
     parameters_tr = {PARAMETER_CONSTANT_ACTIVITY_KEY: activity_key,
-                     "consider_remaining_in_fitness": True}
+                     "consider_remaining_in_fitness": False}
 
     if "cleaning_token_flood" in parameters:
         parameters_tr["cleaning_token_flood"] = parameters["cleaning_token_flood"]
