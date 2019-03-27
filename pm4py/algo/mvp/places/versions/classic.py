@@ -36,6 +36,16 @@ def apply(df, mvp, parameters=None):
             gviz = pn_vis_factory.apply(net, im, fm)
             pn_vis_factory.view(gviz)
             list_models.append(net)
+            for place in net.places:
+                preset_activities = []
+                for arc in place.in_arcs:
+                    source_trans = arc.source
+                    preset_activities.append(source_trans.label)
+                postset_activities = []
+                for arc in place.out_arcs:
+                    target_trans = arc.target
+                    postset_activities.append(target_trans.label)
+                mvp[perspective].data.append((preset_activities, postset_activities))
             print("succeeded applying places discovery: ",perspective)
         except:
             print("exception in applying places discovery: ", perspective)

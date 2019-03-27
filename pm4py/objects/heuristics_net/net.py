@@ -70,6 +70,7 @@ class HeuristicsNet:
             for act in self.activities:
                 self.activities_occurrences[act] = dfg_utils.sum_activities_count(frequency_dfg, [act])
         self.default_edges_color = [default_edges_color]
+        self.data = []
 
     def calculate(self, dependency_thresh=defaults.DEFAULT_DEPENDENCY_THRESH,
                   and_measure_thresh=defaults.DEFAULT_AND_MEASURE_THRESH, min_act_count=defaults.DEFAULT_MIN_ACT_COUNT,
@@ -180,11 +181,16 @@ class HeuristicsNet:
         copied_self.end_activities = copied_self.end_activities + other_net.end_activities
         copied_self.default_edges_color = copied_self.default_edges_color + other_net.default_edges_color
         copied_self.net_name = copied_self.net_name + other_net.net_name
+        copied_self.data = copied_self.data + other_net.data
 
         return copied_self
 
     def __repr__(self):
+        if self.data:
+            return str(self.nodes)+"\n"+str(self.data)
         return str(self.nodes)
 
     def __str__(self):
+        if self.data:
+            return str(self.nodes)+"\n"+str(self.data)
         return str(self.nodes)
