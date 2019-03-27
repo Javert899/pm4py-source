@@ -21,7 +21,7 @@ def apply(log, parameters=None):
 
     activity_key = parameters[
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] if constants.PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else xes.DEFAULT_NAME_KEY
-    max_no_places_evaluated = parameters[MAX_NO_PLACES_EVALUATED] if MAX_NO_PLACES_EVALUATED in parameters else 1000
+    max_no_places_evaluated = parameters[MAX_NO_PLACES_EVALUATED] if MAX_NO_PLACES_EVALUATED in parameters else 100000
     thresh1 = 0.6
     thresh2 = 0.000001
     parameters[
