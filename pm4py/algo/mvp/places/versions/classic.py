@@ -1,6 +1,5 @@
 from pm4py.algo.discovery.massive_places import factory as places_discovery
 from pm4py.algo.mvp.projection.log import log_projection
-from pm4py.visualization.petrinet import factory as pn_vis_factory
 
 
 def apply(df, mvp, parameters=None):
@@ -33,9 +32,8 @@ def apply(df, mvp, parameters=None):
         try:
             log = log_projection.get_perspective_filt_log_from_df_and_mvp_and_perspective(df, mvp, perspective)
             net, im, fm = places_discovery.apply(log)
-            gviz = pn_vis_factory.apply(net, im, fm)
-            pn_vis_factory.view(gviz)
             list_models.append(net)
+            mvp[perspective].data.append([])
             for place in net.places:
                 preset_activities = []
                 for arc in place.in_arcs:
@@ -45,7 +43,7 @@ def apply(df, mvp, parameters=None):
                 for arc in place.out_arcs:
                     target_trans = arc.target
                     postset_activities.append(target_trans.label)
-                mvp[perspective].data.append((preset_activities, postset_activities))
+                mvp[perspective].data[-1].append((preset_activities, postset_activities))
             print("succeeded applying places discovery: ",perspective)
         except:
             print("exception in applying places discovery: ", perspective)

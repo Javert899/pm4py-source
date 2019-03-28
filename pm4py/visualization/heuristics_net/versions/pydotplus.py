@@ -145,6 +145,28 @@ def apply(heu_net, parameters=None):
                     graph.add_edge(e)
                     count_edges = count_edges + 1
 
+    for index, data in enumerate(heu_net.data):
+        data = heu_net.data[index]
+
+        for index2, place in enumerate(data):
+            print(place)
+            input_activities = data[0]
+            output_activities = data[1]
+
+            #print(input_activities)
+            #print(output_activities)
+
+            place = pydotplus.Node(name="place_"+str(index)+"_"+str(index2), label="", style="filled", fillcolor=heu_net.default_edges_color[index], color=heu_net.default_edges_color[index])
+            graph.add_node(place)
+
+            for act in input_activities:
+                e = pydotplus.Edge(color=heu_net.default_edges_color[index], src=corr_nodes[act], dst=place)
+                graph.add_edge(e)
+
+            for act in output_activities:
+                e = pydotplus.Edge(color=heu_net.default_edges_color[index], src=place, dst=corr_nodes[act])
+                graph.add_edge(e)
+
     for index, sa_list in enumerate(heu_net.start_activities):
         effective_sa_list = [n for n in sa_list if n in corr_nodes_names]
         if effective_sa_list:
