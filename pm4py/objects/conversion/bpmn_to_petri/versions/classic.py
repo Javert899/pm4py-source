@@ -2,6 +2,43 @@ import uuid
 
 from pm4py.objects.petri import utils
 from pm4py.objects.petri.petrinet import PetriNet, Marking
+from pm4py.objects.petri.reduction import reduce
+
+
+def remove_places_im_that_go_to_fm_through_hidden(net, im, fm):
+    """
+    Remove useless places in the initial marking, that go directly
+    to the final marking through invisible transitions
+
+    Parameters
+    ------------
+    net
+        Petri net
+    im
+        Initial marking
+    fm
+        Final marking
+
+    Returns
+    -------------
+    net
+        Petri net
+    im
+        Initial marking
+    """
+    for place in im:
+        target_transes = [arc.target for arc in place.out_arcs]
+        target_places = [arc.target for trans in target_transes for arc in trans.out_arcs]
+        if len(target_transes) == 1 and len(target_places) == 1:
+            target_trans = target_transes[0]
+            target_trans_sources = [arc.source for arc in target_trans.in_arcs]
+            if len(target_trans_sources) == 1:
+                target_places_in_fm = [place for place in target_places if place in fm]
+                if len(target_places) == len(target_places_in_fm):
+                    utils.remove_place(net, place)
+                    utils.remove_transition(net, target_trans)
+                    im[place] = 0
+    return net, im
 
 
 def remove_unconnected_places(net):
@@ -124,6 +161,8 @@ def apply(bpmn_graph, parameters=None):
     """
     if parameters is None:
         parameters = {}
+    enable_reduction = parameters["enable_reduction"] if "enable_reduction" in parameters else False
+
     del parameters
     net = PetriNet("converted_net")
     nodes = bpmn_graph.get_nodes()
@@ -155,23 +194,23 @@ def apply(bpmn_graph, parameters=None):
                 net.places.add(place)
                 corresponding_in_nodes[node_id] = []
                 corresponding_out_nodes[node_id] = []
+                htrans = PetriNet.Transition(str(uuid.uuid4()), None)
+                net.transitions.add(htrans)
+                utils.add_arc_from_to(htrans, place, net)
                 for edge in node[1]['incoming']:
                     str(edge)
-                    htrans = PetriNet.Transition(str(uuid.uuid4()), None)
-                    net.transitions.add(htrans)
                     hplace = PetriNet.Place(str(uuid.uuid4()))
                     net.places.add(hplace)
                     utils.add_arc_from_to(hplace, htrans, net)
-                    utils.add_arc_from_to(htrans, place, net)
                     corresponding_in_nodes[node_id].append(hplace)
+                htrans = PetriNet.Transition(str(uuid.uuid4()), None)
+                net.transitions.add(htrans)
+                utils.add_arc_from_to(place, htrans, net)
                 for edge in node[1]['outgoing']:
                     str(edge)
-                    htrans = PetriNet.Transition(str(uuid.uuid4()), None)
-                    net.transitions.add(htrans)
                     hplace = PetriNet.Place(str(uuid.uuid4()))
                     net.places.add(hplace)
                     utils.add_arc_from_to(htrans, hplace, net)
-                    utils.add_arc_from_to(place, htrans, net)
                     corresponding_out_nodes[node_id].append(hplace)
             else:
                 input_place = PetriNet.Place('i_' + node_id)
@@ -248,5 +287,9 @@ def apply(bpmn_graph, parameters=None):
 
     for el in elements_correspondence:
         el_corr_keys_map[str(el)] = el
+
+    if enable_reduction:
+        net = reduce(net)
+        net, im = remove_places_im_that_go_to_fm_through_hidden(net, initial_marking, final_marking)
 
     return net, initial_marking, final_marking, elements_correspondence, inv_elements_correspondence, el_corr_keys_map
