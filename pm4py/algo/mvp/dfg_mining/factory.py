@@ -27,4 +27,4 @@ def apply(mvp, variant=CLASSIC, parameters=None):
     fm
         Final marking
     """
-    return classic.apply(mvp, parameters=parameters)
+    return VERSIONS[variant](mvp, parameters=parameters)

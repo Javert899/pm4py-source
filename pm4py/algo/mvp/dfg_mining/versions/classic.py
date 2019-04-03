@@ -86,7 +86,7 @@ def apply(mvp, parameters=None):
                 if n2 not in corr_places:
                     corr_places[n2] = PetriNet.Place("p2_"+n2)
                     net.places.add(corr_places[n2])
-                trans = PetriNet.Transition("tr_"+str(index)+"_"+str(i1)+"_"+str(i2), n1)
+                trans = PetriNet.Transition("tr_"+str(n1)+"_"+str(n2), n1)
                 net.transitions.add(trans)
                 add_arc_from_to(corr_places[n1], trans, net)
                 add_arc_from_to(trans, corr_places[n2], net)
