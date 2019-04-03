@@ -158,11 +158,11 @@ def apply(heu_net, parameters=None):
             graph.add_node(place)
 
             for act in input_activities:
-                e = pydotplus.Edge(color=heu_net.default_edges_color[index], src=corr_nodes_stri[act], dst=place, label="", fontcolor=heu_net.default_edges_color[index])
+                e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=corr_nodes_stri[act], dst=place, label=heu_net.net_name[index], fontcolor=heu_net.default_edges_color[index])
                 graph.add_edge(e)
 
             for act in output_activities:
-                e = pydotplus.Edge(color=heu_net.default_edges_color[index], src=place, dst=corr_nodes_stri[act], label="", fontcolor=heu_net.default_edges_color[index])
+                e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=place, dst=corr_nodes_stri[act], label=heu_net.net_name[index], fontcolor=heu_net.default_edges_color[index])
                 graph.add_edge(e)
 
     for index, sa_list in enumerate(heu_net.start_activities):
