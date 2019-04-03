@@ -28,6 +28,9 @@ def apply(file_path, parameters=None):
 
     import_timestamp = parameters["import_timestamp"] if "import_timestamp" in parameters else True
     sample_probability = parameters["sample_probability"] if "sample_probability" in parameters else None
+    classes_to_reference = set(parameters["classes_to_reference"]) if "classes_to_reference" in parameters else None
+    if classes_to_reference is None:
+        classes_to_reference = set()
 
     F = open(file_path, "r")
     content = F.read()
@@ -62,19 +65,26 @@ def apply(file_path, parameters=None):
         else:
             event_dictio = {"event_id": event_id, "event_activity": event_activity}
         references = events[i].split("<references>")[1].split("</references>")[0].split("<object>")
+        referenced_classes = set()
         j = 1
         while j < len(references):
-            this_event_dictio = copy(event_dictio)
-            object_id = references[j].split("\"id\" value=\"")[1].split("\"")[0]
-            considered_objects.add(object_id)
             object_class = references[j].split("\"class\" value=\"")[1].split("\"")[0]
-            considered_classes.add(object_class)
-            this_event_dictio[object_class] = object_id
-            this_event_dictio_stri = str(this_event_dictio)
-            if this_event_dictio_stri not in stream_strings:
-                stream.append(this_event_dictio)
-                stream_strings.append(this_event_dictio_stri)
+            referenced_classes.add(object_class)
             j = j + 1
+        if referenced_classes.issuperset(classes_to_reference):
+            j = 1
+            while j < len(references):
+                this_event_dictio = copy(event_dictio)
+                object_id = references[j].split("\"id\" value=\"")[1].split("\"")[0]
+                considered_objects.add(object_id)
+                object_class = references[j].split("\"class\" value=\"")[1].split("\"")[0]
+                considered_classes.add(object_class)
+                this_event_dictio[object_class] = object_id
+                this_event_dictio_stri = str(this_event_dictio)
+                if this_event_dictio_stri not in stream_strings:
+                    stream.append(this_event_dictio)
+                    stream_strings.append(this_event_dictio_stri)
+                j = j + 1
         i = i + 1
     dataframe = pd.DataFrame.from_dict(stream)
     if import_timestamp:
