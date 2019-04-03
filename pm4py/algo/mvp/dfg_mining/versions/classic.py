@@ -45,6 +45,7 @@ def apply(mvp, parameters=None):
     master_si_ht = PetriNet.Transition("master_si_ht")
     net.transitions.add(master_si_ht)
     add_arc_from_to(master_si_ht, master_sink, net)
+    added_arcs = set()
 
     for index, perspective in enumerate(perspectives):
         start_activities = list(mvp[perspective].start_activities[0].keys())
@@ -88,13 +89,17 @@ def apply(mvp, parameters=None):
                     net.places.add(corr_places[n2])
                 trans = PetriNet.Transition("tr_"+str(n1)+"_"+str(n2), n1)
                 net.transitions.add(trans)
-                add_arc_from_to(corr_places[n1], trans, net)
-                add_arc_from_to(trans, corr_places[n2], net)
+                if (str(n1), "tr_"+str(n1)+"_"+str(n2)) not in added_arcs:
+                    add_arc_from_to(corr_places[n1], trans, net)
+                    added_arcs.add((str(n1), "tr_"+str(n1)+"_"+str(n2)))
+                if ("tr_"+str(n1)+"_"+str(n2), str(n2)) not in added_arcs:
+                    add_arc_from_to(trans, corr_places[n2], net)
+                    added_arcs.add(("tr_"+str(n1)+"_"+str(n2), str(n2)))
 
         for place in net.places:
-            if len(place.in_arcs) < 1:
+            if len(place.in_arcs) < 1 and not place.name == "master_source":
                 add_arc_from_to(ht_source, place, net)
-            if len(place.out_arcs) < 1:
+            if len(place.out_arcs) < 1 and not place.name == "master_sink":
                 add_arc_from_to(place, ht_sink, net)
 
     return net, im, fm
