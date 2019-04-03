@@ -147,29 +147,52 @@ def apply(heu_net, parameters=None):
 
     corr_nodes_stri = {n.node_name: corr_nodes[n] for n in corr_nodes}
 
+    activities_preset_of = {}
+    classes_preset_of = {}
+
     for index, data in enumerate(heu_net.data):
+        class_name = heu_net.net_name[index]
         data = heu_net.data[index]
 
         for index2, place in enumerate(data):
             input_activities = place[0]
             output_activities = place[1]
 
-            place = pydotplus.Node(name="place_"+str(index)+"_"+str(index2), label="", style="filled", fillcolor=heu_net.default_edges_color[index], color=heu_net.default_edges_color[index])
+            place = pydotplus.Node(name="place_" + str(index) + "_" + str(index2), label="", style="filled",
+                                   fillcolor=heu_net.default_edges_color[index],
+                                   color=heu_net.default_edges_color[index])
             graph.add_node(place)
 
             for act in input_activities:
-                e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=corr_nodes_stri[act], dst=place, label=heu_net.net_name[index], fontcolor=heu_net.default_edges_color[index])
+                e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=corr_nodes_stri[act],
+                                   dst=place, label=heu_net.net_name[index],
+                                   fontcolor=heu_net.default_edges_color[index])
                 graph.add_edge(e)
 
             for act in output_activities:
-                e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=place, dst=corr_nodes_stri[act], label=heu_net.net_name[index], fontcolor=heu_net.default_edges_color[index])
+                e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=place,
+                                   dst=corr_nodes_stri[act], label=heu_net.net_name[index],
+                                   fontcolor=heu_net.default_edges_color[index])
                 graph.add_edge(e)
+                if act not in activities_preset_of:
+                    activities_preset_of[act] = set()
+                if act not in classes_preset_of:
+                    classes_preset_of[act] = set()
+                classes_preset_of[act].add(class_name)
+                for input_act in input_activities:
+                    activities_preset_of[act].add(input_act)
+
+    for act in activities_preset_of:
+        if len(activities_preset_of[act]) > 1 and len(classes_preset_of[act]) > 1:
+            print("MP", act, "activities_preset_of", activities_preset_of[act], "classes_preset_of",
+                  classes_preset_of[act])
 
     for index, sa_list in enumerate(heu_net.start_activities):
         effective_sa_list = [n for n in sa_list if n in corr_nodes_names]
         if effective_sa_list:
             start_i = pydotplus.Node(name="start_" + str(index), label="→", color=heu_net.default_edges_color[index],
-                                     fontsize="32", fontcolor="#FFFFFF", fillcolor=heu_net.default_edges_color[index], style="filled")
+                                     fontsize="32", fontcolor="#FFFFFF", fillcolor=heu_net.default_edges_color[index],
+                                     style="filled")
             graph.add_node(start_i)
             for node_name in effective_sa_list:
                 sa = corr_nodes_names[node_name]
@@ -178,7 +201,8 @@ def apply(heu_net, parameters=None):
                         occ = heu_net.start_activities[index][node_name]
                         this_pen_width = 1.0 + math.log(1 + occ) / 11.0
                         if heu_net.net_name[index]:
-                            e = pydotplus.Edge(src=start_i, dst=sa, label=heu_net.net_name[index] + " (" + str(occ) + ")",
+                            e = pydotplus.Edge(src=start_i, dst=sa,
+                                               label=heu_net.net_name[index] + " (" + str(occ) + ")",
                                                color=heu_net.default_edges_color[index],
                                                fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
                         else:
@@ -200,7 +224,8 @@ def apply(heu_net, parameters=None):
         effective_ea_list = [n for n in ea_list if n in corr_nodes_names]
         if effective_ea_list:
             end_i = pydotplus.Node(name="end_" + str(index), label="□", color=heu_net.default_edges_color[index],
-                                   fillcolor=heu_net.default_edges_color[index], fontcolor="#FFFFFF", fontsize="32", style="filled")
+                                   fillcolor=heu_net.default_edges_color[index], fontcolor="#FFFFFF", fontsize="32",
+                                   style="filled")
             graph.add_node(end_i)
             for node_name in effective_ea_list:
                 ea = corr_nodes_names[node_name]
