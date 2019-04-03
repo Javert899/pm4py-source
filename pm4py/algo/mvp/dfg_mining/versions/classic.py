@@ -53,29 +53,29 @@ def apply(mvp, parameters=None):
 
         source = PetriNet.Place("so_" + perspective)
         net.places.add(source)
-        ht = PetriNet.Transition("htso_"+perspective)
-        net.transitions.add(ht)
+        ht_source = PetriNet.Transition("htso_"+perspective)
+        net.transitions.add(ht_source)
         add_arc_from_to(master_so_ht, source, net)
-        add_arc_from_to(source, ht, net)
+        add_arc_from_to(source, ht_source, net)
 
         for act in start_activities:
             if act not in corr_places:
                 corr_places[act] = PetriNet.Place("p_"+act)
                 net.places.add(corr_places[act])
-            add_arc_from_to(ht, corr_places[act], net)
+            add_arc_from_to(ht_source, corr_places[act], net)
 
         sink = PetriNet.Place("si_" + perspective)
         net.places.add(sink)
-        ht = PetriNet.Transition("htsi_"+perspective)
-        net.transitions.add(ht)
-        add_arc_from_to(ht, sink, net)
+        ht_sink = PetriNet.Transition("htsi_"+perspective)
+        net.transitions.add(ht_sink)
+        add_arc_from_to(ht_sink, sink, net)
         add_arc_from_to(sink, master_si_ht, net)
 
         for act in end_activites:
             if act not in corr_places:
                 corr_places[act] = PetriNet.Place("p_"+act)
                 net.places.add(corr_places[act])
-            add_arc_from_to(corr_places[act], ht, net)
+            add_arc_from_to(corr_places[act], ht_sink, net)
 
         for i1, n1 in enumerate(nodes):
             if n1 not in corr_places:
@@ -90,5 +90,11 @@ def apply(mvp, parameters=None):
                 net.transitions.add(trans)
                 add_arc_from_to(corr_places[n1], trans, net)
                 add_arc_from_to(trans, corr_places[n2], net)
+
+        for place in net.places:
+            if len(place.in_arcs) < 1:
+                add_arc_from_to(ht_source, place, net)
+            if len(place.out_arcs) < 1:
+                add_arc_from_to(place, ht_sink, net)
 
     return net, im, fm
