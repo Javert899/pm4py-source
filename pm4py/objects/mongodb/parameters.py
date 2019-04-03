@@ -1,0 +1,9 @@
+HOSTNAME = "hostname"
+PORT = "port"
+DATABASE = "database"
+COLLECTION = "collection"
+
+DEFAULT_HOSTNAME = "127.0.0.1"
+DEFAULT_PORT = "27017"
+DEFAULT_DATABASE = "db"
+DEFAULT_COLLECTION = "collection"
