@@ -26,13 +26,13 @@ def apply(df, mvp, parameters=None):
     if parameters is None:
         parameters = {}
 
-    list_models = []
+    list_models = {}
 
     for perspective in mvp:
         try:
             log = log_projection.get_perspective_filt_log_from_df_and_mvp_and_perspective(df, mvp, perspective)
             net, im, fm = places_discovery.apply(log)
-            list_models.append(net)
+            list_models[perspective] = net
             mvp[perspective].data.append([])
             for place in net.places:
                 preset_activities = []
