@@ -1,5 +1,6 @@
 from pm4py.algo.discovery.massive_places import factory as places_discovery
 from pm4py.algo.mvp.projection.log import log_projection
+from pm4py.objects.petri.utils import remove_transition
 
 
 def apply(df, mvp, parameters=None):
@@ -32,6 +33,10 @@ def apply(df, mvp, parameters=None):
         try:
             log = log_projection.get_perspective_filt_log_from_df_and_mvp_and_perspective(df, mvp, perspective)
             net, im, fm = places_discovery.apply(log)
+            transitions = list(net.transitions)
+            for trans in transitions:
+                if len(trans.in_arcs) == 0 and len(trans.out_arcs) == 0:
+                    net = remove_transition(net, trans)
             list_models[perspective] = net
             mvp[perspective].data.append([])
             for place in net.places:
