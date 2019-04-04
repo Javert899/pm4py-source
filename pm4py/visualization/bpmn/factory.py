@@ -1,27 +1,29 @@
 from pm4py.visualization.bpmn.util.bpmn_to_figure import bpmn_diagram_to_figure
 from pm4py.visualization.bpmn.util.save_view import save
 from pm4py.visualization.bpmn.util.save_view import view
-from pm4py.visualization.bpmn.versions import wo_decoration, frequency, performance
+from pm4py.visualization.bpmn.versions import wo_decoration, frequency, performance, alignments
 
 WO_DECORATION = "wo_decoration"
 FREQUENCY_DECORATION = "frequency"
 PERFORMANCE_DECORATION = "performance"
 FREQUENCY_GREEDY = "frequency_greedy"
 PERFORMANCE_GREEDY = "performance_greedy"
+ALIGNMENTS = "alignments"
 
 VERSIONS = {WO_DECORATION: wo_decoration.apply, FREQUENCY_DECORATION: frequency.apply,
             PERFORMANCE_DECORATION: performance.apply, FREQUENCY_GREEDY: frequency.apply,
-            PERFORMANCE_GREEDY: performance.apply}
+            PERFORMANCE_GREEDY: performance.apply, ALIGNMENTS: alignments.apply}
 
 VERSIONS_PETRI = {WO_DECORATION: wo_decoration.apply_petri, FREQUENCY_DECORATION: frequency.apply_petri,
                   PERFORMANCE_DECORATION: performance.apply_petri,
-                  FREQUENCY_GREEDY: frequency.apply_petri_greedy, PERFORMANCE_GREEDY: performance.apply_petri_greedy}
+                  FREQUENCY_GREEDY: frequency.apply_petri_greedy, PERFORMANCE_GREEDY: performance.apply_petri_greedy,
+                  ALIGNMENTS: alignments.apply_petri}
 
 VERSIONS_CONVERT = {WO_DECORATION: wo_decoration.apply_through_conv, FREQUENCY_DECORATION: frequency.apply_through_conv,
-                    PERFORMANCE_DECORATION: performance.apply_through_conv}
+                    PERFORMANCE_DECORATION: performance.apply_through_conv, ALIGNMENTS: alignments.apply_through_conv}
 
 VERSIONS_EMBEDDING = {WO_DECORATION: wo_decoration.apply_embedding, FREQUENCY_DECORATION: frequency.apply_embedding,
-                      PERFORMANCE_DECORATION: performance.apply_embedding}
+                      PERFORMANCE_DECORATION: performance.apply_embedding, ALIGNMENTS: alignments.apply_embedding}
 
 VERSIONS_CONVERT_GREEDY = {WO_DECORATION: wo_decoration.apply_through_conv_greedy,
                            FREQUENCY_DECORATION: frequency.apply_through_conv_greedy,
