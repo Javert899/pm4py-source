@@ -74,6 +74,7 @@ setup(
               'pm4py.objects.conversion.bpmn_to_petri.versions', 'pm4py.objects.conversion.petri_to_bpmn',
               'pm4py.objects.conversion.petri_to_bpmn.util', 'pm4py.objects.conversion.petri_to_bpmn.versions',
               'pm4py.objects.conversion.heuristics_net', 'pm4py.objects.conversion.heuristics_net.versions',
+              'pm4py.objects.event_store', 'pm4py.objects.event_store.utils', 'pm4py.objects.event_store.versions',
               'pm4py.objects.process_tree', 'pm4py.objects.heuristics_net', 'pm4py.objects.random_variables',
               'pm4py.objects.random_variables.normal', 'pm4py.objects.random_variables.uniform',
               'pm4py.objects.random_variables.constant0', 'pm4py.objects.random_variables.exponential',
