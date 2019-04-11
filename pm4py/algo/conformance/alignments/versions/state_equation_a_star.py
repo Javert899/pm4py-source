@@ -16,6 +16,7 @@ import heapq
 import sys
 
 import numpy as np
+from cvxopt import matrix
 
 import pm4py
 from pm4py import util as pm4pyutil
@@ -31,7 +32,7 @@ from pm4py.util.lp import factory as lp_solver_factory
 PARAM_TRACE_COST_FUNCTION = 'trace_cost_function'
 PARAM_MODEL_COST_FUNCTION = 'model_cost_function'
 PARAM_SYNC_COST_FUNCTION = 'sync_cost_function'
-DEFAULT_LP_SOLVER_VARIANT = lp_solver_factory.CVXOPT
+DEFAULT_LP_SOLVER_VARIANT = lp_solver_factory.CVXOPT_SOLVER_CUSTOM_ALIGN
 PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE = 'ret_tuple_as_trans_desc'
 
 TRACE_NET_CONSTR_FUNCTION = "trace_net_constr_function"
@@ -156,7 +157,20 @@ def __search(sync_net, ini, fin, cost_function, skip, ret_tuple_as_trans_desc=Fa
     ini_vec, fin_vec, cost_vec = __vectorize_initial_final_cost(incidence_matrix, ini, fin, cost_function)
 
     closed = set()
-    h, x = __compute_exact_heuristic(sync_net, incidence_matrix, ini, cost_vec, fin_vec)
+
+    a_matrix = np.asmatrix(incidence_matrix.a_matrix).astype(np.float64)
+    g_matrix = -np.eye(len(sync_net.transitions))
+    h_cvx = np.matrix(np.zeros(len(sync_net.transitions))).transpose()
+    cost_vec = [x * 1.0 for x in cost_vec]
+
+    if DEFAULT_LP_SOLVER_VARIANT == lp_solver_factory.CVXOPT_SOLVER_CUSTOM_ALIGN:
+        a_matrix = matrix(a_matrix)
+        g_matrix = matrix(g_matrix)
+        h_cvx = matrix(h_cvx)
+        cost_vec = matrix(cost_vec)
+
+    h, x = __compute_exact_heuristic_new_version(sync_net, a_matrix, h_cvx, g_matrix, cost_vec, incidence_matrix, ini,
+                                                 fin_vec)
     ini_state = SearchTuple(0 + h, 0, h, ini, None, None, x, True)
     open_set = [ini_state]
     visited = 0
@@ -165,7 +179,9 @@ def __search(sync_net, ini, fin, cost_function, skip, ret_tuple_as_trans_desc=Fa
     while not len(open_set) == 0:
         curr = heapq.heappop(open_set)
         if not curr.trust:
-            h, x = __compute_exact_heuristic(sync_net, incidence_matrix, curr.m, cost_vec, fin_vec)
+            h, x = __compute_exact_heuristic_new_version(sync_net, a_matrix, h_cvx, g_matrix, cost_vec,
+                                                         incidence_matrix, curr.m,
+                                                         fin_vec)
             tp = SearchTuple(curr.g + h, curr.g, h, curr.m, curr.p, curr.t, x, __trust_solution(x))
             heapq.heappush(open_set, tp)
             heapq.heapify(open_set)
@@ -181,7 +197,7 @@ def __search(sync_net, ini, fin, cost_function, skip, ret_tuple_as_trans_desc=Fa
             if curr.t is not None and __is_log_move(curr.t, skip) and __is_model_move(t, skip):
                 continue
             traversed += 1
-            new_marking = petri.semantics.execute(t, sync_net, current_marking)
+            new_marking = petri.semantics.weak_execute(t, current_marking)
             if new_marking in closed:
                 continue
             g = curr.g + cost_function[t]
@@ -234,6 +250,28 @@ def __trust_solution(x):
         if v < -0.001:
             return False
     return True
+
+
+def __compute_exact_heuristic_new_version(sync_net, a_matrix, h_cvx, g_matrix, cost_vec, incidence_matrix,
+                                          marking, fin_vec):
+    m_vec = incidence_matrix.encode_marking(marking)
+    b_term = [i - j for i, j in zip(fin_vec, m_vec)]
+    b_term = np.matrix([x * 1.0 for x in b_term]).transpose()
+
+    if DEFAULT_LP_SOLVER_VARIANT == lp_solver_factory.CVXOPT_SOLVER_CUSTOM_ALIGN:
+        b_term = matrix(b_term)
+
+    parameters_solving = {"solver": "glpk"}
+
+    sol = lp_solver_factory.apply(cost_vec, g_matrix, h_cvx, a_matrix, b_term, parameters=parameters_solving,
+                                  variant=DEFAULT_LP_SOLVER_VARIANT)
+    prim_obj = lp_solver_factory.get_prim_obj_from_sol(sol, variant=DEFAULT_LP_SOLVER_VARIANT)
+    points = lp_solver_factory.get_points_from_sol(sol, variant=DEFAULT_LP_SOLVER_VARIANT)
+
+    prim_obj = prim_obj if prim_obj is not None else sys.maxsize
+    points = points if points is not None else [0.0] * len(sync_net.transitions)
+
+    return prim_obj, points
 
 
 def __compute_exact_heuristic(sync_net, incidence_matrix, marking, cost_vec, fin_vec):
