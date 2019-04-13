@@ -6,8 +6,41 @@ from pm4py.objects.log.util import get_log_representation
 from pm4py.objects.log.util import sorting
 from pm4py.objects.log.util import xes
 from pm4py.objects.log.util.get_prefixes import get_log_with_log_prefixes
-from pm4py.statistics.traces.log import case_statistics
 from pm4py.util import constants
+
+
+def get_remaining_time_from_log(log, max_len_trace=100000, parameters=None):
+    """
+    Gets the remaining time for the instances given a log and a trace index
+
+    Parameters
+    ------------
+    log
+        Log
+    max_len_trace
+        Index
+    parameters
+        Parameters of the algorithm
+
+    Returns
+    ------------
+    list
+        List of remaining times
+    """
+    if parameters is None:
+        parameters = {}
+    timestamp_key = parameters[
+        constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
+    y_orig = []
+    for trace in log:
+        y_orig.append([])
+        for index, event in enumerate(trace):
+            if index >= max_len_trace:
+                break
+            y_orig[-1].append((trace[-1][timestamp_key] - trace[index][timestamp_key]).total_seconds())
+        while len(y_orig[-1]) < max_len_trace:
+            y_orig[-1].append(y_orig[-1][-1])
+    return y_orig
 
 
 def train(log, parameters=None):
@@ -34,24 +67,31 @@ def train(log, parameters=None):
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] if constants.PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else xes.DEFAULT_NAME_KEY
     timestamp_key = parameters[
         constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
+    y_orig = parameters["y_orig"] if "y_orig" in parameters else None
 
     log = sorting.sort_timestamp(log, timestamp_key)
 
-    str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr = attributes_filter.select_attributes_from_log_for_tree(log)
-    if activity_key not in str_ev_attr:
-        str_ev_attr.append(activity_key)
     str_evsucc_attr = [activity_key]
+    if "str_ev_attr" in parameters:
+        str_tr_attr = parameters["str_tr_attr"] if "str_tr_attr" in parameters else []
+        str_ev_attr = parameters["str_ev_attr"] if "str_ev_attr" in parameters else []
+        num_tr_attr = parameters["num_tr_attr"] if "num_tr_attr" in parameters else []
+        num_ev_attr = parameters["num_ev_attr"] if "num_ev_attr" in parameters else []
+    else:
+        str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr = attributes_filter.select_attributes_from_log_for_tree(log)
+        if activity_key not in str_ev_attr:
+            str_ev_attr.append(activity_key)
 
     ext_log, change_indexes = get_log_with_log_prefixes(log)
     data, feature_names = get_log_representation.get_representation(ext_log, str_tr_attr, str_ev_attr, num_tr_attr,
                                                                     num_ev_attr, str_evsucc_attr=str_evsucc_attr)
-    case_durations = case_statistics.get_all_casedurations(ext_log, parameters=parameters)
 
-    change_indexes_flattened = [y for x in change_indexes for y in x]
-    remaining_time = [-case_durations[i] + case_durations[change_indexes_flattened[i]] for i in
-                      range(len(case_durations))]
-
-    regr = ElasticNet()
+    if y_orig is not None:
+        remaining_time = [y for x in y_orig for y in x]
+    else:
+        remaining_time = [(trace[-1][timestamp_key] - trace[0][timestamp_key]).total_seconds() for trace in ext_log if
+                          trace]
+    regr = ElasticNet(max_iter=10000, l1_ratio=0.7)
     regr.fit(data, remaining_time)
 
     return {"str_tr_attr": str_tr_attr, "str_ev_attr": str_ev_attr, "num_tr_attr": num_tr_attr,
@@ -95,6 +135,7 @@ def test(model, obj, parameters=None):
     data, feature_names = get_log_representation.get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr,
                                                                     num_ev_attr, str_evsucc_attr=str_evsucc_attr,
                                                                     feature_names=feature_names)
+
     pred = regr.predict(data)
 
     if len(pred) == 1:

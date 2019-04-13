@@ -9,10 +9,7 @@ from keras.models import Sequential
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.objects.log.log import EventLog
 from pm4py.objects.log.util import get_log_representation
-from pm4py.objects.log.util import sorting
 from pm4py.objects.log.util import xes
-from pm4py.objects.log.util.get_prefixes import get_log_with_log_prefixes
-from pm4py.statistics.traces.log import case_statistics
 from pm4py.util import constants
 
 
@@ -35,7 +32,8 @@ def get_trace_rep_rnn(trace, dictionary_features, max_len_trace):
         double list that contains the value for each feature for each event of the trace
     """
     X = []
-    for index, event in enumerate(trace):
+    for index in range(min(len(trace), max_len_trace)):
+        event = trace[index]
         ev_vector = [0] * len(dictionary_features)
         for attribute_name in event:
             attribute_value = event[attribute_name]
@@ -55,7 +53,8 @@ def get_trace_rep_rnn(trace, dictionary_features, max_len_trace):
         X.append(ev_vector)
     j = len(trace)
     while j < max_len_trace:
-        X.append(X[-1])
+        # print(X[-1])
+        X.append(np.zeros(len(X[-1])))
         j = j + 1
     X = np.transpose(np.asmatrix(X))
     X = X.tolist()
@@ -202,6 +201,40 @@ def reconstruct_value(y, log_max_value):
     return math.exp((y + 1.0) / 2.0 * log_max_value) - 1
 
 
+def get_remaining_time_from_log(log, max_len_trace=100000, parameters=None):
+    """
+    Gets the remaining time for the instances given a log and a trace index
+
+    Parameters
+    ------------
+    log
+        Log
+    max_len_trace
+        Index
+    parameters
+        Parameters of the algorithm
+
+    Returns
+    ------------
+    list
+        List of remaining times
+    """
+    if parameters is None:
+        parameters = {}
+    timestamp_key = parameters[
+        constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
+    y_orig = []
+    for trace in log:
+        y_orig.append([])
+        for index, event in enumerate(trace):
+            if index >= max_len_trace:
+                break
+            y_orig[-1].append((trace[-1][timestamp_key] - trace[index][timestamp_key]).total_seconds())
+        while len(y_orig[-1]) < max_len_trace:
+            y_orig[-1].append(y_orig[-1][-1])
+    return y_orig
+
+
 def train(log, parameters=None):
     """
     Train the model
@@ -215,31 +248,33 @@ def train(log, parameters=None):
     """
     if parameters is None:
         parameters = {}
-    default_epochs = parameters["default_epochs"] if "default_epochs" in parameters else 15
+    default_epochs = parameters["default_epochs"] if "default_epochs" in parameters else 50
     parameters["enable_sort"] = False
     activity_key = parameters[
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] if constants.PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else xes.DEFAULT_NAME_KEY
-    timestamp_key = parameters[
-        constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
-    log = sorting.sort_timestamp(log, timestamp_key)
+    # log = sorting.sort_timestamp(log, timestamp_key)
     max_len_trace = max([len(trace) for trace in log])
-    ext_log, change_indexes = get_log_with_log_prefixes(log)
-    case_durations = case_statistics.get_all_casedurations(ext_log, parameters=parameters)
-    change_indexes_flattened = [y for x in change_indexes for y in x]
-    remaining_time = [-case_durations[i] + case_durations[change_indexes_flattened[i]] for i in
-                      range(len(case_durations))]
-    y_orig = group_remaining_time(change_indexes, remaining_time, max_len_trace)
+    y_orig = parameters["y_orig"] if "y_orig" in parameters else get_remaining_time_from_log(log,
+                                                                                             max_len_trace=max_len_trace,
+                                                                                             parameters=parameters)
     y, log_max_value = normalize_remaining_time(y_orig)
     y = np.array(y)
-    str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr = attributes_filter.select_attributes_from_log_for_tree(log)
-    if activity_key not in str_ev_attr:
-        str_ev_attr.append(activity_key)
     str_evsucc_attr = [activity_key]
+    if "str_ev_attr" in parameters:
+        str_tr_attr = parameters["str_tr_attr"] if "str_tr_attr" in parameters else []
+        str_ev_attr = parameters["str_ev_attr"] if "str_ev_attr" in parameters else []
+        num_tr_attr = parameters["num_tr_attr"] if "num_tr_attr" in parameters else []
+        num_ev_attr = parameters["num_ev_attr"] if "num_ev_attr" in parameters else []
+    else:
+        str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr = attributes_filter.select_attributes_from_log_for_tree(log)
+        if activity_key not in str_ev_attr:
+            str_ev_attr.append(activity_key)
+
     data, feature_names = get_log_representation.get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr,
                                                                     num_ev_attr, str_evsucc_attr=str_evsucc_attr)
     X = get_X_from_log(log, feature_names, max_len_trace)
     in_out_neurons = X.shape[2]
-    hidden_neurons = int(in_out_neurons * 7.5)
+    hidden_neurons = min(int(in_out_neurons * 7.5), 50)
     input_shape = (X.shape[1], X.shape[2])
     model = Sequential()
     model.add(LSTM(hidden_neurons, return_sequences=False, input_shape=input_shape))
@@ -249,7 +284,7 @@ def train(log, parameters=None):
     model.fit(X, y, batch_size=X.shape[1], nb_epoch=default_epochs, validation_split=0.2)
     return {"str_tr_attr": str_tr_attr, "str_ev_attr": str_ev_attr, "num_tr_attr": num_tr_attr,
             "num_ev_attr": num_ev_attr, "str_evsucc_attr": str_evsucc_attr, "feature_names": feature_names,
-            "remaining_time": remaining_time, "regr": model, "max_len_trace": max_len_trace,
+            "regr": model, "max_len_trace": max_len_trace,
             "log_max_value": log_max_value, "variant": "keras_rnn"}
 
 
@@ -281,10 +316,6 @@ def test(model, obj, parameters=None):
         log = obj
     else:
         log = EventLog([obj])
-    max_len_trace_test_log = max([len(trace) for trace in log])
-    if max_len_trace_test_log > max_len_trace:
-        raise Exception(
-            "cannot predict when the maximum length of the test log is greater than the maximum length of the training log")
     X = get_X_from_log(log, feature_names, max_len_trace)
     y = regr.predict(X)
     if len(log) == 1:
@@ -292,5 +323,5 @@ def test(model, obj, parameters=None):
     else:
         ret = []
         for index, trace in enumerate(log):
-            ret.append(reconstruct_value(y[index][len(trace)-1], log_max_value))
+            ret.append(reconstruct_value(y[index][len(trace) - 1], log_max_value))
         return ret
