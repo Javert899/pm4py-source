@@ -14,6 +14,7 @@ References
 """
 import heapq
 import sys
+from copy import copy
 
 import numpy as np
 from cvxopt import matrix
@@ -54,19 +55,50 @@ def get_best_worst_cost(petri_net, initial_marking, final_marking, parameters=No
         Initial marking
     final_marking
         Final marking
-    parameters
-        Parameters
 
     Returns
     -----------
     best_worst_cost
         Best worst cost of alignment
     """
-    best_worst = pm4py.algo.conformance.alignments.versions.state_equation_a_star.apply(log_implementation.Trace(),
+    trace = log_implementation.Trace()
+    new_parameters = copy(parameters)
+    if PARAM_TRACE_COST_FUNCTION not in new_parameters or len(new_parameters[PARAM_TRACE_COST_FUNCTION]) < len(trace):
+        new_parameters[PARAM_TRACE_COST_FUNCTION] = list(
+            map(lambda e: alignments.utils.STD_MODEL_LOG_MOVE_COST, trace))
+
+    best_worst = pm4py.algo.conformance.alignments.versions.state_equation_a_star.apply(trace,
                                                                                         petri_net, initial_marking,
                                                                                         final_marking,
-                                                                                        parameters=parameters)
-    return best_worst['cost'] // alignments.utils.STD_MODEL_LOG_MOVE_COST
+                                                                                        parameters=new_parameters)
+
+    if best_worst['cost'] > 0:
+        return best_worst['cost'] // alignments.utils.STD_MODEL_LOG_MOVE_COST
+    return 0
+
+
+# def get_best_worst_cost(petri_net, initial_marking, final_marking):
+#     """
+#     Gets the best worst cost of an alignment
+#
+#     Parameters
+#     -----------
+#     petri_net
+#         Petri net
+#     initial_marking
+#         Initial marking
+#     final_marking
+#         Final marking
+#
+#     Returns
+#     -----------
+#     best_worst_cost
+#         Best worst cost of alignment
+#     """
+#     best_worst = pm4py.algo.conformance.alignments.versions.state_equation_a_star.apply(log_implementation.Trace(),
+#                                                                                         petri_net, initial_marking,
+#                                                                                         final_marking)
+#     return best_worst['cost'] // alignments.utils.STD_MODEL_LOG_MOVE_COST
 
 
 def apply(trace, petri_net, initial_marking, final_marking, parameters=None):

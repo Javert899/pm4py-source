@@ -8,13 +8,12 @@ from pm4py.algo.conformance.alignments.utils import STD_MODEL_LOG_MOVE_COST
 from pm4py.algo.conformance.alignments.versions.state_equation_a_star import PARAM_MODEL_COST_FUNCTION
 from pm4py.algo.conformance.alignments.versions.state_equation_a_star import PARAM_SYNC_COST_FUNCTION
 from pm4py.algo.conformance.alignments.versions.state_equation_a_star import PARAM_TRACE_COST_FUNCTION
+from pm4py.algo.filtering.log.variants import variants_filter as variants_module
 from pm4py.objects.conversion.log import factory as log_converter
 from pm4py.objects.log.util import general as log_util
 from pm4py.objects.log.util import xes as xes_util
 from pm4py.objects.log.util.xes import DEFAULT_NAME_KEY
 from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY
-from pm4py.algo.filtering.log.variants import variants_filter as variants_module
-
 
 VERSION_STATE_EQUATION_A_STAR = 'state_equation_a_star'
 VERSIONS = {VERSION_STATE_EQUATION_A_STAR: versions.state_equation_a_star.apply}
@@ -41,7 +40,6 @@ def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=Non
                 version=VERSION_STATE_EQUATION_A_STAR):
     """
     apply alignments to a trace
-
     Parameters
     -----------
     trace
@@ -63,8 +61,6 @@ def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=Non
             mapping of each transition in the model to corresponding model cost
             pm4py.algo.conformance.alignments.versions.state_equation_a_star.PARAM_TRACE_COST_FUNCTION ->
             mapping of each index of the trace to a positive cost value
-
-
     Returns
     -----------
     alignment
@@ -84,7 +80,6 @@ def apply_trace(trace, petri_net, initial_marking, final_marking, parameters=Non
 def apply_log(log, petri_net, initial_marking, final_marking, parameters=None, version=VERSION_STATE_EQUATION_A_STAR):
     """
     apply alignments to a trace
-
     Parameters
     -----------
     log
@@ -107,8 +102,6 @@ def apply_log(log, petri_net, initial_marking, final_marking, parameters=None, v
             mapping of each transition in the model to corresponding model cost
             pm4py.algo.conformance.alignments.versions.state_equation_a_star.PARAM_TRACE_COST_FUNCTION ->
             mapping of each index of the trace to a positive cost value
-
-
     Returns
     -----------
     alignment
@@ -162,9 +155,12 @@ def apply_log(log, petri_net, initial_marking, final_marking, parameters=None, v
 
     # assign fitness to traces
     for index, align in enumerate(alignments):
-        # align_cost = align['cost'] // ali.utils.STD_MODEL_LOG_MOVE_COST
-        # align['fitness'] = 1 - ((align['cost']  // ali.utils.STD_MODEL_LOG_MOVE_COST) / best_worst_cost)
-        align['fitness'] = 1 - (
-                (align['cost'] // ali.utils.STD_MODEL_LOG_MOVE_COST) / (len(log[index]) + best_worst_cost))
-
+        unfitness_upper_part = align['cost'] // ali.utils.STD_MODEL_LOG_MOVE_COST
+        if unfitness_upper_part == 0:
+            align['fitness'] = 1
+        elif (len(log[index]) + best_worst_cost) > 0:
+            align['fitness'] = 1 - (
+                    (align['cost'] // ali.utils.STD_MODEL_LOG_MOVE_COST) / (len(log[index]) + best_worst_cost))
+        else:
+            align['fitness'] = 0
     return alignments
