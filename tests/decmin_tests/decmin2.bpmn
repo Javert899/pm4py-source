@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='utf-8'?>
+<definitions expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.signavio.com/bpmn20" typeLanguage="http://www.w3.org/2001/XMLSchema" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmndi:BPMNDiagram id="id6bfbc384-4c65-4219-95a6-8926c9681ea0" name="diagram">
+    <bpmndi:BPMNPlane bpmnElement="id6a238e4d-40e8-4b67-be7e-b0b2bbfd25b2" id="id4c06544d-add6-4eec-971c-b7f0b8e1270d">
+      <bpmndi:BPMNShape bpmnElement="startevent" id="startevent_gui">
+        <omgdc:Bounds height="100" width="100" x="200" y="250" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="endevent" id="endevent_gui">
+        <omgdc:Bounds height="100" width="100" x="1250" y="250" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="A" id="A_gui">
+        <omgdc:Bounds height="100" width="100" x="350" y="250" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="D" id="D_gui">
+        <omgdc:Bounds height="100" width="100" x="1100" y="250" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="C" id="C_gui">
+        <omgdc:Bounds height="100" width="100" x="800" y="50" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="B" id="B_gui">
+        <omgdc:Bounds height="100" width="100" x="650" y="50" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="E" id="E_gui">
+        <omgdc:Bounds height="100" width="100" x="650" y="450" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="F" id="F_gui">
+        <omgdc:Bounds height="100" width="100" x="800" y="450" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="({'A'}, {'B', 'E'})" id="({'A'}, {'B', 'E'})_gui">
+        <omgdc:Bounds height="100" width="100" x="500" y="250" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNShape bpmnElement="({'F', 'C'}, {'D'})" id="({'F', 'C'}, {'D'})_gui">
+        <omgdc:Bounds height="100" width="100" x="950" y="250" />
+      </bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge bpmnElement="id709b5bf2-c015-4a6c-b93a-eb9b7f146ebf" id="id709b5bf2-c015-4a6c-b93a-eb9b7f146ebf_gui">
+        <omgdi:waypoint x="250" y="300" />
+      <omgdi:waypoint x="350" y="300" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="id79ebd803-43dd-4a04-8732-8401b7b65366" id="id79ebd803-43dd-4a04-8732-8401b7b65366_gui">
+        <omgdi:waypoint x="1150" y="300" />
+      <omgdi:waypoint x="1250" y="300" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="idfff1c289-5e1f-4929-9c7e-9da83eb621ca" id="idfff1c289-5e1f-4929-9c7e-9da83eb621ca_gui">
+        <omgdi:waypoint x="400" y="300" />
+      <omgdi:waypoint x="500" y="300" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="ide3d2a6d2-8d63-45e3-967a-5b83a578b1e2" id="ide3d2a6d2-8d63-45e3-967a-5b83a578b1e2_gui">
+        <omgdi:waypoint x="1000" y="300" />
+      <omgdi:waypoint x="1000" y="300" />
+      <omgdi:waypoint x="1100" y="300" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="idcd178c7a-dac5-4aa9-8a27-e33cceba3079" id="idcd178c7a-dac5-4aa9-8a27-e33cceba3079_gui">
+        <omgdi:waypoint x="700" y="100" />
+      <omgdi:waypoint x="800" y="100" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="id77b4efec-1dda-4aae-961f-b269149528eb" id="id77b4efec-1dda-4aae-961f-b269149528eb_gui">
+        <omgdi:waypoint x="850" y="100" />
+      <omgdi:waypoint x="1000" y="100" />
+      <omgdi:waypoint x="1000" y="250" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="id9402eb20-ac06-4732-b155-a8c2115015d6" id="id9402eb20-ac06-4732-b155-a8c2115015d6_gui">
+        <omgdi:waypoint x="550" y="300" />
+      <omgdi:waypoint x="550" y="100" />
+      <omgdi:waypoint x="650" y="100" />
+      <decorations>
+          <decisionRule>(event:difficulty == LOW)</decisionRule>
+        </decorations>
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="ide9ed2724-bf13-492d-a704-9795018eacd3" id="ide9ed2724-bf13-492d-a704-9795018eacd3_gui">
+        <omgdi:waypoint x="700" y="500" />
+      <omgdi:waypoint x="800" y="500" />
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="id99378db2-b431-4cd5-b6b9-cb0cecaccacf" id="id99378db2-b431-4cd5-b6b9-cb0cecaccacf_gui">
+        <omgdi:waypoint x="550" y="300" />
+      <omgdi:waypoint x="550" y="500" />
+      <omgdi:waypoint x="650" y="500" />
+      <decorations>
+          <decisionRule>(event:difficulty != LOW)</decisionRule>
+        </decorations>
+      </bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge bpmnElement="idff0d0e2a-f8c0-4969-8e56-17035fe39f18" id="idff0d0e2a-f8c0-4969-8e56-17035fe39f18_gui">
+        <omgdi:waypoint x="850" y="500" />
+      <omgdi:waypoint x="1000" y="500" />
+      <omgdi:waypoint x="1000" y="250" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+<process id="id6a238e4d-40e8-4b67-be7e-b0b2bbfd25b2" isClosed="false" isExecutable="false" processType="None">
+    <startEvent id="startevent" isInterrupting="true" name="start" parallelMultiple="false">
+      <outgoing>id709b5bf2-c015-4a6c-b93a-eb9b7f146ebf</outgoing>
+    </startEvent>
+  <endEvent id="endevent" name="end">
+      <incoming>id79ebd803-43dd-4a04-8732-8401b7b65366</incoming>
+    </endEvent>
+  <task id="A" name="A">
+      <incoming>id709b5bf2-c015-4a6c-b93a-eb9b7f146ebf</incoming>
+    <outgoing>idfff1c289-5e1f-4929-9c7e-9da83eb621ca</outgoing>
+    </task>
+  <task id="D" name="D">
+      <incoming>ide3d2a6d2-8d63-45e3-967a-5b83a578b1e2</incoming>
+    <outgoing>id79ebd803-43dd-4a04-8732-8401b7b65366</outgoing>
+    </task>
+  <task id="C" name="C">
+      <incoming>idcd178c7a-dac5-4aa9-8a27-e33cceba3079</incoming>
+    <outgoing>id77b4efec-1dda-4aae-961f-b269149528eb</outgoing>
+    </task>
+  <task id="B" name="B">
+      <incoming>id9402eb20-ac06-4732-b155-a8c2115015d6</incoming>
+    <outgoing>idcd178c7a-dac5-4aa9-8a27-e33cceba3079</outgoing>
+    </task>
+  <task id="E" name="E">
+      <incoming>id99378db2-b431-4cd5-b6b9-cb0cecaccacf</incoming>
+    <outgoing>ide9ed2724-bf13-492d-a704-9795018eacd3</outgoing>
+    </task>
+  <task id="F" name="F">
+      <incoming>ide9ed2724-bf13-492d-a704-9795018eacd3</incoming>
+    <outgoing>idff0d0e2a-f8c0-4969-8e56-17035fe39f18</outgoing>
+    </task>
+  <exclusiveGateway gatewayDirection="Unspecified" id="({'A'}, {'B', 'E'})" name="({'A'}, {'B', 'E'})">
+      <incoming>idfff1c289-5e1f-4929-9c7e-9da83eb621ca</incoming>
+    <outgoing>id9402eb20-ac06-4732-b155-a8c2115015d6</outgoing>
+    <outgoing>id99378db2-b431-4cd5-b6b9-cb0cecaccacf</outgoing>
+    </exclusiveGateway>
+  <exclusiveGateway gatewayDirection="Unspecified" id="({'F', 'C'}, {'D'})" name="({'F', 'C'}, {'D'})">
+      <incoming>id77b4efec-1dda-4aae-961f-b269149528eb</incoming>
+    <incoming>idff0d0e2a-f8c0-4969-8e56-17035fe39f18</incoming>
+    <outgoing>ide3d2a6d2-8d63-45e3-967a-5b83a578b1e2</outgoing>
+    </exclusiveGateway>
+  <sequenceFlow id="id709b5bf2-c015-4a6c-b93a-eb9b7f146ebf" name="" sourceRef="startevent" targetRef="A" />
+  <sequenceFlow id="id79ebd803-43dd-4a04-8732-8401b7b65366" name="" sourceRef="D" targetRef="endevent" />
+  <sequenceFlow id="idfff1c289-5e1f-4929-9c7e-9da83eb621ca" name="" sourceRef="A" targetRef="({'A'}, {'B', 'E'})" />
+  <sequenceFlow id="ide3d2a6d2-8d63-45e3-967a-5b83a578b1e2" name="" sourceRef="({'F', 'C'}, {'D'})" targetRef="D" />
+  <sequenceFlow id="idcd178c7a-dac5-4aa9-8a27-e33cceba3079" name="" sourceRef="B" targetRef="C" />
+  <sequenceFlow id="id77b4efec-1dda-4aae-961f-b269149528eb" name="" sourceRef="C" targetRef="({'F', 'C'}, {'D'})" />
+  <sequenceFlow id="id9402eb20-ac06-4732-b155-a8c2115015d6" name="" sourceRef="({'A'}, {'B', 'E'})" targetRef="B" />
+  <sequenceFlow id="ide9ed2724-bf13-492d-a704-9795018eacd3" name="" sourceRef="E" targetRef="F" />
+  <sequenceFlow id="id99378db2-b431-4cd5-b6b9-cb0cecaccacf" name="" sourceRef="({'A'}, {'B', 'E'})" targetRef="E" />
+  <sequenceFlow id="idff0d0e2a-f8c0-4969-8e56-17035fe39f18" name="" sourceRef="F" targetRef="({'F', 'C'}, {'D'})" />
+  </process>
+</definitions>
