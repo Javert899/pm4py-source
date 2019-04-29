@@ -81,9 +81,13 @@ def apply(heu_net, parameters=None):
 
     image_format = parameters["format"] if "format" in parameters else "png"
     deviations = parameters["deviations"] if "deviations" in parameters else None
+    all_localized_problems = parameters["all_localized_problems"] if "all_localized_problems" in parameters else None
 
     if deviations is None:
         deviations = {}
+
+    if all_localized_problems is None:
+        all_localized_problems = {}
 
     graph = pydotplus.Dot(strict=True)
     corr_nodes = {}
@@ -275,10 +279,18 @@ def apply(heu_net, parameters=None):
             input_activities = place[0]
             output_activities = place[1]
             place_name = class_name + "@@" + place[2].name
+            place_color = heu_net.default_edges_color[index]
+            place_fillcolor = heu_net.default_edges_color[index]
+
+            if len(all_localized_problems) > 0:
+                place_problems = 0
+                if place_name in all_localized_problems:
+                    place_problems = all_localized_problems[place_name]
+                place_fillcolor = transform_to_hex(max(255 - math.log(1.0 + place_problems) * 9, 0))
 
             place = pydotplus.Node(name=place_name, label="", style="filled",
-                                   fillcolor=heu_net.default_edges_color[index],
-                                   color=heu_net.default_edges_color[index])
+                                   fillcolor=place_fillcolor,
+                                   color=place_color)
             graph.add_node(place)
             added_objects[place_name] = place
 
