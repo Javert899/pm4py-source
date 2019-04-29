@@ -164,7 +164,6 @@ def apply(heu_net, parameters=None):
 
                     graph.add_edge(e)
 
-
                     count_edges = count_edges + 1
 
     corr_nodes_stri = {n.node_name: corr_nodes[n] for n in corr_nodes}
@@ -193,9 +192,26 @@ def apply(heu_net, parameters=None):
                 else:
                     this_pen_width = 1.0
                     label = heu_net.net_name[index]
-                e = pydotplus.Edge(src=start_i, dst=sa, label=label,
-                                   color=heu_net.default_edges_color[index],
-                                   fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+
+                if False:
+                    e = pydotplus.Edge(src=start_i, dst=sa, label=label,
+                                       color=heu_net.default_edges_color[index],
+                                       fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+                else:
+                    this_sea_edge_label = heu_net.net_name[index] + "@@START@@" + inv_corr_nodes[sa].node_name
+
+                    n2 = pydotplus.Node(name=this_sea_edge_label, label="", width=0.1, height=0.1, fixedsize=True)
+                    graph.add_node(n2)
+
+                    e = pydotplus.Edge(src=start_i, dst=n2, label=label,
+                                       color=heu_net.default_edges_color[index],
+                                       fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+                    e2 = pydotplus.Edge(src=n2, dst=sa, label="",
+                                       color=heu_net.default_edges_color[index],
+                                       fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+
+                    added_objects[this_sea_edge_label] = n2
+                    graph.add_edge(e2)
                 graph.add_edge(e)
                 count_edges = count_edges + 1
 
@@ -223,9 +239,27 @@ def apply(heu_net, parameters=None):
                 else:
                     label = heu_net.net_name[index]
                     this_pen_width = 1.0
-                e = pydotplus.Edge(src=ea, dst=end_i, label=label,
-                                   color=heu_net.default_edges_color[index],
-                                   fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+
+                if False:
+                    e = pydotplus.Edge(src=ea, dst=end_i, label=label,
+                                       color=heu_net.default_edges_color[index],
+                                       fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+                else:
+                    this_sea_edge_label = heu_net.net_name[index] + "@@" + inv_corr_nodes[ea].node_name + "@@END"
+
+                    n2 = pydotplus.Node(name=this_sea_edge_label,
+                                        label="", width=0.1, height=0.1, fixedsize=True)
+                    graph.add_node(n2)
+
+                    e = pydotplus.Edge(src=ea, dst=n2, label="",
+                                       color=heu_net.default_edges_color[index],
+                                       fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+                    e2 = pydotplus.Edge(src=n2, dst=end_i, label=label,
+                                        color=heu_net.default_edges_color[index],
+                                        fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+
+                    added_objects[this_sea_edge_label] = n2
+                    graph.add_edge(e2)
                 graph.add_edge(e)
                 count_edges = count_edges + 1
 
@@ -269,6 +303,21 @@ def apply(heu_net, parameters=None):
         if len(activities_preset_of[act]) > 1 and len(classes_preset_of[act]) > 1:
             print("MP", act, "activities_preset_of", activities_preset_of[act], "classes_preset_of",
                   classes_preset_of[act])
+
+    """if is_frequency:
+        for deviation in deviations:
+            content = deviation.split("%%")[0]
+            involved_objects = content.split("##")
+            if len(involved_objects) == 1:
+                if involved_objects[0] in added_objects:
+                    print("   sii1")
+                else:
+                    print("1",content)
+            else:
+                if involved_objects[0] in added_objects and involved_objects[1] in added_objects:
+                    print("       sii2")
+                else:
+                    print("2",content)"""
 
     print(count_nodes, count_edges)
 
