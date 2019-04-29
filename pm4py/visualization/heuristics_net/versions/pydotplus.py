@@ -141,14 +141,29 @@ def apply(heu_net, parameters=None):
                         else:
                             label = human_readable_stat(repr_value)
 
-                    e = pydotplus.Edge(src=corr_nodes[node], dst=corr_nodes[other_node],
-                                       label=label,
-                                       color=edge.repr_color,
-                                       fontcolor=edge.repr_color, penwidth=this_pen_width)
+                    if corr_nodes[node] == corr_nodes[other_node]:
+                        e = pydotplus.Edge(src=corr_nodes[node], dst=corr_nodes[other_node],
+                                           label=label,
+                                           color=edge.repr_color,
+                                           fontcolor=edge.repr_color, penwidth=this_pen_width)
+                    else:
+                        n2 = pydotplus.Node(name=edge.get_label(), label="", width=0.1, height=0.1, fixedsize=True)
+                        graph.add_node(n2)
 
-                    added_objects[edge.get_label()] = e
+                        e = pydotplus.Edge(src=corr_nodes[node], dst=n2,
+                                           label="",
+                                           color=edge.repr_color,
+                                           fontcolor=edge.repr_color, penwidth=this_pen_width)
+                        e2 = pydotplus.Edge(src=n2, dst=corr_nodes[other_node],
+                                           label=label,
+                                           color=edge.repr_color,
+                                           fontcolor=edge.repr_color, penwidth=this_pen_width)
+
+                        added_objects[edge.get_label()] = n2
+                        graph.add_edge(e2)
 
                     graph.add_edge(e)
+
 
                     count_edges = count_edges + 1
 
@@ -211,7 +226,6 @@ def apply(heu_net, parameters=None):
                 e = pydotplus.Edge(src=ea, dst=end_i, label=label,
                                    color=heu_net.default_edges_color[index],
                                    fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
-                # added_objects[heu_net.net_name[index] + "@@" + inv_corr_nodes[ea].node_name + "@@END"] = e
                 graph.add_edge(e)
                 count_edges = count_edges + 1
 
