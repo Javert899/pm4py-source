@@ -6,7 +6,7 @@ VERSIONS = {CLASSIC: classic.apply}
 VERSIONS_DISC_MOD_PERSP = {CLASSIC: classic.discover_model_perspective}
 
 
-def apply(perspective, log, net, im, fm, variant=CLASSIC, parameters=None):
+def apply(mvp, perspective, log, net, im, fm, variant=CLASSIC, parameters=None):
     return VERSIONS[variant](perspective, log, net, im, fm)
 
 
