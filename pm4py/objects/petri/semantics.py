@@ -1,6 +1,17 @@
 import copy
 
 
+def get_problems(t, pn, m):
+    problems = set()
+
+    if t in pn.transitions:
+        for a in t.in_arcs:
+            if m[a.source] < a.weight:
+                problems.add(a.target)
+
+    return problems
+
+
 def is_enabled(t, pn, m):
     """
     Verifies whether a given transition is enabled in a given Petri net and marking

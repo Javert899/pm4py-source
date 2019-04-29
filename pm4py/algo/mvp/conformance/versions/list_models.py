@@ -1,6 +1,6 @@
 from pm4py.objects.petri.petrinet import Marking
-from pm4py.objects.petri.semantics import is_enabled, weak_execute
-
+from pm4py.objects.petri.semantics import is_enabled, weak_execute, get_problems
+from collections import Counter
 
 def apply(model, df, parameters=None):
     """
@@ -23,15 +23,23 @@ def apply(model, df, parameters=None):
     """
     if parameters is None:
         parameters = {}
+
+    localization = parameters["localization"] if "localization" in parameters else True
+
     ret = []
     current_status = {}
+    all_localized_problems = Counter()
 
     log = df.to_dict('records')
 
     for event in log:
-        ev_conf, current_status, problems = apply_event(model, event, current_status, parameters=parameters)
+        ev_conf, current_status, problems, localized_problems = apply_event(model, event, current_status, parameters=parameters)
+        all_localized_problems = all_localized_problems + localized_problems
         ret.append(ev_conf)
-    return ret
+
+    all_localized_problems = dict(all_localized_problems)
+
+    return ret, all_localized_problems
 
 
 def apply_event(model, event, current_status, parameters=None):
@@ -63,6 +71,7 @@ def apply_event(model, event, current_status, parameters=None):
 
     ret = True
     problems = []
+    localized_problems = Counter()
 
     for attr in event:
         value = event[attr]
@@ -78,8 +87,15 @@ def apply_event(model, event, current_status, parameters=None):
                 corr_t = corr_t[0]
                 new_marking = weak_execute(corr_t, current_status[attr][value][1])
                 if not is_enabled(corr_t, current_status[attr][value][0], current_status[attr][value][1]):
+                    problematic_places = get_problems(corr_t, current_status[attr][value][0],
+                                                      current_status[attr][value][1])
                     ret = False
                     problems.append(attr)
+                    for place in problematic_places:
+                        place_name = attr + "@@" + place.name
+                        if place_name not in localized_problems:
+                            localized_problems[place_name] = 0
+                        localized_problems[place_name] = localized_problems[place_name] + 1
                 current_status[attr][value][1] = new_marking
 
-    return ret, current_status, problems
+    return ret, current_status, problems, localized_problems
