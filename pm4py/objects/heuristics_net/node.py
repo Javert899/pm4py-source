@@ -43,6 +43,17 @@ class Node:
         self.net_name = net_name
         self.nodes_dictionary = nodes_dictionary
 
+    def get_label(self):
+        """
+        Gets the label of the node
+
+        Returns
+        ----------
+        label
+            Label
+        """
+        return self.net_name + "@@" + self.node_name
+
     def add_output_connection(self, other_node, dependency_value, dfg_value, repr_color=None, repr_value=None):
         """
         Adds an output connection to another node

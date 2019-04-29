@@ -88,6 +88,8 @@ def apply(heu_net, parameters=None):
     count_edges = 0
     is_frequency = False
 
+    added_objects = {}
+
     for node_name in heu_net.nodes:
         node = heu_net.nodes[node_name]
         node_occ = node.node_occ
@@ -103,6 +105,8 @@ def apply(heu_net, parameters=None):
         corr_nodes[node] = n
         corr_nodes_names[node_name] = n
         graph.add_node(n)
+
+        added_objects[node.get_label()] = n
 
     # gets max arc value
     max_arc_value = -1
@@ -142,8 +146,12 @@ def apply(heu_net, parameters=None):
                                                color=edge.repr_color,
                                                fontcolor=edge.repr_color, penwidth=this_pen_width)
 
+                    added_objects[edge.get_label()] = e
+
                     graph.add_edge(e)
                     count_edges = count_edges + 1
+
+    print(added_objects)
 
     corr_nodes_stri = {n.node_name: corr_nodes[n] for n in corr_nodes}
 

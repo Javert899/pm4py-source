@@ -34,3 +34,14 @@ class Edge:
         self.repr_color = repr_color
         self.edge_type = edge_type
         self.net_name = net_name
+
+    def get_label(self):
+        """
+        Gets the label of the edge
+
+        Returns
+        ----------
+        label
+            Label of the edge
+        """
+        return self.net_name + "@@" + self.start_node.node_name + "@@" + self.end_node.node_name

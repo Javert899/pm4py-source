@@ -56,12 +56,12 @@ def apply(mvp, perspective, log, net, im, fm, parameters=None):
                     prev_move = "START"
 
                 if prev_move == "START" and not succ_move == "END":
-                    edge_descr = perspective + "%%moveOnLogStart"
+                    edge_descr = perspective + "@@" + prev_move + "%%moveOnLogStart"
                     if edge_descr not in error_occurrences:
                         error_occurrences[edge_descr] = 0
                     error_occurrences[edge_descr] = error_occurrences[edge_descr] + 1
                 elif succ_move == "END":
-                    edge_descr = perspective + "%%moveOnLogEnd"
+                    edge_descr = perspective + "@@" + succ_move + "%%moveOnLogEnd"
                     if edge_descr not in error_occurrences:
                         error_occurrences[edge_descr] = 0
                     error_occurrences[edge_descr] = error_occurrences[edge_descr] + 1
