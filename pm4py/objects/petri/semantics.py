@@ -7,7 +7,7 @@ def get_problems(t, pn, m):
     if t in pn.transitions:
         for a in t.in_arcs:
             if m[a.source] < a.weight:
-                problems.add(a.target)
+                problems.add(a.source.name)
 
     return problems
 

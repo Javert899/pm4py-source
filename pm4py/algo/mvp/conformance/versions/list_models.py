@@ -1,6 +1,8 @@
+from collections import Counter
+
 from pm4py.objects.petri.petrinet import Marking
 from pm4py.objects.petri.semantics import is_enabled, weak_execute, get_problems
-from collections import Counter
+
 
 def apply(model, df, parameters=None):
     """
@@ -33,13 +35,17 @@ def apply(model, df, parameters=None):
     log = df.to_dict('records')
 
     for event in log:
-        ev_conf, current_status, problems, localized_problems = apply_event(model, event, current_status, parameters=parameters)
+        ev_conf, current_status, problems, localized_problems = apply_event(model, event, current_status,
+                                                                            parameters=parameters)
         all_localized_problems = all_localized_problems + localized_problems
         ret.append(ev_conf)
 
     all_localized_problems = dict(all_localized_problems)
 
-    return ret, all_localized_problems
+    if localization:
+        return ret, all_localized_problems
+
+    return ret
 
 
 def apply_event(model, event, current_status, parameters=None):
@@ -92,7 +98,7 @@ def apply_event(model, event, current_status, parameters=None):
                     ret = False
                     problems.append(attr)
                     for place in problematic_places:
-                        place_name = attr + "@@" + place.name
+                        place_name = attr + "@@" + place
                         if place_name not in localized_problems:
                             localized_problems[place_name] = 0
                         localized_problems[place_name] = localized_problems[place_name] + 1

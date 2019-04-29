@@ -48,7 +48,7 @@ def apply(df, mvp, parameters=None):
                 for arc in place.out_arcs:
                     target_trans = arc.target
                     postset_activities.append(target_trans.label)
-                mvp[perspective].data[-1].append((preset_activities, postset_activities))
+                mvp[perspective].data[-1].append((preset_activities, postset_activities, place))
             print("succeeded applying places discovery: ",perspective)
         except:
             print("exception in applying places discovery: ", perspective)

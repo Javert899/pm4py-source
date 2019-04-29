@@ -274,11 +274,13 @@ def apply(heu_net, parameters=None):
         for index2, place in enumerate(data):
             input_activities = place[0]
             output_activities = place[1]
+            place_name = class_name + "@@" + place[2].name
 
-            place = pydotplus.Node(name="place_" + str(index) + "_" + str(index2), label="", style="filled",
+            place = pydotplus.Node(name=place_name, label="", style="filled",
                                    fillcolor=heu_net.default_edges_color[index],
                                    color=heu_net.default_edges_color[index])
             graph.add_node(place)
+            added_objects[place_name] = place
 
             for act in input_activities:
                 e = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index], src=corr_nodes_stri[act],
