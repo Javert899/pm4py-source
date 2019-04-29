@@ -141,7 +141,7 @@ def apply(heu_net, parameters=None):
                         else:
                             label = human_readable_stat(repr_value)
 
-                    if corr_nodes[node] == corr_nodes[other_node]:
+                    if corr_nodes[node] == corr_nodes[other_node] or len(deviations) == 0:
                         e = pydotplus.Edge(src=corr_nodes[node], dst=corr_nodes[other_node],
                                            label=label,
                                            color=edge.repr_color,
@@ -155,9 +155,9 @@ def apply(heu_net, parameters=None):
                                            color=edge.repr_color,
                                            fontcolor=edge.repr_color, penwidth=this_pen_width)
                         e2 = pydotplus.Edge(src=n2, dst=corr_nodes[other_node],
-                                           label=label,
-                                           color=edge.repr_color,
-                                           fontcolor=edge.repr_color, penwidth=this_pen_width)
+                                            label=label,
+                                            color=edge.repr_color,
+                                            fontcolor=edge.repr_color, penwidth=this_pen_width)
 
                         added_objects[edge.get_label()] = n2
                         graph.add_edge(e2)
@@ -193,7 +193,7 @@ def apply(heu_net, parameters=None):
                     this_pen_width = 1.0
                     label = heu_net.net_name[index]
 
-                if False:
+                if len(deviations) == 0:
                     e = pydotplus.Edge(src=start_i, dst=sa, label=label,
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
@@ -207,8 +207,8 @@ def apply(heu_net, parameters=None):
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
                     e2 = pydotplus.Edge(src=n2, dst=sa, label="",
-                                       color=heu_net.default_edges_color[index],
-                                       fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
+                                        color=heu_net.default_edges_color[index],
+                                        fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
 
                     added_objects[this_sea_edge_label] = n2
                     graph.add_edge(e2)
@@ -240,7 +240,7 @@ def apply(heu_net, parameters=None):
                     label = heu_net.net_name[index]
                     this_pen_width = 1.0
 
-                if False:
+                if len(deviations) == 0:
                     e = pydotplus.Edge(src=ea, dst=end_i, label=label,
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index], penwidth=this_pen_width)
@@ -304,20 +304,32 @@ def apply(heu_net, parameters=None):
             print("MP", act, "activities_preset_of", activities_preset_of[act], "classes_preset_of",
                   classes_preset_of[act])
 
-    """if is_frequency:
+    if is_frequency:
         for deviation in deviations:
             content = deviation.split("%%")[0]
             involved_objects = content.split("##")
-            if len(involved_objects) == 1:
-                if involved_objects[0] in added_objects:
-                    print("   sii1")
+            if len(involved_objects) >= 1:
+                this_perspective = involved_objects[0].split("@@")[0]
+                index = heu_net.net_name.index(this_perspective)
+                this_label = this_perspective + " (dev=" + str(deviations[deviation]) + ")"
+
+                obj1 = None
+                obj2 = None
+
+                if len(involved_objects) == 1:
+                    if involved_objects[0] in added_objects:
+                        obj1 = added_objects[involved_objects[0]]
+                        obj2 = added_objects[involved_objects[0]]
                 else:
-                    print("1",content)
-            else:
-                if involved_objects[0] in added_objects and involved_objects[1] in added_objects:
-                    print("       sii2")
-                else:
-                    print("2",content)"""
+                    if involved_objects[0] in added_objects and involved_objects[1] in added_objects:
+                        obj1 = added_objects[involved_objects[0]]
+                        obj2 = added_objects[involved_objects[1]]
+
+                if obj1 is not None and obj2 is not None:
+                    e3 = pydotplus.Edge(style="dashed", color=heu_net.default_edges_color[index],
+                                        fontcolor=heu_net.default_edges_color[index], src=obj1, dst=obj2,
+                                        label=this_label, fontsize=7)
+                    graph.add_edge(e3)
 
     print(count_nodes, count_edges)
 
