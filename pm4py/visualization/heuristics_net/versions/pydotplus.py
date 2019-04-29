@@ -80,10 +80,15 @@ def apply(heu_net, parameters=None):
         parameters = {}
 
     image_format = parameters["format"] if "format" in parameters else "png"
+    deviations = parameters["deviations"] if "deviations" in parameters else None
+
+    if deviations is None:
+        deviations = {}
 
     graph = pydotplus.Dot(strict=True)
     corr_nodes = {}
     corr_nodes_names = {}
+    inv_corr_nodes = {}
     count_nodes = 0
     count_edges = 0
     is_frequency = False
@@ -103,6 +108,7 @@ def apply(heu_net, parameters=None):
                                label=node_name, fillcolor=graycolor)
         count_nodes = count_nodes + 1
         corr_nodes[node] = n
+        inv_corr_nodes[n] = node
         corr_nodes_names[node_name] = n
         graph.add_node(n)
 
@@ -150,8 +156,6 @@ def apply(heu_net, parameters=None):
 
                     graph.add_edge(e)
                     count_edges = count_edges + 1
-
-    print(added_objects)
 
     corr_nodes_stri = {n.node_name: corr_nodes[n] for n in corr_nodes}
 
@@ -202,6 +206,7 @@ def apply(heu_net, parameters=None):
                                      fontsize="32", fontcolor="#FFFFFF", fillcolor=heu_net.default_edges_color[index],
                                      style="filled")
             graph.add_node(start_i)
+            added_objects[heu_net.net_name[index] + "@@START"] = start_i
             for node_name in effective_sa_list:
                 sa = corr_nodes_names[node_name]
                 if type(heu_net.start_activities[index]) is dict:
@@ -225,6 +230,7 @@ def apply(heu_net, parameters=None):
                     e = pydotplus.Edge(src=start_i, dst=sa, label=heu_net.net_name[index],
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index])
+                added_objects[heu_net.net_name[index] + "@@START@@" + inv_corr_nodes[sa].node_name] = e
                 graph.add_edge(e)
                 count_edges = count_edges + 1
 
@@ -234,6 +240,7 @@ def apply(heu_net, parameters=None):
             end_i = pydotplus.Node(name="end_" + str(index), label="□", color=heu_net.default_edges_color[index],
                                    fillcolor=heu_net.default_edges_color[index], fontcolor="#FFFFFF", fontsize="32",
                                    style="filled")
+            added_objects[heu_net.net_name[index] + "@@END"] = end_i
             graph.add_node(end_i)
             for node_name in effective_ea_list:
                 ea = corr_nodes_names[node_name]
@@ -257,6 +264,7 @@ def apply(heu_net, parameters=None):
                     e = pydotplus.Edge(src=ea, dst=end_i, label=heu_net.net_name[index],
                                        color=heu_net.default_edges_color[index],
                                        fontcolor=heu_net.default_edges_color[index])
+                added_objects[heu_net.net_name[index] + "@@" + inv_corr_nodes[ea].node_name + "@@END"] = e
                 graph.add_edge(e)
                 count_edges = count_edges + 1
 
