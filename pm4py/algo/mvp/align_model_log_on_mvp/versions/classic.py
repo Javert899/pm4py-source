@@ -90,3 +90,12 @@ def discover_model_perspective(df, mvp, perspective, parameters=None):
     net, im, fm = inductive_miner.apply(log)
 
     return apply(mvp, perspective, log, net, im, fm, parameters=parameters)
+
+
+def discover_all_models_perspectives(df, mvp, parameters=None):
+    all_errors = {}
+
+    for persp in mvp:
+        all_errors.update(discover_model_perspective(df, mvp, persp, parameters=parameters))
+
+    return all_errors
