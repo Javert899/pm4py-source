@@ -38,7 +38,7 @@ def apply(df, mvp, parameters=None):
                 if len(trans.in_arcs) == 0 and len(trans.out_arcs) == 0:
                     net = remove_transition(net, trans)
             list_models[perspective] = net
-            mvp[perspective].data.append([])
+            """mvp[perspective].data.append([])
             for place in net.places:
                 preset_activities = []
                 for arc in place.in_arcs:
@@ -48,9 +48,45 @@ def apply(df, mvp, parameters=None):
                 for arc in place.out_arcs:
                     target_trans = arc.target
                     postset_activities.append(target_trans.label)
-                mvp[perspective].data[-1].append((preset_activities, postset_activities, place))
+                mvp[perspective].data[-1].append((preset_activities, postset_activities, place))"""
             print("succeeded applying places discovery: ",perspective)
         except:
             print("exception in applying places discovery: ", perspective)
 
+    mvp = decorate_mvp_with_models(mvp, list_models)
+
     return mvp, list_models
+
+
+def decorate_mvp_with_models(mvp, list_models):
+    """
+    Decorate a MVP model with formal models containing only places between visible transitions
+
+    Parameters
+    ------------
+    mvp
+        MVP model
+    list_models
+        List of models
+
+    Returns
+    ------------
+    mvp
+        Decorated MVP model
+    """
+    for persp in list_models:
+        if persp in mvp:
+            net = list_models[persp]
+            mvp[persp].data.append([])
+            for place in net.places:
+                preset_activities = []
+                for arc in place.in_arcs:
+                    source_trans = arc.source
+                    preset_activities.append(source_trans.label)
+                postset_activities = []
+                for arc in place.out_arcs:
+                    target_trans = arc.target
+                    postset_activities.append(target_trans.label)
+                mvp[persp].data[-1].append((preset_activities, postset_activities, place))
+
+    return mvp
