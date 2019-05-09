@@ -13,7 +13,8 @@ def execute_script():
     log = xes_importer.apply(log_path)
 
     # find the concept drift points, if there is any
-    drift_found, logs_list, endpoints, change_date_repr = concept_drift_factory.apply(log)
+    drift_found, logs_list, endpoints, change_date_repr = concept_drift_factory.apply(log, parameters={
+        "enable_succattr": False})
 
     if drift_found:
         # if the concept drift has been found
