@@ -61,6 +61,8 @@ def apply(log, parameters=None):
             already_seen[labels[i]] = len(list(already_seen.keys()))
             log_list.append(EventLog())
         trace = Trace(log[i])
+        for attribute in log[i].attributes:
+            trace.attributes[attribute] = log[i].attributes[attribute]
         log_list[already_seen[labels[i]]].append(trace)
 
     return log_list

@@ -49,14 +49,36 @@ def apply(log, parameters=None):
     min_rel_size_cluster = parameters["min_rel_size_cluster"] if "min_rel_size_cluster" in parameters else 0.05
     min_n_clusters_to_search = parameters["min_n_clusters_to_search"] if "min_n_clusters_to_search" in parameters else 2
     max_n_clusters_to_search = parameters["max_n_clusters_to_search"] if "max_n_clusters_to_search" in parameters else 5
-    enable_succattr = parameters["enable_succattr"] if "enable_succattr" in parameters else False
+    enable_succattr = parameters["enable_succattr"] if "enable_succattr" in parameters else True
+    activity_def_representation = parameters[
+        "activity_def_representation"] if "activity_def_representation" in parameters else True
 
     timestamp_key = parameters[
         constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
 
+    str_tr_attr = parameters["str_tr_attr"] if "str_tr_attr" in parameters else None
+    str_ev_attr = parameters["str_ev_attr"] if "str_ev_attr" in parameters else None
+    num_tr_attr = parameters["num_tr_attr"] if "num_tr_attr" in parameters else None
+    num_ev_attr = parameters["num_ev_attr"] if "num_ev_attr" in parameters else None
+    str_evsucc_attr = parameters["str_evsucc_attr"] if "str_evsucc_attr" in parameters else None
+
     log = sorting.sort_timestamp(log, timestamp_key=timestamp_key)
-    data, feature_names = get_log_representation.get_default_representation(log, parameters={
-        get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION: enable_succattr})
+
+    if str_tr_attr is not None or str_ev_attr is not None or num_tr_attr is not None or num_ev_attr is not None or str_evsucc_attr is not None:
+        if str_tr_attr is None:
+            str_tr_attr = []
+        if str_ev_attr is None:
+            str_ev_attr = []
+        if num_tr_attr is None:
+            num_tr_attr = []
+        if num_ev_attr is None:
+            num_ev_attr = []
+        data, feature_names = get_log_representation.get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr,
+                                                                        num_ev_attr, str_evsucc_attr=str_evsucc_attr)
+    else:
+        data, feature_names = get_log_representation.get_default_representation(log, parameters={
+            get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION: enable_succattr,
+            get_log_representation.ENABLE_ACTIVITY_DEF_REPRESENTATION: activity_def_representation})
 
     start_end_timestamp = np.zeros((len(log), 2))
 

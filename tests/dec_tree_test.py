@@ -54,7 +54,8 @@ class DecisionTreeTest(unittest.TestCase):
         self.dummy_variable = "dummy_value"
         log_path = os.path.join("input_data", "receipt.xes")
         log = xes_importer.import_log(log_path)
-        drift_found, logs_list, endpoints, change_date_repr = conc_drift_detection_factory.apply(log)
+        drift_found, logs_list, endpoints, change_date_repr = conc_drift_detection_factory.apply(log, parameters={
+            "enable_succattr": False})
         clf, feature_names, classes = get_representation.get_decision_tree(logs_list[0], logs_list[1])
         del clf
         del feature_names
