@@ -22,6 +22,7 @@ if __name__ == "__main__":
     from examples import example_diagnostics
     from examples import parquet
     from examples import concept_drift
+    from examples import interval_logs
     from examples import sna_log
     from examples import transition_system_test
     from examples import heu_miner_test
@@ -67,6 +68,8 @@ if __name__ == "__main__":
     parquet.execute_script()
     print("\n\nconcept_drift")
     concept_drift.execute_script()
+    print("\n\ninterval_logs")
+    interval_logs.execute_script()
     print("\n\ntransition_system_test")
     transition_system_test.execute_script()
     print("\n\nheu_miner_test")
