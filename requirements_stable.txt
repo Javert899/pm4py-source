@@ -17,3 +17,4 @@ pytz==2018.9
 keras==2.2.4
 tensorflow==1.13.1
 joblib==0.13.2
+intervaltree

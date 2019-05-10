@@ -117,7 +117,8 @@ setup(
         'pytz>=2018.9',
         'keras',
         'tensorflow',
-        'joblib'
+        'joblib',
+        'intervaltree'
     ],
     project_urls={
         'Documentation': 'http://pm4py.pads.rwth-aachen.de/documentation/',

@@ -11,6 +11,7 @@ from pm4py.objects.log.log import EventLog
 from pm4py.objects.log.util import get_log_representation
 from pm4py.objects.log.util import xes
 from pm4py.util import constants
+from pm4py.util.business_hours import BusinessHours
 
 
 def get_trace_rep_rnn(trace, dictionary_features, max_len_trace):
@@ -223,13 +224,22 @@ def get_remaining_time_from_log(log, max_len_trace=100000, parameters=None):
         parameters = {}
     timestamp_key = parameters[
         constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
+    business_hours = parameters["business_hours"] if "business_hours" in parameters else False
+    worktiming = parameters["worktiming"] if "worktiming" in parameters else [7, 17]
+    weekends = parameters["weekends"] if "weekends" in parameters else [6, 7]
     y_orig = []
     for trace in log:
         y_orig.append([])
         for index, event in enumerate(trace):
             if index >= max_len_trace:
                 break
-            y_orig[-1].append((trace[-1][timestamp_key] - trace[index][timestamp_key]).total_seconds())
+            timestamp_st = trace[index][timestamp_key]
+            timestamp_et = trace[-1][timestamp_key]
+            if business_hours:
+                bh = BusinessHours(timestamp_st.replace(tzinfo=None), timestamp_et.replace(tzinfo=None), worktiming=worktiming, weekends=weekends)
+                y_orig[-1].append(bh.getseconds())
+            else:
+                y_orig[-1].append((timestamp_et - timestamp_st).total_seconds())
         while len(y_orig[-1]) < max_len_trace:
             y_orig[-1].append(y_orig[-1][-1])
     return y_orig
