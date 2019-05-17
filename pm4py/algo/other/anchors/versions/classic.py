@@ -1,6 +1,6 @@
 from pm4py.algo.other.anchors.interface.anchor_classification import AnchorClassification
 from sklearn.linear_model import PassiveAggressiveClassifier
-from anchor import anchor_tabular
+from pm4py.util.anchors import anchor_tabular
 from pm4py.objects.log.util import get_log_representation
 from pm4py.objects.log.log import EventLog
 import sklearn.ensemble
