@@ -1,1 +1,1 @@
-from pm4py.algo.other import conceptdrift, clustering, intervaltree, anchors, decisiontree
+from pm4py.algo.other import conceptdrift, clustering, anchors, decisiontree
