@@ -4,6 +4,21 @@ from node2vec import Node2Vec
 
 
 def from_df(df, parameters=None):
+    """
+    Encode a database log dataframe to a node2vec representation
+
+    Parameters
+    ------------
+    df
+        Dataframe
+    parameters
+        Parameters of the algorithm
+
+    Returns
+    ------------
+    rep
+        Node2vec representation
+    """
     if parameters is None:
         parameters = {}
 
