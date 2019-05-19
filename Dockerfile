@@ -12,4 +12,3 @@ RUN pip install pydotplus
 
 RUN pip install pulp intervaltree
 COPY . /app
-RUN cd /app && cp tests/test_dockers/setups/setup_master.py setup.py && python setup.py install
