@@ -16,8 +16,10 @@ if __name__ == "__main__":
     from examples import example_simulation
     from examples import token_replay_imdf
     from examples import decisiontree_example
+    from examples import clustering_example
     from examples import example_diagnostics
     from examples import parquet
+    from examples import concept_drift
     from examples import sna_log
     from examples import transition_system_test
     from examples import heu_miner_test
@@ -50,12 +52,16 @@ if __name__ == "__main__":
     token_replay_imdf.execute_script()
     print("\n\ndecisiontree_example")
     decisiontree_example.execute_script()
+    print("\n\nclustering_example")
+    clustering_example.execute_script()
     print("\n\nexample_diagnostics")
     example_diagnostics.execute_script()
     print("\n\ndfg_min_ex")
     dfg_min_ex.execute_script()
     print("\n\nparquet")
     parquet.execute_script()
+    print("\n\nconcept_drift")
+    concept_drift.execute_script()
     print("\n\ntransition_system_test")
     transition_system_test.execute_script()
     print("\n\nheu_miner_test")
