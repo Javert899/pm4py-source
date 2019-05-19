@@ -6,6 +6,23 @@ from pm4py.algo.mvp.n2v_encoding import encode
 
 
 def apply(df, activity, parameters=None):
+    """
+    Gets the vertices of the convex hull of the events belonging to a given activity
+
+    Parameters
+    -----------
+    df
+        Dataframe
+    activity
+        Activity
+    parameters
+        Parameters of the algorithm
+
+    Returns
+    ------------
+    vertices
+        Vertices of the convex hull
+    """
     if parameters is None:
         parameters = {}
 
@@ -15,8 +32,6 @@ def apply(df, activity, parameters=None):
 
     events = list(encoding["events"])
     events = [x for x in events if "activity="+str(activity) in x]
-
-    print(len(events))
 
     data = []
 

@@ -6,6 +6,23 @@ from pm4py.algo.mvp.n2v_encoding import encode
 
 
 def apply(df, ob_class, parameters=None):
+    """
+    Gets the vertices of the convex hull of the objects belonging to a given class
+
+    Parameters
+    -----------
+    df
+        Dataframe
+    ob_class
+        Object class
+    parameters
+        Parameters of the algorithm
+
+    Returns
+    ------------
+    vertices
+        Vertices of the convex hull
+    """
     if parameters is None:
         parameters = {}
 
