@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 
 from pm4py.algo.mvp.n2v_encoding import encode
+from sklearn.cluster import Birch
 
 
 def apply(df, parameters=None):
@@ -29,12 +30,29 @@ def apply(df, parameters=None):
     pca.fit(data)
     data2d = pca.transform(data)
 
-    timestamps = {x["event_id"]: x["event_timestamp"] for x in
+    timestamps = {x["event_id"]: x["event_timestamp"].timestamp() for x in
                  df[df["event_id"].isin(events_repr)][["event_id", "event_timestamp"]].to_dict("r")}
-    print("timestamps=",timestamps)
-    timest_list = [timestamps[x] for x in events_repr]
-    print("timest_list=",timest_list)
-    timest_list = np.asarray(timest_list)
+    min_timestamp = min(timestamps.values())
+    max_timestamp = max(timestamps.values())
+    inv_diff_timestamps = 1.0 / (max_timestamp - min_timestamp)
+    timest_list = [(timestamps[x] - min_timestamp)*inv_diff_timestamps for x in events_repr]
+    timest_list = np.transpose(np.asmatrix(timest_list))
 
     data2d = np.hstack((data2d, timest_list))
 
+    print(data2d)
+
+    for cluster_size in range(min_n_clusters_to_search, max_n_clusters_to_search + 1):
+        db = Birch(n_clusters=cluster_size).fit(data2d)
+        labels = db.labels_
+
+        already_seen = {}
+        clusters_list = []
+
+        for i in range(len(events)):
+            if not labels[i] in already_seen:
+                already_seen[labels[i]] = len(list(already_seen.keys()))
+                clusters_list.append([])
+            clusters_list[already_seen[labels[i]]].append(events[i].split("event=")[1].split(" activity=")[0])
+
+        print(cluster_size, len(clusters_list), [len(cluster) for cluster in clusters_list])
