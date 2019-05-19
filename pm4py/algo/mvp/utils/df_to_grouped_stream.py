@@ -19,7 +19,7 @@ def apply(df, remove_common=False, include_activity_timest_in_key=False):
     while i < len(stream):
         keys = list(stream[i].keys())
         for key in keys:
-            if str(stream[i][key]) == "nan":
+            if str(stream[i][key]) == "nan" or str(stream[i][key]) == "None":
                 del stream[i][key]
         event_id = stream[i]["event_id"]
         event_activity = stream[i]["event_activity"]
