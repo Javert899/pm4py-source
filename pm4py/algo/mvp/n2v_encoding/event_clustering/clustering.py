@@ -6,6 +6,21 @@ from pm4py.algo.mvp.n2v_encoding import encode
 
 
 def apply(df, parameters=None):
+    """
+    Algorithm to apply clustering to database event log
+
+    Parameters
+    ------------
+    df
+        Dataframe representing the database event log
+    parameters
+        Parameters of the algorithm
+
+    Returns
+    ------------
+    list_dataframes
+        List of dataframes that are the clusters detected by the algorithm
+    """
     if parameters is None:
         parameters = {}
 
