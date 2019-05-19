@@ -24,7 +24,7 @@ def from_df(df, parameters=None):
 
     include_activities = parameters["include_activities"] if "include_activities" in parameters else True
     include_classes = parameters["include_classes"] if "include_classes" in parameters else True
-    max_no_events = parameters["max_no_events"] if "max_no_events" in parameters else 250
+    max_no_events = parameters["max_no_events"] if "max_no_events" in parameters else 10000000
 
     ret = {}
 
@@ -49,12 +49,12 @@ def from_df(df, parameters=None):
         if not event_id_name in added_elements:
             added_elements.add(event_id_name)
             G.add_node(event_id_name)
-            ret["events"].add(event_id_name)
+        ret["events"].add(event_id_name)
         if include_activities:
             if not event_activity_name in added_elements:
                 added_elements.add(event_activity_name)
                 G.add_node(event_activity_name)
-                ret["activities"].add(event_activity_name)
+            ret["activities"].add(event_activity_name)
             G.add_edge(event_id_name, event_activity_name)
         for object in grouped_stream[event]:
             items = [(k, v) for k, v in object.items()]
@@ -66,12 +66,12 @@ def from_df(df, parameters=None):
                 if not object_id_name in added_elements:
                     added_elements.add(object_id_name)
                     G.add_node(object_id_name)
-                    ret["objects"].add(object_id_name)
+                ret["objects"].add(object_id_name)
                 if include_classes:
                     if not object_class_name in added_elements:
                         added_elements.add(object_class_name)
                         G.add_node(object_class_name)
-                        ret["classes"].add(object_class_name)
+                    ret["classes"].add(object_class_name)
                     G.add_edge(object_id_name, object_class_name)
                 G.add_edge(event_id_name, object_id_name)
 
@@ -84,5 +84,6 @@ def from_df(df, parameters=None):
     model = node2vec.fit(window=10, min_count=1)
 
     ret["model"] = model
+    ret["graph"] = G
 
     return ret
