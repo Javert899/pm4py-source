@@ -6,6 +6,7 @@ from pm4py.objects.log.util import xes
 from pm4py.util import constants
 import logging
 from copy import copy
+import logging
 
 
 def get_log_with_log_prefixes(log, parameters=None):
@@ -130,8 +131,13 @@ def get_log_traces_until_activity(log, activity, parameters=None):
             for attr in log[i].attributes:
                 new_trace.attributes[attr] = log[i].attributes[attr]
             new_log.append(new_trace)
-            curr_trace_interlapsed_time_to_act = log[i][ev_in_tr_w_act[0]][timestamp_key].timestamp() - \
-                                                 log[i][ev_in_tr_w_act[0] - 1][timestamp_key].timestamp()
+            try:
+                curr_trace_interlapsed_time_to_act = log[i][ev_in_tr_w_act[0]][timestamp_key].timestamp() - \
+                                                     log[i][ev_in_tr_w_act[0] - 1][timestamp_key].timestamp()
+            except:
+                curr_trace_interlapsed_time_to_act = log[i][ev_in_tr_w_act[0]][timestamp_key] - \
+                                                     log[i][ev_in_tr_w_act[0] - 1][timestamp_key]
+                logging.error("timestamp_key not timestamp")
             traces_interlapsed_time_to_act.append(curr_trace_interlapsed_time_to_act)
         i = i + 1
 

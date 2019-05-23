@@ -5,6 +5,7 @@ from pm4py.objects.bpmn.util import log_matching
 from pm4py.objects.log.util import get_log_representation, get_prefixes
 from pm4py.objects.log.util import xes
 from pm4py.util import constants
+import logging
 
 DEFAULT_MAX_REC_DEPTH_DEC_MINING = 3
 
@@ -178,9 +179,15 @@ def get_all_interlapsed_times_in_activity(log, activity, parameters=None):
     while i < len(log):
         ev_in_tr_w_act = sorted([j for j in range(len(log[i])) if log[i][j][activity_key] == activity])
         if ev_in_tr_w_act and ev_in_tr_w_act[0] > 0:
-            interlapsed_times.append(
-                log[i][ev_in_tr_w_act[0]][timestamp_key].timestamp() - log[i][ev_in_tr_w_act[0] - 1][
-                    timestamp_key].timestamp())
+            try:
+                interlapsed_times.append(
+                    log[i][ev_in_tr_w_act[0]][timestamp_key].timestamp() - log[i][ev_in_tr_w_act[0] - 1][
+                        timestamp_key].timestamp())
+            except:
+                interlapsed_times.append(
+                    log[i][ev_in_tr_w_act[0]][timestamp_key] - log[i][ev_in_tr_w_act[0] - 1][
+                        timestamp_key])
+                logging.error("timestamp_key not timestamp")
         i = i + 1
 
     interlapsed_times = sorted(interlapsed_times)
