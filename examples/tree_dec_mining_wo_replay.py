@@ -5,8 +5,9 @@ import os
 
 def execute_script():
     log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
-    rules = decision_mining_given_activities.get_decision_mining_rules_given_activities(log, ["pay compensation",
-                                                                                              "reject request"])
+    rules, clf, feature_names, classes, len_list_logs, data, target = decision_mining_given_activities.get_decision_mining_rules_given_activities(
+        log, ["pay compensation",
+              "reject request"])
     print("Decision rules = ")
     print(rules)
 

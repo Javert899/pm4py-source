@@ -11,6 +11,8 @@ from pm4py.objects.log.util import sorting, get_log_representation
 from pm4py.objects.log.util import xes
 from pm4py.util import constants
 
+from copy import deepcopy
+
 
 def apply(log, parameters=None):
     """
@@ -76,9 +78,10 @@ def apply(log, parameters=None):
         data, feature_names = get_log_representation.get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr,
                                                                         num_ev_attr, str_evsucc_attr=str_evsucc_attr)
     else:
-        data, feature_names = get_log_representation.get_default_representation(log, parameters={
-            get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION: enable_succattr,
-            get_log_representation.ENABLE_ACTIVITY_DEF_REPRESENTATION: activity_def_representation})
+        parameters2 = deepcopy(parameters)
+        parameters2[get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION] = enable_succattr
+        parameters2[get_log_representation.ENABLE_ACTIVITY_DEF_REPRESENTATION] = activity_def_representation
+        data, feature_names = get_log_representation.get_default_representation(log, parameters=parameters2)
 
     start_end_timestamp = np.zeros((len(log), 2))
 

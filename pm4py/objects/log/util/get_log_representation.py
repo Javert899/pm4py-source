@@ -358,6 +358,7 @@ def get_default_representation(log, parameters=None, feature_names=None):
         ENABLE_SUCC_DEF_REPRESENTATION] if ENABLE_SUCC_DEF_REPRESENTATION in parameters else False
     activity_key = parameters[
         constants.PARAMETER_CONSTANT_ACTIVITY_KEY] if constants.PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else xes.DEFAULT_NAME_KEY
+    blacklist = parameters["blacklist"] if "blacklist" in parameters else []
 
     str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr = attributes_filter.select_attributes_from_log_for_tree(log)
     str_evsucc_attr = None
@@ -366,6 +367,13 @@ def get_default_representation(log, parameters=None, feature_names=None):
         str_evsucc_attr = [activity_key]
     if enable_activity_def_representation and activity_key not in str_ev_attr:
         str_ev_attr.append(activity_key)
+
+    str_tr_attr = [x for x in str_tr_attr if x not in blacklist]
+    str_ev_attr = [x for x in str_ev_attr if x not in blacklist]
+    num_tr_attr = [x for x in num_tr_attr if x not in blacklist]
+    num_ev_attr = [x for x in num_ev_attr if x not in blacklist]
+    if str_evsucc_attr is not None:
+        str_evsucc_attr = [x for x in str_evsucc_attr if x not in blacklist]
 
     return get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr, str_evsucc_attr=str_evsucc_attr,
                               feature_names=feature_names)
