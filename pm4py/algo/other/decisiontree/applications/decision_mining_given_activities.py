@@ -11,6 +11,9 @@ from pm4py.objects.bpmn.util import log_matching
 from pm4py.objects.log.log import EventLog
 from pm4py.objects.log.util import get_log_representation, get_prefixes
 import logging
+import re
+import os
+from pm4py.visualization.decisiontree import factory as dec_tree_vis_factory
 
 DEFAULT_MAX_REC_DEPTH_DEC_MINING = 2
 
@@ -130,16 +133,21 @@ def get_rules_per_edge(log, gateway_map, parameters=None):
     if parameters is None:
         parameters = {}
 
+    save_img_dec_tree_gw = parameters["save_img_dec_tree_gw"] if "save_img_dec_tree_gw" in parameters else False
+    path_img_dec_tree_gw = parameters["path_img_dec_tree_gw"] if "path_img_dec_tree_gw" in parameters else "."
+
     rules_per_edge = {}
     for gw in gateway_map:
         try:
             rules = None
             rules = {}
+            clf = None
             source_activity = gateway_map[gw]["source"]
             if gateway_map[gw]["type"] == "onlytasks":
                 target_activities = [x for x in gateway_map[gw]["edges"]]
                 logging.info("get_rules_per_edge FIRST " + str(target_activities))
-                rules = get_decision_mining_rules_given_activities(log, target_activities, parameters=parameters)
+                rules, clf, feature_names, classes, len_list_logs, data, target = get_decision_mining_rules_given_activities(
+                    log, target_activities, parameters=parameters)
                 logging.info("get_rules_per_edge AFTER_FIRST " + str(rules))
             else:
                 main_target_activity = list(gateway_map[gw]["edges"].keys())[0]
@@ -148,13 +156,19 @@ def get_rules_per_edge(log, gateway_map, parameters=None):
                 logging.info("get_rules_per_edge SECOND " + str(other_activities))
                 if other_activities:
                     target_activities = [main_target_activity] + other_activities
-                    rules = get_decision_mining_rules_given_activities(log, target_activities, parameters=parameters)
+                    rules, clf, feature_names, classes, len_list_logs, data, target = get_decision_mining_rules_given_activities(
+                        log, target_activities, parameters=parameters)
                     logging.info("get_rules_per_edge SECOND RULES CALCULATED")
                 logging.info("get_rules_per_edge AFTER_SECOND " + str(rules))
             for n in gateway_map[gw]["edges"]:
                 if n in rules:
                     logging.info("n in rules = " + str(n))
                     rules_per_edge[gateway_map[gw]["edges"][n]["edge"]] = rules[n]
+            if clf is not None and save_img_dec_tree_gw:
+                gw_name_wo_spec_char = re.sub(r'\W+', '', gw)
+                gw_final_path = os.path.join(path_img_dec_tree_gw, gw_name_wo_spec_char + ".svg")
+                gviz = dec_tree_vis_factory.apply(clf, feature_names, classes, parameters={"format": "svg"})
+                dec_tree_vis_factory.save(gviz, gw_final_path)
         except:
             # traceback.print_exc()
             logging.info("exception get_rules_per_edge gw=" + str(gw) + " exception=" + str(traceback.format_exc()))
@@ -192,6 +206,56 @@ def get_other_activities_connected_to_source(log, source_activity, main_target_a
     return other_activities
 
 
+def get_recall_per_class(clf, data, target, classes):
+    """
+    Gets the recall per class (and the overall one)
+
+    Parameters
+    ------------
+    clf
+        Decision tree
+    data
+        Data (to test against)
+    target
+        Target of the examples
+    classes
+        Classes of the decision tree
+
+    Returns
+    ------------
+    recall
+        Recall per class dictionary
+    """
+    recall = {}
+
+    total_per_class = {}
+    correct_per_class = {}
+
+    total_per_class["@@ALL##"] = 0
+    correct_per_class["@@ALL##"] = 0
+    recall["@@ALL##"] = 0
+
+    prediction = clf.predict(data)
+
+    for i in range(len(target)):
+        cl = classes[target[i]]
+        if cl not in total_per_class:
+            total_per_class[cl] = 0
+            correct_per_class[cl] = 0
+            recall[cl] = 0
+        total_per_class[cl] = total_per_class[cl] + 1
+        total_per_class["@@ALL##"] = total_per_class["@@ALL##"] + 1
+        if prediction[i] == target[i]:
+            correct_per_class[cl] = correct_per_class[cl] + 1
+            correct_per_class["@@ALL##"] = correct_per_class["@@ALL##"] + 1
+
+    for cl in correct_per_class:
+        if total_per_class[cl] > 0:
+            recall[cl] = float(correct_per_class[cl]) / float(total_per_class[cl])
+
+    return recall
+
+
 def get_decision_mining_rules_given_activities(log, activities, parameters=None):
     """
     Performs rules discovery thanks to decision mining from a log and a list of activities
@@ -212,15 +276,48 @@ def get_decision_mining_rules_given_activities(log, activities, parameters=None)
     rules
         Discovered rules leading to activities
     """
+    if parameters is None:
+        parameters = {}
+
     logging.info("get_decision_mining_rules_given_activities 0")
-    clf, feature_names, classes, len_list_logs = perform_decision_mining_given_activities(
+    clf, feature_names, classes, len_list_logs, data, target = perform_decision_mining_given_activities(
         log, activities, parameters=parameters)
+    recall = get_recall_per_class(clf, data, target, classes)
     logging.info(
         "get_decision_mining_rules_given_activities 1 classes=" + str(classes) + " len_list_logs=" + str(len_list_logs))
-    rules = get_rules_for_classes(clf, feature_names, classes, len_list_logs)
+    rules, correctly_classified, incorrectly_classified = get_rules_for_classes(clf, feature_names, classes,
+                                                                                len_list_logs)
     logging.info("get_decision_mining_rules_given_activities 2 rules=" + str(rules))
 
-    return rules
+    ret_rules = {}
+
+    for cl in rules:
+        this_precision = float(correctly_classified[cl]) / float(correctly_classified[cl] + incorrectly_classified[cl])
+        dectree_overall_precision = float(correctly_classified["@@ALL##"]) / float(
+            correctly_classified["@@ALL##"] + incorrectly_classified["@@ALL##"])
+        this_recall = recall[cl]
+        all_recall = recall["@@ALL##"]
+
+        this_f = 0.0
+        all_f = 0.0
+
+        if (this_recall + this_precision) > 0:
+            this_f = (2.0 * this_recall * this_precision) / (this_recall + this_precision)
+            all_f = (2.0 * all_recall * dectree_overall_precision) / (all_recall + dectree_overall_precision)
+
+        ret_rules[cl] = {"decisionRule": rules[cl], "thisCorrectlyClassified": correctly_classified[cl],
+                         "thisIncorrectlyClassified": incorrectly_classified[cl],
+                         "thisConsideredItems": correctly_classified[cl] + incorrectly_classified[cl],
+                         "allCorrectlyClassified": correctly_classified["@@ALL##"],
+                         "allIncorrectlyClassified": incorrectly_classified["@@ALL##"],
+                         "allConsideredItems": correctly_classified["@@ALL##"] + incorrectly_classified["@@ALL##"],
+                         "thisPrecision": this_precision, "decTreeOverallPrecision": dectree_overall_precision,
+                         "thisRecall": this_recall, "allRecall": all_recall, "thisFMeasure": this_f,
+                         "allFMeasure": all_f}
+
+    logging.info("get_decision_mining_rules_given_activities 3 ret_rules=" + str(ret_rules))
+
+    return ret_rules, clf, feature_names, classes, len_list_logs, data, target
 
 
 def perform_decision_mining_given_activities(log, activities, parameters=None):
@@ -253,6 +350,15 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
         parameters = {}
 
     max_diff_targets = parameters["max_diff_targets"] if "max_diff_targets" in parameters else 9999999999
+    str_tr_attr = parameters["str_tr_attr"] if "str_tr_attr" in parameters else None
+    str_ev_attr = parameters["str_ev_attr"] if "str_ev_attr" in parameters else None
+    num_tr_attr = parameters["num_tr_attr"] if "num_tr_attr" in parameters else None
+    num_ev_attr = parameters["num_ev_attr"] if "num_ev_attr" in parameters else None
+    str_evsucc_attr = parameters["str_evsucc_attr"] if "str_evsucc_attr" in parameters else None
+    enable_succattr = parameters["enable_succattr"] if "enable_succattr" in parameters else False
+    activity_def_representation = parameters[
+        "activity_def_representation"] if "activity_def_representation" in parameters else True
+    max_rec_depth = parameters["max_rec_depth"] if "max_rec_depth" in parameters else DEFAULT_MAX_REC_DEPTH_DEC_MINING
 
     list_logs, considered_activities = get_prefixes.get_log_traces_to_activities(log, activities,
                                                                                  parameters=parameters)
@@ -263,18 +369,34 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
         target = target + [min(i, max_diff_targets)] * len(list_logs[i])
 
     transf_log = EventLog(list(itertools.chain.from_iterable(list_logs)))
-    data, feature_names = get_log_representation.get_default_representation(transf_log)
 
-    clf = tree.DecisionTreeClassifier(max_depth=DEFAULT_MAX_REC_DEPTH_DEC_MINING)
+    if str_tr_attr is not None or str_ev_attr is not None or num_tr_attr is not None or num_ev_attr is not None or str_evsucc_attr is not None:
+        if str_tr_attr is None:
+            str_tr_attr = []
+        if str_ev_attr is None:
+            str_ev_attr = []
+        if num_tr_attr is None:
+            num_tr_attr = []
+        if num_ev_attr is None:
+            num_ev_attr = []
+        data, feature_names = get_log_representation.get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr,
+                                                                        num_ev_attr, str_evsucc_attr=str_evsucc_attr)
+    else:
+        parameters2 = deepcopy(parameters)
+        parameters2[get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION] = enable_succattr
+        parameters2[get_log_representation.ENABLE_ACTIVITY_DEF_REPRESENTATION] = activity_def_representation
+        data, feature_names = get_log_representation.get_default_representation(transf_log, parameters=parameters2)
+
+    clf = tree.DecisionTreeClassifier(max_depth=max_rec_depth)
     clf.fit(data, target)
 
     len_list_logs = [len(x) for x in list_logs]
 
-    return clf, feature_names, classes, len_list_logs
+    return clf, feature_names, classes, len_list_logs, data, target
 
 
 def get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth=0, curr_node=0, rules=None,
-                          curr_rec_rule=None):
+                          curr_rec_rule=None, correctly_classified=None, incorrectly_classified=None, parameters=None):
     """
     Gets the rules that permits to go to a specific class
 
@@ -296,6 +418,8 @@ def get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth
         Already established rules by the recursion algorithm
     curr_rec_rule
         Rule that the current recursion would like to add
+    parameters
+        Parameters of the algorithm
 
     Returns
     -------------
@@ -304,6 +428,10 @@ def get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth
     """
     if rules is None:
         rules = {}
+    if correctly_classified is None:
+        correctly_classified = {}
+    if incorrectly_classified is None:
+        incorrectly_classified = {}
     if curr_rec_rule is None:
         curr_rec_rule = []
     if rec_depth == 0:
@@ -311,30 +439,61 @@ def get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth
     feature = tree.tree_.feature[curr_node]
     feature_name = feature_names[feature]
     threshold = tree.tree_.threshold[curr_node]
+
     child_left = tree.tree_.children_left[curr_node]
     child_right = tree.tree_.children_right[curr_node]
     value = [a * b for a, b in zip(tree.tree_.value[curr_node][0], len_list_logs)]
 
     if child_left == child_right:
         target_class = classes[np.argmax(value)]
+        this_correct = tree.tree_.value[curr_node][0][np.argmax(value)]
+        this_incorrect = np.sum(
+            tree.tree_.value[curr_node][0][idx] for idx in range(len(value)) if not idx == np.argmax(value))
         if curr_rec_rule:
             if target_class not in rules:
                 rules[target_class] = []
+            if target_class not in correctly_classified:
+                correctly_classified[target_class] = 0
+            if target_class not in incorrectly_classified:
+                incorrectly_classified[target_class] = 0
+            if "@@ALL##" not in correctly_classified:
+                correctly_classified["@@ALL##"] = 0
+            if "@@ALL##" not in incorrectly_classified:
+                incorrectly_classified["@@ALL##"] = 0
+            correctly_classified[target_class] = correctly_classified[target_class] + this_correct
+            incorrectly_classified[target_class] = incorrectly_classified[target_class] + this_incorrect
+            correctly_classified["@@ALL##"] = correctly_classified["@@ALL##"] + this_correct
+            incorrectly_classified["@@ALL##"] = incorrectly_classified["@@ALL##"] + this_incorrect
+
             rule_to_save = "(" + " && ".join(curr_rec_rule) + ")"
             rules[target_class].append(rule_to_save)
     else:
         if not child_left == curr_node and child_left >= 0:
             new_curr_rec_rule = form_new_curr_rec_rule(curr_rec_rule, False, feature_name, threshold)
-            rules = get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth=rec_depth + 1,
-                                          curr_node=child_left, rules=rules, curr_rec_rule=new_curr_rec_rule)
+            rules, correctly_classified, incorrectly_classified = get_rules_for_classes(tree, feature_names, classes,
+                                                                                        len_list_logs,
+                                                                                        rec_depth=rec_depth + 1,
+                                                                                        curr_node=child_left,
+                                                                                        rules=rules,
+                                                                                        curr_rec_rule=new_curr_rec_rule,
+                                                                                        correctly_classified=correctly_classified,
+                                                                                        incorrectly_classified=incorrectly_classified,
+                                                                                        parameters=parameters)
         if not child_right == curr_node and child_right >= 0:
             new_curr_rec_rule = form_new_curr_rec_rule(curr_rec_rule, True, feature_name, threshold)
-            rules = get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth=rec_depth + 1,
-                                          curr_node=child_right, rules=rules, curr_rec_rule=new_curr_rec_rule)
+            rules, correctly_classified, incorrectly_classified = get_rules_for_classes(tree, feature_names, classes,
+                                                                                        len_list_logs,
+                                                                                        rec_depth=rec_depth + 1,
+                                                                                        curr_node=child_right,
+                                                                                        rules=rules,
+                                                                                        curr_rec_rule=new_curr_rec_rule,
+                                                                                        correctly_classified=correctly_classified,
+                                                                                        incorrectly_classified=incorrectly_classified,
+                                                                                        parameters=parameters)
     if rec_depth == 0:
         for act in rules:
             rules[act] = " || ".join(rules[act])
-    return rules
+    return rules, correctly_classified, incorrectly_classified
 
 
 def form_new_curr_rec_rule(curr_rec_rule, positive, feature_name, threshold):

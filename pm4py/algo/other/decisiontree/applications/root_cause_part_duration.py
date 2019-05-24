@@ -7,6 +7,8 @@ from pm4py.objects.log.util import xes
 from pm4py.util import constants
 import logging
 
+from copy import deepcopy
+
 DEFAULT_MAX_REC_DEPTH_DEC_MINING = 3
 
 
@@ -97,10 +99,39 @@ def get_data_classes_root_cause_analysis(log, activity, parameters=None):
     classes
         Classes
     """
+    if parameters is None:
+        parameters = {}
+
+    str_tr_attr = parameters["str_tr_attr"] if "str_tr_attr" in parameters else None
+    str_ev_attr = parameters["str_ev_attr"] if "str_ev_attr" in parameters else None
+    num_tr_attr = parameters["num_tr_attr"] if "num_tr_attr" in parameters else None
+    num_ev_attr = parameters["num_ev_attr"] if "num_ev_attr" in parameters else None
+    str_evsucc_attr = parameters["str_evsucc_attr"] if "str_evsucc_attr" in parameters else None
+    enable_succattr = parameters["enable_succattr"] if "enable_succattr" in parameters else False
+    activity_def_representation = parameters[
+        "activity_def_representation"] if "activity_def_representation" in parameters else True
+
     transf_log, traces_interlapsed_time_to_act = get_prefixes.get_log_traces_until_activity(log, activity,
                                                                                             parameters=parameters)
     thresh = get_first_quartile_times_interlapsed_in_activity(log, activity, parameters=parameters)
-    data, feature_names = get_log_representation.get_default_representation(transf_log)
+
+    if str_tr_attr is not None or str_ev_attr is not None or num_tr_attr is not None or num_ev_attr is not None or str_evsucc_attr is not None:
+        if str_tr_attr is None:
+            str_tr_attr = []
+        if str_ev_attr is None:
+            str_ev_attr = []
+        if num_tr_attr is None:
+            num_tr_attr = []
+        if num_ev_attr is None:
+            num_ev_attr = []
+        data, feature_names = get_log_representation.get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr,
+                                                                        num_ev_attr, str_evsucc_attr=str_evsucc_attr)
+    else:
+        parameters2 = deepcopy(parameters)
+        parameters2[get_log_representation.ENABLE_SUCC_DEF_REPRESENTATION] = enable_succattr
+        parameters2[get_log_representation.ENABLE_ACTIVITY_DEF_REPRESENTATION] = activity_def_representation
+        data, feature_names = get_log_representation.get_default_representation(transf_log, parameters=parameters2)
+
     classes = ["under", "over"]
     target = []
     for it in traces_interlapsed_time_to_act:
