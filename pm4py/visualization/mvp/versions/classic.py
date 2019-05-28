@@ -27,4 +27,6 @@ def apply(model, parameters=None):
             overall_heu = persp
         else:
             overall_heu = overall_heu + persp
-    return heu_visualizer.apply(overall_heu, parameters=parameters)
+    if overall_heu is not None:
+        return heu_visualizer.apply(overall_heu, parameters=parameters)
+    return None

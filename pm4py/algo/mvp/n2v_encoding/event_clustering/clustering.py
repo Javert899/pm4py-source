@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import Birch
 from sklearn.decomposition import PCA
 
 from pm4py.algo.mvp.n2v_encoding import encode
@@ -27,7 +27,7 @@ def apply(df, parameters=None):
     encoding = parameters["encoding"] if "encoding" in parameters else encode.from_df(df, parameters=parameters)
 
     pca_components = parameters["pca_components"] if "pca_components" in parameters else 3
-    dbscan_eps = parameters["dbscan_eps"] if "dbscan_eps" in parameters else 0.3
+    no_clusters = parameters["no_clusters"] if "no_clusters" in parameters else 2
 
     events = list(encoding["events"])
 
@@ -42,7 +42,7 @@ def apply(df, parameters=None):
     pca.fit(data)
     data2d = pca.transform(data)
 
-    db = DBSCAN(eps=dbscan_eps).fit(data2d)
+    db = Birch(n_clusters=no_clusters).fit(data2d)
     labels = db.labels_
 
     already_seen = {}
