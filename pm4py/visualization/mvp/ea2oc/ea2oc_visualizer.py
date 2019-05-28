@@ -42,7 +42,8 @@ def apply(encoding, parameters=None):
         elif "object=" in target and not "event=" in source:
             (source, target) = (target, source)
 
-        print(source, target)
+        e = pydotplus.Edge(src=nodes[source], dst=nodes[target])
+        graph.add_edge(e)
 
     file_name = tempfile.NamedTemporaryFile(suffix='.' + image_format)
     file_name.close()
