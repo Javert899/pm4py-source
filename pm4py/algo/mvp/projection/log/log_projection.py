@@ -138,7 +138,7 @@ def get_perspective_filt_log_from_df_and_mvp_and_perspective(df, mvp, p, paramet
     end_activities = list(mvp[p].end_activities[0].keys())
     activities = list(mvp[p].nodes.keys())
     parameters[ENABLE_ENDPOINTS_FILTER] = True
-    parameters[ENABLE_ACTIVITIES_FILTER] = True
+    parameters[ENABLE_ACTIVITIES_FILTER] = False
     parameters[ENABLE_VARIANTS_FILTER] = True
 
     if START_ACTIVITIES not in parameters:

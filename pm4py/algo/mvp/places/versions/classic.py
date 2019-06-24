@@ -1,7 +1,7 @@
 from pm4py.algo.discovery.massive_places import factory as places_discovery
 from pm4py.algo.mvp.projection.log import log_projection
 from pm4py.objects.petri.utils import remove_transition
-
+import traceback
 
 def apply(df, mvp, parameters=None):
     """
@@ -52,6 +52,7 @@ def apply(df, mvp, parameters=None):
             print("succeeded applying places discovery: ",perspective)
         except:
             print("exception in applying places discovery: ", perspective)
+            traceback.print_exc()
 
     mvp = decorate_mvp_with_models(mvp, list_models)
 
