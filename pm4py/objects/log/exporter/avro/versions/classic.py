@@ -11,13 +11,13 @@ def give_type(value):
         return ["string", "null"]
     if type(value) is datetime:
         return ["long", "null"]
-    return None
+    return ["string", "null"]
 
 
 def transf(k,v,all_attribute_types):
     if all_attribute_types[k] == ["long", "null"]:
         return int(v.timestamp())
-    return v
+    return str(v)
 
 
 def apply(log, file_path, parameters=None):
