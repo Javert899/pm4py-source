@@ -3,6 +3,7 @@ import pyarrow.parquet as pq
 import os
 import shutil
 
+
 def apply(df, path, parameters=None):
     """
     Exports a dataframe to a Parquet file
