@@ -1,7 +1,7 @@
 import pyarrow.parquet as pq
+import os
 
 COLUMNS = "columns"
-
 
 def apply(path, parameters=None):
     """
