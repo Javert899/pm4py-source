@@ -29,7 +29,7 @@ def apply(encoding, parameters=None):
         elif "ACTIVITY=" in node_label:
             n = pydotplus.Node(name=node_label, shape="box", style="filled", label=node_label, fillcolor="#00FF00")
         else:
-            n = pydotplus.Node(name=node_label, shape="box", style="filled", label=node_label, fillcolor="#0000FF")
+            n = pydotplus.Node(name=node_label, shape="box", style="filled", label=node_label, fillcolor="#5555FF")
         graph.add_node(n)
 
         nodes[node_label] = n
