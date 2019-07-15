@@ -23,7 +23,8 @@ def apply(df, path, parameters=None):
     if parameters is None:
         parameters = {}
 
-    case_id_key = parameters[constants.PARAMETER_CONSTANT_CASEID_KEY] if constants.PARAMETER_CONSTANT_CASEID_KEY in parameters else CASE_CONCEPT_NAME
+    case_id_key = parameters[
+        constants.PARAMETER_CONSTANT_CASEID_KEY] if constants.PARAMETER_CONSTANT_CASEID_KEY in parameters else CASE_CONCEPT_NAME
 
     compression = parameters["compression"] if "compression" in parameters else "snappy"
     partition_cols = parameters["partition_cols"] if "partition_cols" in parameters else None
