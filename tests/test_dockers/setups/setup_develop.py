@@ -101,12 +101,11 @@ setup(
         'graphviz',
         'pandas>=0.24.1',
         'scipy',
-        'pyarrow',
+        'pyarrow==0.13.0',
         'scikit-learn',
         'pydotplus',
         'pulp',
-        'pytz>=2018.9',
-        'intervaltree'
+        'pytz>=2018.9'
     ],
     project_urls={
         'Documentation': 'http://pm4py.pads.rwth-aachen.de/documentation/',
