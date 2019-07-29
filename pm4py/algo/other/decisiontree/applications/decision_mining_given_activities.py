@@ -16,6 +16,7 @@ import os
 from pm4py.visualization.decisiontree import factory as dec_tree_vis_factory
 
 DEFAULT_MAX_REC_DEPTH_DEC_MINING = 2
+MAX_MAX_REC_DEPTH_DEC_MINING = 6
 
 
 def get_rules_per_edge_given_bpmn(log, bpmn_graph, parameters=None):
@@ -359,6 +360,7 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
     activity_def_representation = parameters[
         "activity_def_representation"] if "activity_def_representation" in parameters else True
     max_rec_depth = parameters["max_rec_depth"] if "max_rec_depth" in parameters else DEFAULT_MAX_REC_DEPTH_DEC_MINING
+    max_max_rec_depth = parameters["max_rec_depth"] if "max_rec_depth" in parameters else MAX_MAX_REC_DEPTH_DEC_MINING
 
     list_logs, considered_activities = get_prefixes.get_log_traces_to_activities(log, activities,
                                                                                  parameters=parameters)
@@ -387,12 +389,22 @@ def perform_decision_mining_given_activities(log, activities, parameters=None):
         parameters2[get_log_representation.ENABLE_ACTIVITY_DEF_REPRESENTATION] = activity_def_representation
         data, feature_names = get_log_representation.get_default_representation(transf_log, parameters=parameters2)
 
-    clf = tree.DecisionTreeClassifier(max_depth=max_rec_depth)
-    clf.fit(data, target)
+    local_mem = []
+    t = max_rec_depth
+    while t <= max_max_rec_depth:
+        clf0 = tree.DecisionTreeClassifier(max_depth=t)
+        clf0.fit(data, target)
 
-    len_list_logs = [len(x) for x in list_logs]
+        len_list_logs0 = [len(x) for x in list_logs]
 
-    return clf, feature_names, classes, len_list_logs, data, target
+        rules = get_rules_for_classes(clf0, feature_names, classes, len_list_logs0)[0]
+        local_mem.append((clf0, len_list_logs0, -len(rules.keys()), t))
+
+        t = t + 1
+
+    local_mem = sorted(local_mem, key=lambda x: (x[-2], x[-1]))
+
+    return local_mem[0][0], feature_names, classes, local_mem[0][1], data, target
 
 
 def get_rules_for_classes(tree, feature_names, classes, len_list_logs, rec_depth=0, curr_node=0, rules=None,

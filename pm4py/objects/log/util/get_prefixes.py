@@ -33,6 +33,7 @@ def get_log_with_log_prefixes(log, parameters=None):
     for trace in log:
         cumulative_trace = Trace()
         for event in trace:
+            all_prefixes_log.append(deepcopy(cumulative_trace))
             cumulative_trace.append(event)
             all_prefixes_log.append(deepcopy(cumulative_trace))
         change_indexes.append([len(all_prefixes_log) - 1] * len(trace))
