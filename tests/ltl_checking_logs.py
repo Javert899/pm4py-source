@@ -16,6 +16,28 @@ class LtlCheckingLogTest(unittest.TestCase):
         filt_A_ev_B_neg = ltl_checker.A_eventually_B(log, "check ticket", "pay compensation",
                                                      parameters={"positive": False})
 
+    def test_AeventuallyBeventuallyC_pos(self):
+        log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
+        filt_A_ev_B_ev_C_pos = ltl_checker.A_eventually_B_eventually_C(log, "check ticket", "decide",
+                                                                       "pay compensation",
+                                                                       parameters={"positive": True})
+
+    def test_AeventuallyBeventuallyC_neg(self):
+        log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
+        filt_A_ev_B_ev_C_neg = ltl_checker.A_eventually_B_eventually_C(log, "check ticket", "decide",
+                                                                       "pay compensation",
+                                                                       parameters={"positive": False})
+
+    def test_AnextBnextC_pos(self):
+        log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
+        filt_A_next_B_next_C_pos = ltl_checker.A_next_B_next_C(log, "check ticket", "decide", "pay compensation",
+                                                               parameters={"positive": True})
+
+    def test_AnextBnextC_neg(self):
+        log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
+        filt_A_next_B_next_C_neg = ltl_checker.A_next_B_next_C(log, "check ticket", "decide", "pay compensation",
+                                                               parameters={"positive": False})
+
     def test_fourEeyesPrinciple_pos(self):
         log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
         filt_foureyes_pos = ltl_checker.four_eyes_principle(log, "check ticket", "pay compensation",
@@ -25,6 +47,16 @@ class LtlCheckingLogTest(unittest.TestCase):
         log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
         filt_foureyes_neg = ltl_checker.four_eyes_principle(log, "check ticket", "pay compensation",
                                                             parameters={"positive": False})
+
+    def test_attrValueDifferentPersons_pos(self):
+        log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
+        attr_value_different_persons_pos = ltl_checker.attr_value_different_persons(log, "check ticket",
+                                                                                    parameters={"positive": True})
+
+    def test_attrValueDifferentPersons_neg(self):
+        log = xes_importer.apply(os.path.join("..", "tests", "input_data", "running-example.xes"))
+        attr_value_different_persons_neg = ltl_checker.attr_value_different_persons(log, "check ticket",
+                                                                                    parameters={"positive": False})
 
 
 if __name__ == "__main__":
