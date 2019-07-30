@@ -26,7 +26,13 @@ def apply(input_object, parameters=None):
             c.attr(color='lightgrey')
             c.node_attr.update(style='filled', color='white')
             for a in input_object[p]["activities_count"]:
-                nodes[p][a] = c.node(str(uuid.uuid4()), a+" ("+str(input_object[p]["activities_count"][a])+")")
+                this_uuid = str(uuid.uuid4())
+                c.node(this_uuid, a + " (" + str(input_object[p]["activities_count"][a]) + ")")
+                nodes[p][a] = this_uuid
+            for x,y in input_object[p]["dfg"].items():
+                s = x[0]
+                t = x[1]
+                c.edge(nodes[p][s], nodes[p][t], label=str(y))
             c.attr(label='class: '+p)
 
     g.attr(overlap='false')
