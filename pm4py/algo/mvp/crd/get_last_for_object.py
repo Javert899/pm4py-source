@@ -10,4 +10,4 @@ def get_last(df, parameters=None):
 
         all_dfs.append(red_df)
 
-    return pd.concat(all_dfs).sort_values(['event_timestamp', 'event_id'])
+    return pd.concat(all_dfs).sort_values(['event_timestamp', 'event_id']).reset_index()

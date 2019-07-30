@@ -19,4 +19,4 @@ def get_int(df, parameters=None):
     i2 = concat_first.set_index("@@index").index
     i3 = concat_last.set_index("@@index").index
 
-    return df[~i1.isin(i2) & ~i1.isin(i3)]
+    return df[~i1.isin(i2) & ~i1.isin(i3)].sort_values(['event_timestamp', 'event_id']).reset_index()
