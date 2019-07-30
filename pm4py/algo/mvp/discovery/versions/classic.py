@@ -20,6 +20,7 @@ PERFORMANCE = "performance"
 PERSPECTIVES = "perspectives"
 USE_TIMESTAMP = "use_timestamp"
 SORT_CASEID_REQUIRED = "sort_caseid_required"
+SORT_TIMESTAMP_REQUIRED = "sort_timestamp_required"
 
 COLORS = ["#05B202", "#A13CCD", "#39F6C0", "#BA0D39", "#E90638", "#07B423", "#306A8A", "#678225", "#2742FE", "#4C9A75",
           "#4C36E9", "#7DB022", "#EDAC54", "#EAC439", "#EAC439", "#1A9C45", "#8A51C4", "#496A63", "#FB9543", "#2B49DD",
@@ -92,6 +93,7 @@ def apply(df, parameters=None):
     perspectives = parameters[PERSPECTIVES] if PERSPECTIVES in parameters else None
     use_timestamp = parameters[USE_TIMESTAMP] if USE_TIMESTAMP in parameters else True
     sort_caseid_required = parameters[SORT_CASEID_REQUIRED] if SORT_CASEID_REQUIRED in parameters else True
+    sort_timestamp_required = parameters[SORT_TIMESTAMP_REQUIRED] if SORT_TIMESTAMP_REQUIRED in parameters else True
 
     perspectives_heu = {}
 
@@ -112,17 +114,21 @@ def apply(df, parameters=None):
         else:
             proj_df = df[["event_id", "event_activity", p]].dropna(subset=[p])
 
+        proj_df = proj_df.groupby(["event_id", "event_activity", p]).first().reset_index()
+
         if performance:
             dfg_frequency, dfg_preformance = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity",
                                                                          case_id_glue=p,
                                                                          timestamp_key="event_timestamp",
                                                                          measure="both",
-                                                                         sort_caseid_required=sort_caseid_required)
+                                                                         sort_caseid_required=sort_caseid_required,
+                                                                         sort_timestamp_along_case_id=sort_timestamp_required)
         else:
             if has_timestamp:
                 dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
                                                             timestamp_key="event_timestamp",
-                                                            sort_caseid_required=sort_caseid_required)
+                                                            sort_caseid_required=sort_caseid_required,
+                                                            sort_timestamp_along_case_id=sort_timestamp_required)
             else:
                 dfg_frequency = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity", case_id_glue=p,
                                                             sort_timestamp_along_case_id=False,
@@ -137,7 +143,7 @@ def apply(df, parameters=None):
             end_activities = end_activities_filter.get_end_activities(proj_df, parameters=parameters_sa_ea)
             start_activities = clean_sa_ea(start_activities, decreasing_factor_sa_ea)
             end_activities = clean_sa_ea(end_activities, decreasing_factor_sa_ea)
-            activities_occurrences = attributes_filter.get_attribute_values(df, "event_activity")
+            activities_occurrences = attributes_filter.get_attribute_values(proj_df, "event_activity")
             activities = list(activities_occurrences.keys())
 
             if performance:
