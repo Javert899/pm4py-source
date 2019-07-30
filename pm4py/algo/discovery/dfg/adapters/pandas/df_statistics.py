@@ -33,10 +33,11 @@ def get_dfg_graph(df, measure="frequency", activity_key="concept:name", case_id_
     """
     # to get rows belonging to same case ID together, we need to sort on case ID
     if sort_caseid_required:
+        df["@@index"] = df.index
         if sort_timestamp_along_case_id:
-            df = df.sort_values([case_id_glue, timestamp_key])
+            df = df.sort_values([case_id_glue, timestamp_key, "@@index"])
         else:
-            df = df.sort_values(case_id_glue)
+            df = df.sort_values([case_id_glue, "@@index"])
     # to test approaches reduce dataframe to case, activity (and possibly complete timestamp) columns
     if measure == "frequency":
         df_reduced = df[[case_id_glue, activity_key]]
