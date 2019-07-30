@@ -13,9 +13,9 @@ def apply(df, parameters=None):
     if parameters is None:
         parameters = {}
 
-    min_act_count = parameters[MIN_ACT_COUNT] if MIN_ACT_COUNT in parameters else 5
+    min_act_count = parameters[MIN_ACT_COUNT] if MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT
     min_dfg_occurrences = parameters[
-        MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else 3
+        MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
 
     ret = {}
 
