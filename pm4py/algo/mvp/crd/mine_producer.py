@@ -16,9 +16,11 @@ def mine_producer(df, parameters=None):
 
         for c2 in cols:
             if not col == c2:
+                #print("mine_producer", col, c2)
                 parameters["target_col"] = c2
-                first_obj_df = get_first_for_object.get_first(df, parameters=parameters).dropna(axis='columns', how='all')
-                first_obj_df.columns = [x+"_2" for x in first_obj_df.columns]
+                first_obj_df = get_first_for_object.get_first(df, parameters=parameters).dropna(axis='columns',
+                                                                                                how='all')
+                first_obj_df.columns = [x + "_2" for x in first_obj_df.columns]
 
                 joined_df = red_df.merge(first_obj_df, left_on="event_id", right_on="event_id_2", suffixes=('', ''))
 
@@ -33,11 +35,10 @@ def mine_producer(df, parameters=None):
                 red_joined_df = red_joined_df.dropna(subset=[col], how="any")
                 red_joined_df = red_joined_df.dropna(axis='columns', how='all')
                 if len(red_joined_df) > 0:
-                    if c2+"_2" in red_joined_df.columns:
+                    if c2 + "_2" in red_joined_df.columns:
                         if col not in producer_per_class:
                             producer_per_class[col] = {}
                         producer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
-
 
     return {"activities_count_per_class": activities_count_per_class,
             "producer_per_class": producer_per_class}
