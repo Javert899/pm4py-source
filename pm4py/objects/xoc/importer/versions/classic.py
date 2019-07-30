@@ -88,7 +88,7 @@ def apply(file_path, parameters=None):
         i = i + 1
     dataframe = pd.DataFrame.from_dict(stream)
     if import_timestamp:
-        dataframe = dataframe.sort_values("event_timestamp")
+        dataframe = dataframe.sort_values(["event_timestamp", "event_id"])
 
     print("events: ",considered_events,"objects: ",len(considered_objects),"activities: ",len(considered_activities),"classes: ",len(considered_classes))
     return dataframe
