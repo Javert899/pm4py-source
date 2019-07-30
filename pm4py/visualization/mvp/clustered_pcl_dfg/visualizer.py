@@ -26,7 +26,7 @@ def apply(input_object, parameters=None):
             c.attr(color='lightgrey')
             c.node_attr.update(style='filled', color='white')
             for a in input_object[p]["activities_count"]:
-                nodes[p][a] = c.node(str(uuid.uuid4()), a)
+                nodes[p][a] = c.node(str(uuid.uuid4()), a+" ("+str(input_object[p]["activities_count"][a])+")")
             c.attr(label='class: '+p)
 
     g.attr(overlap='false')
