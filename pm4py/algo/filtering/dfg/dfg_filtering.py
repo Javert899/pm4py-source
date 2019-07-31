@@ -34,9 +34,6 @@ def clean_dfg_based_on_noise_thresh(dfg, activities, noise_threshold, parameters
     for act in activities:
         activ_max_count[act] = get_max_activity_count(dfg, act)
 
-    print("activ_max_count")
-    print(activ_max_count)
-
     for el in dfg:
         if type(el[0]) is str:
             if new_dfg is None:

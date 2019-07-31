@@ -13,7 +13,12 @@ def apply(df, parameters=None):
     temp_ports = {}
     ports = {}
 
+    print("COLS")
+    print(cols)
+
     for iii, col in enumerate(cols):
+        print(col)
+
         df0 = df.dropna(how='any', subset=[col])
         i1 = df.set_index("event_id").index
         i2 = df0.set_index("event_id").index
@@ -56,35 +61,35 @@ def apply(df, parameters=None):
                     temp_ports[col][c2][act2][act1] = [rel_count[couple], first_acti_count[act1],
                                                        second_acti_count[act2]]
 
-        for col in temp_ports:
-            for c2 in temp_ports[col]:
-                for act2 in temp_ports[col][c2]:
-                    if temp_ports[col][c2][act2]:
-                        all_keys = list(temp_ports[col][c2][act2].keys())
-                        summ = np.sum([x[0] for x in temp_ports[col][c2][act2].values()])
-                        if summ == temp_ports[col][c2][act2][all_keys[0]][2]:
-                            if not col in ports:
-                                ports[col] = {}
-                            if not c2 in ports[col]:
-                                ports[col][c2] = {}
-                            if not act2 in ports[col][c2]:
-                                ports[col][c2][act2] = {}
+    for col in temp_ports:
+        for c2 in temp_ports[col]:
+            for act2 in temp_ports[col][c2]:
+                if temp_ports[col][c2][act2]:
+                    all_keys = list(temp_ports[col][c2][act2].keys())
+                    summ = np.sum([x[0] for x in temp_ports[col][c2][act2].values()])
+                    if summ == temp_ports[col][c2][act2][all_keys[0]][2]:
+                        if not col in ports:
+                            ports[col] = {}
+                        if not c2 in ports[col]:
+                            ports[col][c2] = {}
+                        if not act2 in ports[col][c2]:
+                            ports[col][c2][act2] = {}
 
-                            for act in temp_ports[col][c2][act2]:
-                                if temp_ports[col][c2][act2][act][0] == temp_ports[col][c2][act2][act][1]:
-                                    ports[col][c2][act2][act] = "="
-                                else:
-                                    ports[col][c2][act2][act] = "<="
-
-                            bool_vect = [[x[0] == x[1] for x in temp_ports[col][c2][act2].values()]]
-                            res = True
-                            for v in bool_vect:
-                                res = res or v
-                            if res:
-                                ports[col][c2][act2]["@@complex"] = "="
+                        for act in temp_ports[col][c2][act2]:
+                            if temp_ports[col][c2][act2][act][0] == temp_ports[col][c2][act2][act][1]:
+                                ports[col][c2][act2][act] = "="
                             else:
-                                ports[col][c2][act2]["@@complex"] = "<="
+                                ports[col][c2][act2][act] = "<="
+
+                        bool_vect = [x[0] == x[1] for x in temp_ports[col][c2][act2].values()]
+                        res = True
+                        for v in bool_vect:
+                            res = res and v
+                        if res:
+                            ports[col][c2][act2]["@@complex"] = "="
+                        else:
+                            ports[col][c2][act2]["@@complex"] = "<="
 
 
-        # print(len(df), len(red_df))
-        return ports
+    # print(len(df), len(red_df))
+    return ports
