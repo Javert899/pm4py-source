@@ -88,8 +88,8 @@ def mine_consumer(df, parameters=None):
                                                 relations_per_class[col][c2] = {}
 
                                                 if len(red_joined_df_group_col) < len(red_joined_df_group_c2):
-                                                    if len(red_joined_df_group_c2) < amount_c1:
-                                                        if len(red_joined_df_group_c2) < amount_c2:
+                                                    if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
+                                                        if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
                                                             relations_per_class[col][c2][act] = ["0..1", "0..N"]
                                                         else:
                                                             relations_per_class[col][c2][act] = ["0..1", "1..N"]
@@ -99,8 +99,8 @@ def mine_consumer(df, parameters=None):
                                                         else:
                                                             relations_per_class[col][c2][act] = ["1..1", "1..N"]
                                                 else:
-                                                    if len(red_joined_df_group_c2) < amount_c1:
-                                                        if len(red_joined_df_group_c2) < amount_c2:
+                                                    if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
+                                                        if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
                                                             relations_per_class[col][c2][act] = ["0..1", "0..1"]
                                                         else:
                                                             relations_per_class[col][c2][act] = ["0..1", "1..1"]
