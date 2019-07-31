@@ -18,6 +18,7 @@ def mine_producer(df, parameters=None):
 
     activities_count_per_class = {}
     producer_per_class = {}
+    relations_per_class = {}
 
     for iii, col in enumerate(cols):
         red_df = df[["event_id", "event_activity", "event_timestamp", col]].dropna()
@@ -61,11 +62,16 @@ def mine_producer(df, parameters=None):
                         red_joined_df = joined_df[allowed_cols]
                         red_joined_df = red_joined_df.dropna(subset=[col], how="any")
                         red_joined_df = red_joined_df.dropna(axis='columns', how='all')
+
                         if len(red_joined_df) > 0:
                             if c2 + "_2" in red_joined_df.columns:
                                 if col in activities_count_per_class and c2 in activities_count_per_class:
+                                    red_joined_df_group_col = red_joined_df.groupby(col)
+                                    red_joined_df_group_c2 = red_joined_df.groupby(c2 + "_2")
+
                                     if col not in producer_per_class:
                                         producer_per_class[col] = {}
+                                        relations_per_class[col] = {}
                                     producer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
                                     all_keys = list(producer_per_class[col][c2].keys())
                                     for act in all_keys:
@@ -73,17 +79,42 @@ def mine_producer(df, parameters=None):
                                             c2]:
                                             amount_c1 = activities_count_per_class[col][act]
                                             amount_c2 = activities_count_per_class[c2][act]
+
+                                            relations_per_class[col][c2] = {}
+
+                                            if len(red_joined_df_group_col) < len(red_joined_df_group_c2):
+                                                if len(red_joined_df_group_c2) < amount_c1:
+                                                    if len(red_joined_df_group_c2) < amount_c2:
+                                                        relations_per_class[col][c2][act] = ["0..1", "0..N"]
+                                                    else:
+                                                        relations_per_class[col][c2][act] = ["0..1", "1..N"]
+                                                else:
+                                                    if len(red_joined_df_group_c2) < amount_c2:
+                                                        relations_per_class[col][c2][act] = ["1..1", "0..N"]
+                                                    else:
+                                                        relations_per_class[col][c2][act] = ["1..1", "1..N"]
+                                            else:
+                                                if len(red_joined_df_group_c2) < amount_c1:
+                                                    if len(red_joined_df_group_c2) < amount_c2:
+                                                        relations_per_class[col][c2][act] = ["0..1", "0..1"]
+                                                    else:
+                                                        relations_per_class[col][c2][act] = ["0..1", "1..1"]
+                                                else:
+                                                    if len(red_joined_df_group_c2) < amount_c2:
+                                                        relations_per_class[col][c2][act] = ["1..1", "0..1"]
+                                                    else:
+                                                        relations_per_class[col][c2][act] = ["1..1", "1..1"]
                                             this_amount = producer_per_class[col][c2][act]
                                             c1_ratio = math.log(1.0 + this_amount) / (
-                                                        math.log(1.0 + amount_c1) + 0.0000001)
+                                                    math.log(1.0 + amount_c1) + 0.0000001)
                                             c2_ratio = math.log(1.0 + this_amount) / (
-                                                        math.log(1.0 + amount_c2) + 0.0000001)
+                                                    math.log(1.0 + amount_c2) + 0.0000001)
 
                                             if (
                                                     c1_ratio < ratio_log_producer and c2_ratio < ratio_log_producer) or this_amount < min_dfg_occurrences:
                                                 del producer_per_class[col][c2][act]
                                         else:
-                                            producer_per_class[col][c2][act]
+                                            del producer_per_class[col][c2][act]
 
     return {"activities_count_per_class": activities_count_per_class,
-            "producer_per_class": producer_per_class}
+            "producer_per_class": producer_per_class, "relations_per_class": relations_per_class}

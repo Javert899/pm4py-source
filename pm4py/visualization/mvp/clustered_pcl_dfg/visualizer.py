@@ -55,8 +55,13 @@ def apply(input_object, parameters=None):
         for p2 in input_object["@@producers"]["producer_per_class"][p1]:
             for act in input_object["@@producers"]["producer_per_class"][p1][p2]:
                 count = input_object["@@producers"]["producer_per_class"][p1][p2][act]
+                print("relations per class = ")
+                print(input_object["@@producers"]["relations_per_class"][p1][p2])
+                left = input_object["@@producers"]["relations_per_class"][p1][p2][act][0]
+                right = input_object["@@producers"]["relations_per_class"][p1][p2][act][0]
                 if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2]:
-                    g.edge(nodes[p1][act], nodes[p2][act], style="dashed", xlabel="count=" + str(count),
+                    g.edge(nodes[p1][act], nodes[p2][act], style="dashed",
+                           xlabel="count=" + str(count) + " left=" + str(left) + " right=" + str(right),
                            color="#32CD32", fontcolor="#32CD32")
                     pass
 
