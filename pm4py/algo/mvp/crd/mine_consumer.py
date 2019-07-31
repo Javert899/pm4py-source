@@ -14,7 +14,7 @@ def mine_consumer(df, parameters=None):
     min_act_count = parameters[
         defaults.MIN_ACT_COUNT] if defaults.MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT + 1
     min_dfg_occurrences = parameters[
-        defaults.MIN_DFG_OCCURRENCES] if defaults.MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES + 1
+        defaults.MIN_DFG_OCCURRENCES] if defaults.MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
     min_acti_count_in_perspective = parameters[
         defaults.MIN_ACTI_COUNT_IN_PERSPECTIVE] if defaults.MIN_ACTI_COUNT_IN_PERSPECTIVE in parameters else defaults.DEFAULT_MIN_ACTI_COUNT_IN_PERSPECTIVE
 
