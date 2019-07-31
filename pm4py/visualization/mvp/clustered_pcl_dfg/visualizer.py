@@ -14,8 +14,9 @@ def apply(input_object, parameters=None):
         image_format = parameters["format"]
 
 
-    filename = tempfile.NamedTemporaryFile(suffix='.gv')
-    g = Digraph("", filename=filename.name, engine='dot', graph_attr={'bgcolor': 'transparent'})
+    #filename = tempfile.NamedTemporaryFile(suffix='.gv')
+    filename = "temp.gv"
+    g = Digraph("", filename=filename, engine='dot', graph_attr={'bgcolor': 'transparent'})
 
     nodes = {}
     subgraphs = {}
@@ -43,7 +44,8 @@ def apply(input_object, parameters=None):
             for act in input_object["@@producers"]["producer_per_class"][p1][p2]:
                 count = input_object["@@producers"]["producer_per_class"][p1][p2][act]
                 if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2]:
-                    g.edge(nodes[p1][act], nodes[p2][act], label="count="+str(count), style="dashed")
+                    g.edge(nodes[p1][act], nodes[p2][act], style="dashed", xlabel="count="+str(count))
+                    pass
 
     g.attr(overlap='false')
     g.attr(fontsize='11')

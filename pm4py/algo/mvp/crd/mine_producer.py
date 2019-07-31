@@ -1,4 +1,6 @@
 from pm4py.algo.mvp.crd import get_first_for_object
+from pm4py.objects.heuristics_net import defaults
+import math
 
 
 def mine_producer(df, parameters=None):
@@ -6,6 +8,13 @@ def mine_producer(df, parameters=None):
         parameters = {}
 
     cols = [x for x in df.columns if not x.startswith("event_")]
+
+    ratio_log_producer = parameters[
+        defaults.RATIO_LOG_PRODUCER] if defaults.RATIO_LOG_PRODUCER in parameters else defaults.DEFAULT_RATIO_LOG_PRODUCER
+    min_act_count = parameters[
+        defaults.MIN_ACT_COUNT] if defaults.MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT + 1
+    min_dfg_occurrences = parameters[
+        defaults.MIN_DFG_OCCURRENCES] if defaults.MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES + 1
 
     activities_count_per_class = {}
     producer_per_class = {}
@@ -19,6 +28,10 @@ def mine_producer(df, parameters=None):
 
         if len(red_df) > 0:
             activities_count_per_class[col] = dict(red_df["event_activity"].value_counts())
+            all_keys = list(activities_count_per_class[col])
+            for key in all_keys:
+                if activities_count_per_class[col][key] < min_act_count:
+                    del activities_count_per_class[col][key]
 
             for jjj, c2 in enumerate(cols):
                 if not col == c2:
@@ -35,7 +48,8 @@ def mine_producer(df, parameters=None):
 
                         first_obj_df.columns = [x + "_2" for x in first_obj_df.columns]
 
-                        joined_df = red_df.merge(first_obj_df, left_on="event_id", right_on="event_id_2", suffixes=('', ''))
+                        joined_df = red_df.merge(first_obj_df, left_on="event_id", right_on="event_id_2",
+                                                 suffixes=('', ''))
 
                         other_cols = list(
                             x for x in joined_df.columns if
@@ -49,9 +63,27 @@ def mine_producer(df, parameters=None):
                         red_joined_df = red_joined_df.dropna(axis='columns', how='all')
                         if len(red_joined_df) > 0:
                             if c2 + "_2" in red_joined_df.columns:
-                                if col not in producer_per_class:
-                                    producer_per_class[col] = {}
-                                producer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
+                                if col in activities_count_per_class and c2 in activities_count_per_class:
+                                    if col not in producer_per_class:
+                                        producer_per_class[col] = {}
+                                    producer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
+                                    all_keys = list(producer_per_class[col][c2].keys())
+                                    for act in all_keys:
+                                        if act in activities_count_per_class[col] and act in activities_count_per_class[
+                                            c2]:
+                                            amount_c1 = activities_count_per_class[col][act]
+                                            amount_c2 = activities_count_per_class[c2][act]
+                                            this_amount = producer_per_class[col][c2][act]
+                                            c1_ratio = math.log(1.0 + this_amount) / (
+                                                        math.log(1.0 + amount_c1) + 0.0000001)
+                                            c2_ratio = math.log(1.0 + this_amount) / (
+                                                        math.log(1.0 + amount_c2) + 0.0000001)
+
+                                            if (
+                                                    c1_ratio < ratio_log_producer and c2_ratio < ratio_log_producer) or this_amount < min_dfg_occurrences:
+                                                del producer_per_class[col][c2][act]
+                                        else:
+                                            producer_per_class[col][c2][act]
 
     return {"activities_count_per_class": activities_count_per_class,
             "producer_per_class": producer_per_class}
