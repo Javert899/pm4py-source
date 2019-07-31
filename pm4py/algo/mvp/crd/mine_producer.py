@@ -11,7 +11,11 @@ def mine_producer(df, parameters=None):
     producer_per_class = {}
 
     for iii, col in enumerate(cols):
-        red_df = df[["event_id", "event_activity", col]].dropna().groupby("event_id").first().reset_index()
+        red_df = df[["event_id", "event_activity", "event_timestamp", col]].dropna()
+        red_df["@@index"] = red_df.index
+        red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
+        red_df = red_df.drop("@@index", axis=1)
+        red_df = red_df.groupby("event_id").first().reset_index()
 
         if len(red_df) > 0:
             activities_count_per_class[col] = dict(red_df["event_activity"].value_counts())
@@ -23,6 +27,10 @@ def mine_producer(df, parameters=None):
                     first_obj_df = get_first_for_object.get_first(df, parameters=parameters).dropna(axis='columns',
                                                                                                     how='all')
                     if len(first_obj_df) > 0:
+                        first_obj_df["@@index"] = first_obj_df.index
+                        first_obj_df = first_obj_df.sort_values([c2, "event_timestamp", "@@index"])
+                        first_obj_df = first_obj_df.drop("@@index", axis=1)
+
                         print("mine_producer", iii, len(cols), col, jjj, len(cols), c2)
 
                         first_obj_df.columns = [x + "_2" for x in first_obj_df.columns]
