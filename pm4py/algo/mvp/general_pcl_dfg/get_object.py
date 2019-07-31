@@ -2,7 +2,7 @@ from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
 from pm4py.algo.filtering.pandas.attributes import attributes_filter
 from pm4py.algo.filtering.pandas.start_activities import start_activities_filter
 from pm4py.algo.filtering.pandas.end_activities import end_activities_filter
-from pm4py.algo.mvp.crd import mine_producer, mine_consumer
+from pm4py.algo.mvp.crd import mine_producer, mine_consumer, mine_inside_relationship
 from pm4py.util import constants
 from pm4py.objects.heuristics_net import defaults
 from pm4py.algo.filtering.dfg import dfg_filtering
@@ -26,6 +26,7 @@ def apply(df, parameters=None):
 
     consumers = mine_consumer.mine_consumer(df)
     producers = mine_producer.mine_producer(df)
+    ports = mine_inside_relationship.apply(df)
 
     ret = {}
 
@@ -70,5 +71,6 @@ def apply(df, parameters=None):
 
     ret["@@producers"] = producers
     ret["@@consumers"] = consumers
+    ret["@@ports"] = ports
 
     return ret

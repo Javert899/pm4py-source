@@ -62,7 +62,7 @@ def apply(df, parameters=None):
                 if temp_ports[col][c2][act2]:
                     all_keys = list(temp_ports[col][c2][act2].keys())
                     summ = np.sum([x[0] for x in temp_ports[col][c2][act2].values()])
-                    if summ == temp_ports[col][c2][act2][all_keys[0]][2]:
+                    if summ == temp_ports[col][c2][act2][all_keys[0]][2] or True:
                         if not col in ports:
                             ports[col] = {}
                         if not c2 in ports[col]:

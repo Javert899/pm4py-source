@@ -77,6 +77,18 @@ def apply(input_object, parameters=None):
                            color="#FFA500", fontcolor="#FFA500")
                     pass
 
+    for p1 in input_object["@@ports"]:
+        if p1 in input_object["@@consumers"][
+            "consumer_per_class"] and p1 in input_object["@@producers"]["producer_per_class"]:
+            for p2 in input_object["@@ports"][p1]:
+                if p2 in input_object["@@consumers"]["consumer_per_class"][p1] and p2 in input_object["@@producers"]["producer_per_class"][p1]:
+                    for act2 in input_object["@@ports"][p1][p2]:
+                        if act2 in input_object["@@consumers"]["consumer_per_class"][p1][p2]:
+                            for act in input_object["@@ports"][p1][p2][act2]:
+                                if act in input_object["@@producers"]["producer_per_class"][p1][p2]:
+                                    rel = input_object["@@ports"][p1][p2][act2][act]
+                                    g.edge(nodes[p1][act], nodes[p1][act2], style="dotted", xlabel="("+str(p1)+","+str(p2)+") "+str(rel), color="#666666", fontcolor="#666666")
+
     g.attr(overlap='false')
     g.attr(fontsize='11')
 
