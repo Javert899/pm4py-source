@@ -12,7 +12,7 @@ def mine_consumer(df, parameters=None):
     ratio_log_producer = parameters[
         defaults.RATIO_LOG_PRODUCER] if defaults.RATIO_LOG_PRODUCER in parameters else defaults.DEFAULT_RATIO_LOG_PRODUCER
     min_act_count = parameters[
-        defaults.MIN_ACT_COUNT] if defaults.MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT + 1
+        defaults.MIN_ACT_COUNT] if defaults.MIN_ACT_COUNT in parameters else defaults.DEFAULT_MIN_ACT_COUNT
     min_dfg_occurrences = parameters[
         defaults.MIN_DFG_OCCURRENCES] if defaults.MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
     min_acti_count_in_perspective = parameters[
