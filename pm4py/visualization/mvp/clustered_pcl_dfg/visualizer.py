@@ -45,16 +45,19 @@ def apply(input_object, parameters=None):
                        fontcolor="#32CD32")
                 c.node(end_uuid, "", style='filled', shape='circle', fillcolor="#FFA500", fontcolor="#FFA500")
                 for a in input_object[p]["start_activities"]:
-                    c.edge(start_uuid, nodes[p][a], label=str(input_object[p]["start_activities"][a]))
+                    if a in nodes[p]:
+                        c.edge(start_uuid, nodes[p][a], label=str(input_object[p]["start_activities"][a]))
                 for a in input_object[p]["end_activities"]:
-                    c.edge(nodes[p][a], end_uuid, label=str(input_object[p]["end_activities"][a]))
+                    if a in nodes[p]:
+                        c.edge(nodes[p][a], end_uuid, label=str(input_object[p]["end_activities"][a]))
 
     for p1 in input_object["@@producers"]["producer_per_class"]:
         for p2 in input_object["@@producers"]["producer_per_class"][p1]:
             for act in input_object["@@producers"]["producer_per_class"][p1][p2]:
                 count = input_object["@@producers"]["producer_per_class"][p1][p2][act]
                 if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2]:
-                    g.edge(nodes[p1][act], nodes[p2][act], style="dashed", xlabel="count=" + str(count))
+                    g.edge(nodes[p1][act], nodes[p2][act], style="dashed", xlabel="count=" + str(count),
+                           color="#32CD32", fontcolor="#32CD32")
                     pass
 
     g.attr(overlap='false')
