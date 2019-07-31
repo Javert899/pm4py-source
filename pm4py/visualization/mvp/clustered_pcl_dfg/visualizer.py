@@ -18,6 +18,7 @@ def apply(input_object, parameters=None):
     g = Digraph("", filename=filename.name, engine='dot', graph_attr={'bgcolor': 'transparent'})
 
     nodes = {}
+    subgraphs = {}
 
     for p in input_object:
         if not p.startswith("@@"):
@@ -35,6 +36,14 @@ def apply(input_object, parameters=None):
                     t = x[1]
                     c.edge(nodes[p][s], nodes[p][t], label=str(y))
                 c.attr(label='class: '+p)
+                subgraphs[p] = c
+
+    for p1 in input_object["@@producers"]["producer_per_class"]:
+        for p2 in input_object["@@producers"]["producer_per_class"][p1]:
+            for act in input_object["@@producers"]["producer_per_class"][p1][p2]:
+                count = input_object["@@producers"]["producer_per_class"][p1][p2][act]
+                if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2]:
+                    g.edge(nodes[p1][act], nodes[p2][act], label="count="+str(count), style="dashed")
 
     g.attr(overlap='false')
     g.attr(fontsize='11')

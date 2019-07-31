@@ -50,7 +50,7 @@ def apply(df, parameters=None):
             dfg = {x: y for x, y in dfg.items() if
                    x[0] in activities_count and x[1] in activities_count and y >= min_dfg_occurrences}
 
-            if len(dfg) > 0:
+            if len(activities_count) > 0:
                 ret[col] = {}
                 ret[col]["dfg"] = dfg
                 ret[col]["activities_count"] = activities_count
