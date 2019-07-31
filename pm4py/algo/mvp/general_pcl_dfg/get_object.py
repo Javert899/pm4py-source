@@ -7,6 +7,7 @@ from pm4py.util import constants
 from pm4py.objects.heuristics_net import defaults
 from pm4py.algo.filtering.dfg import dfg_filtering
 from pm4py.algo.discovery.inductive.versions.dfg import imdfb as inductive_miner
+from copy import copy
 
 MIN_ACT_COUNT = "min_act_count"
 MIN_DFG_OCCURRENCES = "min_dfg_occurrences"
@@ -24,9 +25,11 @@ def apply(df, parameters=None):
     noise_threshold = parameters[
         defaults.DFG_PRE_CLEANING_NOISE_THRESH] if defaults.DFG_PRE_CLEANING_NOISE_THRESH in parameters else defaults.DEFAULT_DFG_PRE_CLEANING_NOISE_THRESH
 
-    consumers = mine_consumer.mine_consumer(df)
-    producers = mine_producer.mine_producer(df)
-    ports = mine_inside_relationship.apply(df)
+    consumers = mine_consumer.mine_consumer(df, parameters=parameters)
+    new_parameters = copy(parameters)
+    new_parameters["consumers"] = consumers
+    ports = mine_inside_relationship.apply(df, parameters=new_parameters)
+    producers = mine_producer.mine_producer(df, parameters=parameters)
 
     ret = {}
 
