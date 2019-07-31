@@ -2,7 +2,7 @@ from pm4py.algo.discovery.dfg.adapters.pandas import df_statistics
 from pm4py.algo.filtering.pandas.attributes import attributes_filter
 from pm4py.algo.filtering.pandas.start_activities import start_activities_filter
 from pm4py.algo.filtering.pandas.end_activities import end_activities_filter
-from pm4py.algo.mvp.crd import mine_producer
+from pm4py.algo.mvp.crd import mine_producer, mine_consumer
 from pm4py.util import constants
 from pm4py.objects.heuristics_net import defaults
 
@@ -18,7 +18,7 @@ def apply(df, parameters=None):
     min_dfg_occurrences = parameters[
         MIN_DFG_OCCURRENCES] if MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES
 
-    #producers = []
+    consumers = mine_consumer.mine_consumer(df)
     producers = mine_producer.mine_producer(df)
 
 
@@ -58,4 +58,6 @@ def apply(df, parameters=None):
                 ret[col]["end_activities"] = end_activities
 
     ret["@@producers"] = producers
+    ret["@@consumers"] = consumers
+
     return ret

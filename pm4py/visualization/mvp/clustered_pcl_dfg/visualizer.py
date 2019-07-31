@@ -55,12 +55,27 @@ def apply(input_object, parameters=None):
         for p2 in input_object["@@producers"]["producer_per_class"][p1]:
             for act in input_object["@@producers"]["producer_per_class"][p1][p2]:
                 count = input_object["@@producers"]["producer_per_class"][p1][p2][act]
-                left = input_object["@@producers"]["relations_per_class"][p1][p2][act][0]
-                right = input_object["@@producers"]["relations_per_class"][p1][p2][act][0]
-                if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2]:
+                if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2] and act in \
+                        input_object["@@producers"]["relations_per_class"][p1][p2]:
+                    left = input_object["@@producers"]["relations_per_class"][p1][p2][act][0]
+                    right = input_object["@@producers"]["relations_per_class"][p1][p2][act][1]
                     g.edge(nodes[p1][act], nodes[p2][act], style="dashed",
                            xlabel="count=" + str(count) + " source=" + str(left) + " target=" + str(right),
                            color="#32CD32", fontcolor="#32CD32")
+                    pass
+
+    for p1 in input_object["@@consumers"]["consumer_per_class"]:
+        for p2 in input_object["@@consumers"]["consumer_per_class"][p1]:
+            for act in input_object["@@consumers"]["consumer_per_class"][p1][p2]:
+                count = input_object["@@consumers"]["consumer_per_class"][p1][p2][act]
+                print("AAAA", input_object["@@consumers"]["consumer_per_class"][p1][p2])
+                if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2] and act in \
+                        input_object["@@consumers"]["relations_per_class"][p1][p2]:
+                    left = input_object["@@consumers"]["relations_per_class"][p1][p2][act][0]
+                    right = input_object["@@consumers"]["relations_per_class"][p1][p2][act][1]
+                    g.edge(nodes[p1][act], nodes[p2][act], style="dashed",
+                           xlabel="count=" + str(count) + " source=" + str(left) + " target=" + str(right),
+                           color="#FFA500", fontcolor="#FFA500")
                     pass
 
     g.attr(overlap='false')

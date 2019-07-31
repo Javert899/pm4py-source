@@ -1,9 +1,9 @@
-from pm4py.algo.mvp.crd import get_first_for_object
+from pm4py.algo.mvp.crd import get_last_for_object
 from pm4py.objects.heuristics_net import defaults
 import math
 
 
-def mine_producer(df, parameters=None):
+def mine_consumer(df, parameters=None):
     if parameters is None:
         parameters = {}
 
@@ -17,7 +17,7 @@ def mine_producer(df, parameters=None):
         defaults.MIN_DFG_OCCURRENCES] if defaults.MIN_DFG_OCCURRENCES in parameters else defaults.DEFAULT_MIN_DFG_OCCURRENCES + 1
 
     activities_count_per_class = {}
-    producer_per_class = {}
+    consumer_per_class = {}
     relations_per_class = {}
 
     for iii, col in enumerate(cols):
@@ -25,7 +25,7 @@ def mine_producer(df, parameters=None):
         red_df["@@index"] = red_df.index
         red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
         red_df = red_df.drop("@@index", axis=1)
-        red_df = red_df.groupby("event_id").first().reset_index()
+        red_df = red_df.groupby("event_id").last().reset_index()
 
         if len(red_df) > 0:
             activities_count_per_class[col] = dict(red_df["event_activity"].value_counts())
@@ -38,18 +38,18 @@ def mine_producer(df, parameters=None):
                 if not col == c2:
 
                     parameters["target_col"] = c2
-                    first_obj_df = get_first_for_object.get_first(df, parameters=parameters).dropna(axis='columns',
+                    last_obj_df = get_last_for_object.get_last(df, parameters=parameters).dropna(axis='columns',
                                                                                                     how='all')
-                    if len(first_obj_df) > 0 and c2 in first_obj_df.columns:
-                        first_obj_df["@@index"] = first_obj_df.index
-                        first_obj_df = first_obj_df.sort_values([c2, "event_timestamp", "@@index"])
-                        first_obj_df = first_obj_df.drop("@@index", axis=1)
+                    if len(last_obj_df) > 0 and c2 in last_obj_df.columns:
+                        last_obj_df["@@index"] = last_obj_df.index
+                        last_obj_df = last_obj_df.sort_values([c2, "event_timestamp", "@@index"])
+                        last_obj_df = last_obj_df.drop("@@index", axis=1)
 
-                        print("mine_producer", iii, len(cols), col, jjj, len(cols), c2)
+                        print("mine_consumer", iii, len(cols), col, jjj, len(cols), c2)
 
-                        first_obj_df.columns = [x + "_2" for x in first_obj_df.columns]
+                        last_obj_df.columns = [x + "_2" for x in last_obj_df.columns]
 
-                        joined_df = red_df.merge(first_obj_df, left_on="event_id", right_on="event_id_2",
+                        joined_df = red_df.merge(last_obj_df, left_on="event_id", right_on="event_id_2",
                                                  suffixes=('', ''))
 
                         other_cols = list(
@@ -69,11 +69,11 @@ def mine_producer(df, parameters=None):
                                     red_joined_df_group_col = red_joined_df.groupby(col)
                                     red_joined_df_group_c2 = red_joined_df.groupby(c2 + "_2")
 
-                                    if col not in producer_per_class:
-                                        producer_per_class[col] = {}
+                                    if col not in consumer_per_class:
+                                        consumer_per_class[col] = {}
                                         relations_per_class[col] = {}
-                                    producer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
-                                    all_keys = list(producer_per_class[col][c2].keys())
+                                    consumer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
+                                    all_keys = list(consumer_per_class[col][c2].keys())
                                     for act in all_keys:
                                         if act in activities_count_per_class[col] and act in activities_count_per_class[
                                             c2]:
@@ -104,7 +104,7 @@ def mine_producer(df, parameters=None):
                                                         relations_per_class[col][c2][act] = ["1..1", "0..1"]
                                                     else:
                                                         relations_per_class[col][c2][act] = ["1..1", "1..1"]
-                                            this_amount = producer_per_class[col][c2][act]
+                                            this_amount = consumer_per_class[col][c2][act]
                                             c1_ratio = math.log(1.0 + this_amount) / (
                                                     math.log(1.0 + amount_c1) + 0.0000001)
                                             c2_ratio = math.log(1.0 + this_amount) / (
@@ -112,9 +112,9 @@ def mine_producer(df, parameters=None):
 
                                             if (
                                                     c1_ratio < ratio_log_producer and c2_ratio < ratio_log_producer) or this_amount < min_dfg_occurrences:
-                                                del producer_per_class[col][c2][act]
+                                                del consumer_per_class[col][c2][act]
                                         else:
-                                            del producer_per_class[col][c2][act]
+                                            del consumer_per_class[col][c2][act]
 
     return {"activities_count_per_class": activities_count_per_class,
-            "producer_per_class": producer_per_class, "relations_per_class": relations_per_class}
+            "consumer_per_class": consumer_per_class, "relations_per_class": relations_per_class}
