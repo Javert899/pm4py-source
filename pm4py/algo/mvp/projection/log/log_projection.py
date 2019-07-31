@@ -40,7 +40,7 @@ def apply(df, perspectives_list, parameters=None):
     start_activities = parameters[START_ACTIVITIES] if START_ACTIVITIES in parameters else dict()
     end_activities = parameters[END_ACTIVITIES] if END_ACTIVITIES in parameters else dict()
 
-    enable_activities_filter = parameters[ENABLE_ACTIVITIES_FILTER] if ENABLE_ACTIVITIES_FILTER in parameters else False
+    enable_activities_filter = parameters[ENABLE_ACTIVITIES_FILTER] if ENABLE_ACTIVITIES_FILTER in parameters else True
     activities = parameters[ACTIVITIES] if ACTIVITIES in parameters else list()
 
     enable_variants_filter = parameters[ENABLE_VARIANTS_FILTER] if ENABLE_VARIANTS_FILTER in parameters else False
@@ -96,15 +96,18 @@ def apply(df, perspectives_list, parameters=None):
                 log.append(t)
 
     log = sorting.sort_timestamp(log)
+    print("len(log)=",len(log))
 
-    if enable_endpoints_filter:
+    if enable_activities_filter:
+        log = attributes_filter.apply_events(log, activities)
+
+    """if enable_endpoints_filter:
         log = start_activities_filter.apply(log, start_activities)
         log = end_activities_filter.apply(log, end_activities)
     if enable_activities_filter:
         log = attributes_filter.apply_events(log, activities)
     if enable_variants_filter:
-        log = variants_filter.apply_auto_filter(log, parameters=parameters)
-
+        log = variants_filter.apply_auto_filter(log, parameters=parameters)"""
     # filter empty traces
     log = EventLog([trace for trace in log if len(trace) > 0])
 
