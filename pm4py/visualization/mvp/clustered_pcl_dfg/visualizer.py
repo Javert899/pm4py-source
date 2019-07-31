@@ -46,10 +46,11 @@ def apply(input_object, parameters=None):
                 c.node(end_uuid, "", style='filled', shape='circle', fillcolor="#FFA500", fontcolor="#FFA500")
                 for a in input_object[p]["start_activities"]:
                     if a in nodes[p]:
-                        c.edge(start_uuid, nodes[p][a], label=str(input_object[p]["start_activities"][a]))
+                        c.edge(start_uuid, nodes[p][a], label=str(input_object[p]["start_activities"][a]),
+                           color="#32CD32", fontcolor="#32CD32")
                 for a in input_object[p]["end_activities"]:
                     if a in nodes[p]:
-                        c.edge(nodes[p][a], end_uuid, label=str(input_object[p]["end_activities"][a]))
+                        c.edge(nodes[p][a], end_uuid, label=str(input_object[p]["end_activities"][a]), color="#FFA500", fontcolor="#FFA500")
 
     for p1 in input_object["@@producers"]["producer_per_class"]:
         for p2 in input_object["@@producers"]["producer_per_class"][p1]:
