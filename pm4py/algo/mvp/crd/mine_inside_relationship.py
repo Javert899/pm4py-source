@@ -13,12 +13,7 @@ def apply(df, parameters=None):
     temp_ports = {}
     ports = {}
 
-    print("COLS")
-    print(cols)
-
     for iii, col in enumerate(cols):
-        print(col)
-
         df0 = df.dropna(how='any', subset=[col])
         i1 = df.set_index("event_id").index
         i2 = df0.set_index("event_id").index
@@ -91,5 +86,4 @@ def apply(df, parameters=None):
                             ports[col][c2][act2]["@@complex"] = "<="
 
 
-    # print(len(df), len(red_df))
     return ports
