@@ -36,6 +36,13 @@ def mine_consumer(df, parameters=None):
                 if activities_count_per_class[col][key] < min_act_count:
                     del activities_count_per_class[col][key]
 
+    for iii, col in enumerate(cols):
+            red_df = df[["event_id", "event_activity", "event_timestamp", col]].dropna()
+            red_df["@@index"] = red_df.index
+            red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
+            red_df = red_df.drop("@@index", axis=1)
+            red_df = red_df.groupby("event_id").last().reset_index()
+
             if len(activities_count_per_class[col]) < min_acti_count_in_perspective:
                 del activities_count_per_class[col]
             else:

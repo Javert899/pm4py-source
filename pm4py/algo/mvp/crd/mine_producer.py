@@ -28,7 +28,6 @@ def mine_producer(df, parameters=None):
         red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
         red_df = red_df.drop("@@index", axis=1)
         red_df = red_df.groupby("event_id").first().reset_index()
-
         if len(red_df) > 0:
             activities_count_per_class[col] = dict(red_df["event_activity"].value_counts())
             all_keys = list(activities_count_per_class[col])
@@ -36,12 +35,19 @@ def mine_producer(df, parameters=None):
                 if activities_count_per_class[col][key] < min_act_count:
                     del activities_count_per_class[col][key]
 
+    for iii, col in enumerate(cols):
+        red_df = df[["event_id", "event_activity", "event_timestamp", col]].dropna()
+        red_df["@@index"] = red_df.index
+        red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
+        red_df = red_df.drop("@@index", axis=1)
+        red_df = red_df.groupby("event_id").first().reset_index()
+
+        if len(red_df) > 0:
             if len(activities_count_per_class[col]) < min_acti_count_in_perspective:
                 del activities_count_per_class[col]
             else:
                 for jjj, c2 in enumerate(cols):
                     if not col == c2:
-
                         parameters["target_col"] = c2
                         first_obj_df = get_first_for_object.get_first(df, parameters=parameters).dropna(axis='columns',
                                                                                                         how='all')
@@ -70,6 +76,9 @@ def mine_producer(df, parameters=None):
 
                             if len(red_joined_df) > 0:
                                 if c2 + "_2" in red_joined_df.columns:
+                                    print(
+                                    col, c2, "XXXX", activities_count_per_class, col in activities_count_per_class,
+                                    c2 in activities_count_per_class)
                                     if col in activities_count_per_class and c2 in activities_count_per_class:
                                         red_joined_df_group_col = red_joined_df.groupby(col)
                                         red_joined_df_group_c2 = red_joined_df.groupby(c2 + "_2")
@@ -77,11 +86,13 @@ def mine_producer(df, parameters=None):
                                         if col not in producer_per_class:
                                             producer_per_class[col] = {}
                                             relations_per_class[col] = {}
-                                        producer_per_class[col][c2] = dict(red_joined_df["event_activity"].value_counts())
+                                        producer_per_class[col][c2] = dict(
+                                            red_joined_df["event_activity"].value_counts())
                                         all_keys = list(producer_per_class[col][c2].keys())
                                         for act in all_keys:
-                                            if act in activities_count_per_class[col] and act in activities_count_per_class[
-                                                c2]:
+                                            if act in activities_count_per_class[col] and act in \
+                                                    activities_count_per_class[
+                                                        c2]:
                                                 amount_c1 = activities_count_per_class[col][act]
                                                 amount_c2 = activities_count_per_class[c2][act]
 
@@ -89,7 +100,7 @@ def mine_producer(df, parameters=None):
 
                                                 if len(red_joined_df_group_col) < len(red_joined_df_group_c2):
                                                     if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
-                                                        if len(red_joined_df_group_c2) < amount_c2  or len(all_keys) > 1:
+                                                        if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
                                                             relations_per_class[col][c2][act] = ["0..1", "0..N"]
                                                         else:
                                                             relations_per_class[col][c2][act] = ["0..1", "1..N"]
@@ -117,8 +128,10 @@ def mine_producer(df, parameters=None):
 
                                                 if (
                                                         c1_ratio < ratio_log_producer and c2_ratio < ratio_log_producer) or this_amount < min_dfg_occurrences:
+                                                    print("AAAA")
                                                     del producer_per_class[col][c2][act]
                                             else:
+                                                print("BBBBBB")
                                                 del producer_per_class[col][c2][act]
 
     return {"activities_count_per_class": activities_count_per_class,
