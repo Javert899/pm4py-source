@@ -3,6 +3,7 @@ from copy import deepcopy
 from random import randrange, choice
 import pandas as pd
 from collections import Counter
+import random
 
 class shared:
     timestamp = 10000000
@@ -10,7 +11,7 @@ class shared:
     N = 100
     event_count = 0
     # deliveries hesite
-    esito = ["retry", "deliver", "undeliver"]
+    esito = ["deliver", "undeliver"]
 
 
 def generate_event(activity, related_classes):
@@ -72,19 +73,34 @@ def generate_log():
 
     i = 0
     while i < shared.N*2:
-        esito = choice(shared.esito)
+        j = 0
+        while True:
+            esito = choice(shared.esito)
+            j = j + 1
 
-        list_events = list_events + generate_event(esito, {"package": [8*i, 8*i +1, 8*i +4, 8*i +5], "delivery": [i]})
-        list_events = list_events + generate_event(esito, {"package": [8*i +2, 8*i +3, 8*i +6, 8*i +7], "delivery": [i+1]})
+            list_events = list_events + generate_event(esito, {"package": [8*i, 8*i +1, 8*i +4, 8*i +5], "delivery": [i]})
+            list_events = list_events + generate_event(esito, {"package": [8*i +2, 8*i +3, 8*i +6, 8*i +7], "delivery": [i+1]})
 
-        list_events = list_events + generate_event("next",
-                                                   {
-                                                    "delivery": [i]})
-        list_events = list_events + generate_event("next",
-                                                   {
-                                                    "delivery": [i + 1]})
+            list_events = list_events + generate_event("next",
+                                                       {
+                                                        "delivery": [i]})
+            list_events = list_events + generate_event("next",
+                                                       {
+                                                        "delivery": [i + 1]})
 
-
+            if not esito == "deliver":
+                r = random.random()
+                if r < 0.5:
+                    list_events = list_events + generate_event("retry",
+                                                               {"package": [8 * i, 8 * i + 1, 8 * i + 4, 8 * i + 5],
+                                                                "delivery": [i]})
+                    list_events = list_events + generate_event("retry",
+                                                               {"package": [8 * i + 2, 8 * i + 3, 8 * i + 6, 8 * i + 7],
+                                                                "delivery": [i + 1]})
+                    continue
+                else:
+                    list_events = list_events + generate_event("return", {"package": [8 * i, 8 * i + 1, 8 * i + 4, 8 * i + 5, 8*i +2, 8*i +3, 8*i +6, 8*i +7]})
+                    break
 
         i = i + 2
 
