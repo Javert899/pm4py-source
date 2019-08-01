@@ -5,8 +5,12 @@ def get_first(df, parameters=None):
         parameters = {}
 
     target_col = parameters["target_col"] if "target_col" in parameters else None
+    positive = parameters["positive"] if "positive" in parameters else True
 
     columns = [x for x in df.columns if not x.startswith("event_")]
+
+    if not positive:
+        df["@@index"] = df.index
 
     all_dfs = []
 
@@ -16,4 +20,10 @@ def get_first(df, parameters=None):
 
             all_dfs.append(red_df)
 
-    return pd.concat(all_dfs).sort_values(['event_timestamp', 'event_id']).reset_index()
+    if positive:
+        return pd.concat(all_dfs).sort_values(['event_timestamp', 'event_id']).reset_index()
+    else:
+        i1 = df.index
+        i2 = pd.concat(all_dfs).set_index("@@index").index
+
+        return df[~i1.isin(i2)].reset_index()

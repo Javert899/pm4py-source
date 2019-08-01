@@ -28,7 +28,9 @@ def apply(df, parameters=None):
                     if consumers is None or c2 in consumers["consumer_per_class"][col]:
                         print("mining_ports",col,c2,iii,len(cols),jjj,len(cols))
                         first_df = red_df.groupby(c2).first()
+                        #first_df = get_first_for_object.get_first(df, parameters={"target_col": c2})
                         second_df = red_df.groupby(c2).last()
+                        #second_df = get_first_for_object.get_first(df, parameters={"target_col": c2, "positive": False})
                         red_df_col_not_null = red_df.dropna(how='any', subset=[col])
                         i1 = red_df_col_not_null.set_index("event_id").index
                         i2 = first_df.set_index("event_id").index

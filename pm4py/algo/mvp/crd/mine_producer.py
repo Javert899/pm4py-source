@@ -7,7 +7,7 @@ def mine_producer(df, parameters=None):
     if parameters is None:
         parameters = {}
 
-    cols = [x for x in df.columns if not x.startswith("event_")]
+    cols = [x for x in df.columns if not x.startswith("event_") and not x.startswith("@@")]
 
     ratio_log_producer = parameters[
         defaults.RATIO_LOG_PRODUCER] if defaults.RATIO_LOG_PRODUCER in parameters else defaults.DEFAULT_RATIO_LOG_PRODUCER
