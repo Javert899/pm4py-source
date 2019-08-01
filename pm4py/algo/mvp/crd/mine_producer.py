@@ -97,8 +97,8 @@ def mine_producer(df, parameters=None):
                                                         c2]:
                                                 amount_c1 = activities_count_per_class[col][act]
                                                 amount_c2 = activities_count_per_class[c2][act]
-                                                amount_c1_dupl = activities_count_per_class_remove_dupl[col][act]
-                                                amount_c2_dupl = activities_count_per_class_remove_dupl[c2][act]
+                                                amount_c1_dupl = activities_count_per_class_remove_dupl[col][act] if act in activities_count_per_class_remove_dupl[col] else amount_c1
+                                                amount_c2_dupl = activities_count_per_class_remove_dupl[c2][act] if act in activities_count_per_class_remove_dupl[c2] else amount_c2
 
                                                 if amount_c1 <= amount_c2:
                                                     relations_per_class[col][c2] = {}
