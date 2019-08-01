@@ -39,7 +39,8 @@ def apply(df, parameters=None):
 
         if not col.startswith("event_"):
             red_df = df[["event_id", "event_activity", "event_timestamp", col]]
-            red_df = red_df.groupby(["event_id", "event_activity", col]).first().reset_index()
+            red_df = red_df.dropna(how='any', subset=[col])
+            #red_df = red_df.groupby(["event_id", "event_activity", col]).first().reset_index()
 
             dfg = df_statistics.get_dfg_graph(red_df, sort_timestamp_along_case_id=True, sort_caseid_required=True,
                                               activity_key="event_activity", timestamp_key="event_timestamp",
@@ -51,11 +52,11 @@ def apply(df, parameters=None):
             if len(activities_count) >= min_acti_count_in_perspective:
                 start_activities = start_activities_filter.get_start_activities(red_df, parameters={
                     constants.PARAMETER_CONSTANT_ACTIVITY_KEY: "event_activity",
-                    constants.PARAMETER_CONSTANT_CASEID_KEY: "event_timestamp"})
+                    constants.PARAMETER_CONSTANT_CASEID_KEY: col})
 
                 end_activities = end_activities_filter.get_end_activities(red_df, parameters={
                     constants.PARAMETER_CONSTANT_ACTIVITY_KEY: "event_activity",
-                    constants.PARAMETER_CONSTANT_CASEID_KEY: "event_timestamp"})
+                    constants.PARAMETER_CONSTANT_CASEID_KEY: col})
 
                 dfg = {x: y for x, y in dfg.items() if
                        x[0] in activities_count and x[1] in activities_count and y >= min_dfg_occurrences}
