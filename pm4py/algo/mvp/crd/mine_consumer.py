@@ -50,7 +50,7 @@ def mine_consumer(df, parameters=None):
                     if not col == c2:
 
                         parameters["target_col"] = c2
-                        last_obj_df = get_last_for_object.get_last(df, parameters=parameters).dropna(axis='columns',
+                        last_obj_df = get_last_for_object.get_last(df[df["event_activity"].isin(activities_count_per_class[col])], parameters=parameters).dropna(axis='columns',
                                                                                                      how='all')
                         if len(last_obj_df) > 0 and c2 in last_obj_df.columns:
                             last_obj_df["@@index"] = last_obj_df.index
