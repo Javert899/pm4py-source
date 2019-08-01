@@ -1,0 +1,96 @@
+from datetime import datetime
+from copy import deepcopy
+from random import randrange, choice
+import pandas as pd
+
+class shared:
+    timestamp = 10000000
+    # create N orders and deliveries, with 4*N packages
+    N = 100
+    event_count = 0
+    # deliveries hesite
+    esito = ["retry", "deliver", "undeliver", "next", "finish"]
+
+
+def generate_event(activity, related_classes):
+    shared.event_count = shared.event_count + 1
+
+    shared.timestamp = shared.timestamp + 1
+
+    this_timestamp = datetime.fromtimestamp(shared.timestamp)
+
+    base_event = {"event_id": "event_" + str(shared.event_count), "event_activity": activity,
+                  "event_timestamp": this_timestamp}
+
+    ret = []
+    for cl in related_classes.keys():
+        for el in related_classes[cl]:
+            this_event = deepcopy(base_event)
+            if cl == "order":
+                this_event[cl] = "order_" + str(el)
+            if cl == "package":
+                this_event[cl] = "package_" + str(el)
+            if cl == "delivery":
+                this_event[cl] = "delivery_" + str(el)
+            if cl == "back":
+                this_event[cl] = "back_" + str(el)
+
+            ret.append(this_event)
+
+    return ret
+
+
+def generate_log():
+    list_events = []
+
+    for d in range(shared.N*2):
+
+        list_events = list_events + generate_event("create", {"order": [d]})
+
+    i = 0
+    while i < shared.N*2:
+        """list_events = list_events + generate_event("split", {"order": [i], "package": [8*i, 8*(i+1)], "delivery": [i]})
+        list_events = list_events + generate_event("split",
+                                                   {"order": [i], "package": [8 * (i + 2), 8 * (i + 3)], "delivery": [i+1]})
+        list_events = list_events + generate_event("split",
+                                                   {"order": [i+1], "package": [8 * (i + 4), 8 * (i + 5)], "delivery": [i]})
+        list_events = list_events + generate_event("split",
+                                                   {"order": [i+1], "package": [8 * (i + 6), 8 * (i + 7)], "delivery": [i+1]})"""
+
+        list_events = list_events + generate_event("split", {"package": [8*i, 8*(i+1), 8 * (i+2), 8 * (i+3)], "order": [i]})
+        list_events = list_events + generate_event("split", {"package": [8*(i+4), 8*(i+5), 8*(i+6), 8*(i+7)], "order": [i+1]})
+
+        i = i + 2
+
+    i = 0
+    while i < shared.N*2:
+        list_events = list_events + generate_event("load", {"package": [8*i, 8*(i+1), 8*(i+4), 8*(i+5)], "delivery": [i]})
+        list_events = list_events + generate_event("load", {"package": [8*(i+2), 8*(i+3), 8*(i+6), 8*(i+7)], "delivery": [i+1]})
+
+        i = i + 2
+
+    for d in range(shared.N*2):
+
+        list_events = list_events + generate_event("notify", {"order": [d]})
+
+    i = 0
+    while i < shared.N*2:
+        list_events = list_events + generate_event("bill", {"package": [8*i, 8*(i+1), 8 * (i+2), 8 * (i+3)], "order": [i]})
+        list_events = list_events + generate_event("bill", {"package": [8*(i+4), 8*(i+5), 8*(i+6), 8*(i+7)], "order": [i+1]})
+
+        i = i + 2
+
+    i = 0
+    while i < shared.N*2:
+        list_events = list_events + generate_event("finish", {"package": [8*i, 8*(i+1), 8*(i+4), 8*(i+5)], "delivery": [i]})
+        list_events = list_events + generate_event("finish", {"package": [8*(i+2), 8*(i+3), 8*(i+6), 8*(i+7)], "delivery": [i+1]})
+
+        i = i + 2
+
+    return pd.DataFrame(list_events)
+
+
+if __name__ == "__main__":
+    df = generate_log()
+    print(df)
+
