@@ -64,9 +64,9 @@ def apply(input_object, parameters=None):
                            color="#32CD32", fontcolor="#32CD32")
                     pass
 
-    for p1 in input_object["@@consumers"]["consumer_per_class"]:
-        for p2 in input_object["@@consumers"]["consumer_per_class"][p1]:
-            for act in input_object["@@consumers"]["consumer_per_class"][p1][p2]:
+    for p1 in input_object["@@consumers"]["relations_per_class"]:
+        for p2 in input_object["@@consumers"]["relations_per_class"][p1]:
+            for act in input_object["@@consumers"]["relations_per_class"][p1][p2]:
                 count = input_object["@@consumers"]["consumer_per_class"][p1][p2][act]
                 if p1 in nodes and p2 in nodes and act in nodes[p1] and act in nodes[p2] and act in \
                         input_object["@@consumers"]["relations_per_class"][p1][p2]:

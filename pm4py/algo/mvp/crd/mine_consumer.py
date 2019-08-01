@@ -24,10 +24,10 @@ def mine_consumer(df, parameters=None):
 
     for iii, col in enumerate(cols):
         red_df = df[["event_id", "event_activity", "event_timestamp", col]].dropna()
-        red_df["@@index"] = red_df.index
-        red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
-        red_df = red_df.drop("@@index", axis=1)
-        red_df = red_df.groupby("event_id").last().reset_index()
+        #red_df["@@index"] = red_df.index
+        #red_df = red_df.sort_values([col, "event_timestamp", "@@index"])
+        #red_df = red_df.drop("@@index", axis=1)
+        #red_df = red_df.groupby("event_id").last().reset_index()
 
         if len(red_df) > 0:
             activities_count_per_class[col] = dict(red_df["event_activity"].value_counts())
@@ -92,39 +92,40 @@ def mine_consumer(df, parameters=None):
                                                 amount_c1 = activities_count_per_class[col][act]
                                                 amount_c2 = activities_count_per_class[c2][act]
 
-                                                relations_per_class[col][c2] = {}
+                                                if amount_c1 <= amount_c2:
+                                                    relations_per_class[col][c2] = {}
 
-                                                if len(red_joined_df_group_col) < len(red_joined_df_group_c2):
-                                                    if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
-                                                        if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
-                                                            relations_per_class[col][c2][act] = ["0..1", "0..N"]
+                                                    if len(red_joined_df_group_col) < len(red_joined_df_group_c2):
+                                                        if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
+                                                            if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
+                                                                relations_per_class[col][c2][act] = ["0..1", "0..N"]
+                                                            else:
+                                                                relations_per_class[col][c2][act] = ["0..1", "1..N"]
                                                         else:
-                                                            relations_per_class[col][c2][act] = ["0..1", "1..N"]
+                                                            if len(red_joined_df_group_c2) < amount_c2:
+                                                                relations_per_class[col][c2][act] = ["1..1", "0..N"]
+                                                            else:
+                                                                relations_per_class[col][c2][act] = ["1..1", "1..N"]
                                                     else:
-                                                        if len(red_joined_df_group_c2) < amount_c2:
-                                                            relations_per_class[col][c2][act] = ["1..1", "0..N"]
+                                                        if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
+                                                            if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
+                                                                relations_per_class[col][c2][act] = ["0..1", "0..1"]
+                                                            else:
+                                                                relations_per_class[col][c2][act] = ["0..1", "1..1"]
                                                         else:
-                                                            relations_per_class[col][c2][act] = ["1..1", "1..N"]
-                                                else:
-                                                    if len(red_joined_df_group_c2) < amount_c1 or len(all_keys) > 1:
-                                                        if len(red_joined_df_group_c2) < amount_c2 or len(all_keys) > 1:
-                                                            relations_per_class[col][c2][act] = ["0..1", "0..1"]
-                                                        else:
-                                                            relations_per_class[col][c2][act] = ["0..1", "1..1"]
-                                                    else:
-                                                        if len(red_joined_df_group_c2) < amount_c2:
-                                                            relations_per_class[col][c2][act] = ["1..1", "0..1"]
-                                                        else:
-                                                            relations_per_class[col][c2][act] = ["1..1", "1..1"]
-                                                this_amount = consumer_per_class[col][c2][act]
-                                                c1_ratio = math.log(1.0 + this_amount) / (
-                                                        math.log(1.0 + amount_c1) + 0.0000001)
-                                                c2_ratio = math.log(1.0 + this_amount) / (
-                                                        math.log(1.0 + amount_c2) + 0.0000001)
+                                                            if len(red_joined_df_group_c2) < amount_c2:
+                                                                relations_per_class[col][c2][act] = ["1..1", "0..1"]
+                                                            else:
+                                                                relations_per_class[col][c2][act] = ["1..1", "1..1"]
+                                                    this_amount = consumer_per_class[col][c2][act]
+                                                    c1_ratio = math.log(1.0 + this_amount) / (
+                                                            math.log(1.0 + amount_c1) + 0.0000001)
+                                                    c2_ratio = math.log(1.0 + this_amount) / (
+                                                            math.log(1.0 + amount_c2) + 0.0000001)
 
-                                                if (
-                                                        c1_ratio < ratio_log_producer and c2_ratio < ratio_log_producer) or this_amount < min_dfg_occurrences:
-                                                    del consumer_per_class[col][c2][act]
+                                                    if (
+                                                            c1_ratio < ratio_log_producer and c2_ratio < ratio_log_producer) or this_amount < min_dfg_occurrences:
+                                                        del consumer_per_class[col][c2][act]
                                             else:
                                                 del consumer_per_class[col][c2][act]
 
