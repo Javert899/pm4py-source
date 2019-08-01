@@ -28,19 +28,17 @@ def apply(df, parameters=None):
                     if consumers is None or c2 in consumers["consumer_per_class"][col]:
                         print("mining_ports",col,c2,iii,len(cols),jjj,len(cols))
                         first_df = red_df.groupby(c2).first()
-                        #first_df = get_first_for_object.get_first(df, parameters={"target_col": c2})
                         second_df = red_df.groupby(c2).last()
-                        #second_df = get_first_for_object.get_first(df, parameters={"target_col": c2, "positive": False})
                         red_df_col_not_null = red_df.dropna(how='any', subset=[col])
                         i1 = red_df_col_not_null.set_index("event_id").index
                         i2 = first_df.set_index("event_id").index
                         i3 = second_df.set_index("event_id").index
 
-                        first_df = red_df_col_not_null[i1.isin(i2)].groupby("event_id").first().reset_index()
-                        second_df = red_df_col_not_null[i1.isin(i3)].groupby("event_id").last().reset_index()
+                        first_df = red_df_col_not_null[i1.isin(i2)]
+                        second_df = red_df_col_not_null[~i1.isin(i2)]
 
-                        first_acti_count = dict(first_df.groupby(col).first()["event_activity"].value_counts())
-                        second_acti_count = dict(second_df.groupby(col).last()["event_activity"].value_counts())
+                        first_acti_count = dict(first_df["event_activity"].value_counts())
+                        second_acti_count = dict(second_df["event_activity"].value_counts())
 
                         second_df.columns = [x + "_2" for x in second_df.columns]
 
@@ -49,11 +47,14 @@ def apply(df, parameters=None):
 
                         rel_count = dict(joined_df.groupby(["event_activity", "event_activity_2"]).size())
 
+                        print(col, c2, rel_count)
+
                         for couple in rel_count:
                             act1 = couple[0]
                             act2 = couple[1]
 
                             if act1 in first_acti_count and act2 in second_acti_count:
+                                print(col, c2, act1, act2)
                                 if col not in temp_ports:
                                     temp_ports[col] = {}
                                 if c2 not in temp_ports[col]:
