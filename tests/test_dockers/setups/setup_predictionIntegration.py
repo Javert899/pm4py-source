@@ -125,7 +125,7 @@ setup(
         'keras',
         'tensorflow',
         'joblib',
-        'lime'
+        'lime',
         'ortools'
     ],
     project_urls={
