@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
 
 if __name__ == "__main__":
+    from examples import roles_detection
     from examples import ltl_log
     from examples import ltl_pandas
     from examples import big_log_imdf_decor
@@ -17,7 +18,6 @@ if __name__ == "__main__":
     from examples import token_replay_alpha
     from examples import manual_log_generation
     from examples import simple_miner
-    from examples import example_simulation
     from examples import token_replay_imdf
     from examples import decisiontree_example
     from examples import clustering_example
@@ -36,6 +36,8 @@ if __name__ == "__main__":
     from examples import tree_activity_duration_root_cause
     from examples import tree_dec_mining_wo_replay
 
+    print("\n\nroles_detection")
+    roles_detection.execute_script()
     print("\n\nltl_log")
     ltl_log.execute_script()
     print("\n\nltl_pandas")
@@ -90,8 +92,6 @@ if __name__ == "__main__":
     big_dataframe_management.execute_script()
     print("\n\nsimple_miner")
     simple_miner.execute_script()
-    print("\n\nexample_simulation")
-    example_simulation.execute_script()
     print("\n\ngraphs_visualization")
     graphs_visualization.execute_script()
     print("\n\ntree_activity_duration_root_cause")
