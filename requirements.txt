@@ -1,12 +1,11 @@
 pyvis
 networkx>=2.2
-matplotlib==2.2.2
+matplotlib
 numpy
 ciso8601
-cvxopt
 lxml
 graphviz
-pyarrow
+pyarrow==0.13.0
 pandas>=0.24.1
 scipy
 pydotplus
@@ -17,5 +16,5 @@ pytz>=2018.9
 keras
 tensorflow
 joblib
-intervaltree
 lime
+ortools

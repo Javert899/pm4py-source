@@ -113,9 +113,15 @@ def train(log, parameters=None):
                     bh = BusinessHours(timestamp_st.replace(tzinfo=None), timestamp_et.replace(tzinfo=None),
                                        worktiming=worktiming, weekends=weekends)
                     remaining_time.append(bh.getseconds())
+                else:
+                    remaining_time.append(0)
         else:
-            remaining_time = [(trace[-1][timestamp_key] - trace[0][timestamp_key]).total_seconds() for trace in ext_log if
-                              trace]
+            remaining_time = []
+            for trace in ext_log:
+                if trace:
+                    remaining_time.append((trace[-1][timestamp_key] - trace[0][timestamp_key]).total_seconds())
+                else:
+                    remaining_time.append(0)
     regr = ElasticNet(max_iter=10000, l1_ratio=0.7)
     regr.fit(data, remaining_time)
 
