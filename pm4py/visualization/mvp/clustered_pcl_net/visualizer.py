@@ -103,7 +103,7 @@ def apply(input_object, parameters=None):
 
             g.edge(nodes[p1][act], this_uuid1, dir="none", color="#32CD32")
             g.edge(this_uuid2, nodes[p2][act], dir="none", color="#32CD32")
-            g.edge(this_uuid1, this_uuid2, xlabel="init ("+p1+","+p2+")", dir="none", color="#32CD32")
+            g.edge(this_uuid1, this_uuid2, xlabel="init (" + p1 + "," + p2 + ")", dir="none", color="#32CD32")
 
     for rel in all_rel_det:
         act1 = rel[0]
@@ -112,21 +112,24 @@ def apply(input_object, parameters=None):
         p2 = rel[3]
         r = rel[4]
 
-        #print(act1, act2, p1, p2, r)
+        # print(act1, act2, p1, p2, r)
 
         if act2 in nodes[p1] and act2 in nodes[p2]:
             if (act1, p1, p2) in mapp:
                 target_color = "#666666"
+
+                if p1 in input_object["@@consumers"]["consumer_per_class"] and p2 in input_object["@@consumers"]["consumer_per_class"][p1] and act2 in input_object["@@consumers"]["consumer_per_class"][p1][p2]:
+                    target_color = "#FFA500"
 
                 this_uuid1 = str(uuid.uuid4())
                 node1 = g.node(this_uuid1, mapp[(act1, p1, p2)][0], shape='box', style="filled", fillcolor=target_color)
                 this_uuid2 = str(uuid.uuid4())
                 node2 = g.node(this_uuid2, mapp[(act1, p1, p2)][1], shape='box', style="filled", fillcolor=target_color)
 
-                g.edge(nodes[p1][act2], this_uuid1, dir="none", color="#666666")
-                g.edge(this_uuid2, nodes[p2][act2], dir="none", color="#666666")
+                g.edge(nodes[p1][act2], this_uuid1, dir="none", color=target_color)
+                g.edge(this_uuid2, nodes[p2][act2], dir="none", color=target_color)
 
-                g.edge(this_uuid1, this_uuid2, xlabel=r+" (" + p1 + "," + p2 + ")", dir="none", color=target_color)
+                g.edge(this_uuid1, this_uuid2, xlabel=r + " (" + p1 + "," + p2 + ")", dir="none", color=target_color)
 
     g.attr(overlap='false')
     g.attr(fontsize='11')
