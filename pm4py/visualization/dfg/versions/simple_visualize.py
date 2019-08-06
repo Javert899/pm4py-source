@@ -165,6 +165,7 @@ def graphviz_visualization(activities_count, dfg, image_format="png", measure="f
 
     filename = tempfile.NamedTemporaryFile(suffix='.gv')
     viz = Digraph("", filename=filename.name, engine='dot', graph_attr={'bgcolor': 'transparent'})
+    viz.graph_attr['rankdir'] = 'LR'
 
     # first, remove edges in diagram that exceeds the maximum number of edges in the diagram
     dfg_key_value_list = []
@@ -238,6 +239,7 @@ def graphviz_visualization(activities_count, dfg, image_format="png", measure="f
     viz.attr(overlap='false')
     viz.attr(fontsize='11')
 
+
     viz.format = image_format
 
     return viz
@@ -260,6 +262,7 @@ def apply(dfg, log=None, parameters=None, activities_count=None, measure="freque
 
     start_activities = parameters["start_activities"] if "start_activities" in parameters else []
     end_activities = parameters["end_activities"] if "end_activities" in parameters else []
+
 
     if activities_count is None:
         if log is not None:
