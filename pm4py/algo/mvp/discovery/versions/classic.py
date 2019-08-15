@@ -114,7 +114,7 @@ def apply(df, parameters=None):
         else:
             proj_df = df[["event_id", "event_activity", p]].dropna(subset=[p])
 
-        proj_df = proj_df.groupby(["event_id", "event_activity", p]).first().reset_index()
+        #proj_df = proj_df.groupby(["event_id", "event_activity", p]).first().reset_index()
 
         if performance:
             dfg_frequency, dfg_preformance = df_statistics.get_dfg_graph(proj_df, activity_key="event_activity",
