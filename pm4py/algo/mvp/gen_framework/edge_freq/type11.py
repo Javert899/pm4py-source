@@ -6,7 +6,11 @@ def apply(df, rel_ev, rel_act, parameters=None):
 
     for persp in rel_ev:
         df = rel_ev[persp]
-        df = df[df[["event_activity_merge"]].isin(rel_act[persp])]
+        df = df[df["event_activity_merge"].isin(rel_act[persp])]
+        print(df)
+        df = df.groupby(["event_id", "event_id_2"]).first()
+        #print("BBB", len(df))
+
         r = df.groupby("event_activity_merge").size().to_dict()
 
         ret[persp] = r
