@@ -5,7 +5,10 @@ from pm4py.algo.mvp.gen_framework.node_freq import factory as node_freq_factory
 from pm4py.algo.mvp.gen_framework.edge_freq import factory as edge_freq_factory
 
 MODEL1 = model_factory.MODEL1
+MODEL2 = model_factory.MODEL2
+MODEL3 = model_factory.MODEL3
 REL_DFG = rel_ev_factory.REL_DFG
+BEING_PRODUCED = rel_ev_factory.BEING_PRODUCED
 TYPE1 = node_freq_factory.TYPE1
 TYPE11 = edge_freq_factory.TYPE11
 TYPE12 = edge_freq_factory.TYPE12
