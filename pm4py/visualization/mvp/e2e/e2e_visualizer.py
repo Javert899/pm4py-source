@@ -20,7 +20,7 @@ def apply(df, parameters=None):
 
     for event in grouped_stream:
         label_event = event[0] + "\\n(activity=\\n" + event[1] + ")"
-        ne = pydotplus.Node(name=label_event, shape="box", style="filled", label=label_event, fillcolor="#FF0000")
+        ne = pydotplus.Node(name=label_event, shape="box", style="filled", label=label_event, fillcolor="#FFAAAA")
         graph.add_node(ne)
         for object in grouped_stream[event]:
             item = [(k, v) for k, v in object.items()][0]
