@@ -16,6 +16,8 @@ def apply(df, parameters=None):
         proj_df_shift.columns = [str(col) + '_2' for col in proj_df_shift.columns]
         concat_df = pd.concat([proj_df, proj_df_shift], axis=1)
 
+        concat_df["event_activity_merge"] = concat_df["event_activity"] + "@@" + concat_df["event_activity_2"]
+
         ret[col] = concat_df
 
     return ret
