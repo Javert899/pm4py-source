@@ -80,6 +80,22 @@ export class PmodelComponent implements OnInit {
 
   typeOfModelChanged() {
     this.model_type_variant = (<HTMLInputElement>document.getElementById("pmodelSelect")).value;
+
+    if (this.model_type_variant == "model1") {
+      this.node_freq_variant = "type1";
+      this.edge_freq_variant = "type11";
+    }
+    else if (this.model_type_variant == "model2") {
+      this.node_freq_variant = "type21";
+      this.edge_freq_variant = "type211";
+    }
+    else if (this.model_type_variant == "model3") {
+      this.node_freq_variant = "type31";
+      this.edge_freq_variant = "type11";
+    }
+    (<HTMLInputElement>document.getElementById("nodeFreqSelect")).value = this.node_freq_variant;
+    (<HTMLInputElement>document.getElementById("edgesFreqSelect")).value = this.edge_freq_variant;
+
     this.getProcessSchema();
   }
 
@@ -90,6 +106,29 @@ export class PmodelComponent implements OnInit {
 
   typeOfNodeFreqChanged() {
     this.node_freq_variant = (<HTMLInputElement>document.getElementById("nodeFreqSelect")).value;
+    if (this.node_freq_variant == "type1") {
+      this.edge_freq_variant = "type11";
+    }
+    else if (this.node_freq_variant == "type21") {
+      this.edge_freq_variant = "type211";
+    }
+    else if (this.node_freq_variant == "type22") {
+      this.edge_freq_variant = "type221";
+    }
+    else if (this.node_freq_variant == "type23") {
+      this.edge_freq_variant = "type231";
+    }
+    else if (this.node_freq_variant == "type31") {
+      this.edge_freq_variant = "type11";
+    }
+    else if (this.node_freq_variant == "type32") {
+      this.edge_freq_variant = "type12";
+    }
+    else if (this.node_freq_variant == "type32") {
+      this.edge_freq_variant = "type13";
+    }
+    (<HTMLInputElement>document.getElementById("edgesFreqSelect")).value = this.edge_freq_variant;
+
     this.getProcessSchema();
   }
 

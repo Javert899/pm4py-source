@@ -10,17 +10,32 @@
       Type of model:<br />
       <select id="pmodelSelect" (change)="typeOfModelChanged()">
         <option value="model1">Model Type 1</option>
+        <option value="model2">Model Type 2</option>
+        <option value="model3">Model Type 3</option>
       </select>
       <br /><br />
       Node frequency:<br />
       <select id="nodeFreqSelect" (change)="typeOfNodeFreqChanged()">
         <option value="type1" *ngIf="model_type_variant == 'model1'">Type 1</option>
+        <option value="type21" *ngIf="model_type_variant == 'model2'">Type 2.1</option>
+        <option value="type22" *ngIf="model_type_variant == 'model2'">Type 2.2</option>
+        <option value="type23" *ngIf="model_type_variant == 'model2'">Type 2.3</option>
+        <option value="type31" *ngIf="model_type_variant == 'model3'">Type 3.1</option>
+        <option value="type32" *ngIf="model_type_variant == 'model3'">Type 3.2</option>
+        <option value="type33" *ngIf="model_type_variant == 'model3'">Type 3.3</option>
       </select>
       <br /><br />
       Edge frequency:<br />
       <select id="edgesFreqSelect" (change)="typeOfEdgesFreqChanged()">
-        <option value="type11" *ngIf="model_type_variant == 'model1' && node_freq_variant == 'type1'">Type 1.1</option>
-        <option value="type12" *ngIf="model_type_variant == 'model1' && node_freq_variant == 'type1'">Type 1.2</option>
+        <option value="type11" *ngIf="model_type_variant == 'model1' || (model_type_variant == 'model3' && node_freq_variant == 'type31')">Type 1.1</option>
+        <option value="type12" *ngIf="model_type_variant == 'model1' || (model_type_variant == 'model3' && node_freq_variant == 'type32')">Type 1.2</option>
+        <option value="type13" *ngIf="model_type_variant == 'model1' || (model_type_variant == 'model3' && node_freq_variant == 'type33')">Type 1.3</option>
+        <option value="type211" *ngIf="model_type_variant == 'model2' && node_freq_variant == 'type21'">Type 2.1.1</option>
+        <option value="type212" *ngIf="model_type_variant == 'model2' && node_freq_variant == 'type21'">Type 2.1.2</option>
+        <option value="type221" *ngIf="model_type_variant == 'model2' && node_freq_variant == 'type22'">Type 2.2.1</option>
+        <option value="type222" *ngIf="model_type_variant == 'model2' && node_freq_variant == 'type22'">Type 2.2.2</option>
+        <option value="type231" *ngIf="model_type_variant == 'model2' && node_freq_variant == 'type23'">Type 2.3.1</option>
+        <option value="type232" *ngIf="model_type_variant == 'model2' && node_freq_variant == 'type23'">Type 2.3.2</option>
       </select>
     </td>
     <td style="width: 80%">
