@@ -3,4 +3,5 @@ from pm4py.algo.mvp.gen_framework.models.basic_model_structure import BasicModel
 
 class MVPModel1(BasicModelStructure):
     def __init__(self, df, parameters=None):
+        self.type = "model1"
         BasicModelStructure.__init__(self, df, parameters=parameters)

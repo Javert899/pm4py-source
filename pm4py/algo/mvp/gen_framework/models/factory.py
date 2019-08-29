@@ -11,4 +11,8 @@ VERSIONS = {MODEL1: model1.MVPModel1, MODEL2: model2.MVPModel2, MODEL3: model3.M
 
 
 def apply(df, variant=MODEL1, parameters=None):
-    return VERSIONS[variant](df, parameters=parameters)
+    model = VERSIONS[variant](df, parameters=parameters)
+    if variant == MODEL2:
+        model.calculate_map()
+    return model
+

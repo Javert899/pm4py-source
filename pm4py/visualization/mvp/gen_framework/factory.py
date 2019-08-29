@@ -1,5 +1,7 @@
-from pm4py.algo.mvp.gen_framework.models import model1 as model1_object
 from pm4py.visualization.mvp.gen_framework.versions import model1 as model1_visualization
+from pm4py.visualization.mvp.gen_framework.versions import model2 as model2_visualization
+from pm4py.algo.mvp.gen_framework.models import factory as model_factory
+
 from graphviz import Digraph
 from pm4py.visualization.common import gview
 from pm4py.visualization.common import save as gsave
@@ -10,8 +12,11 @@ def apply(model, parameters=None):
     if parameters is None:
         parameters = {}
 
-    if type(model) is model1_object.MVPModel1:
+    print(model.type)
+    if model.type == model_factory.MODEL1:
         return model1_visualization.apply(model, parameters=parameters)
+    elif model.type == model_factory.MODEL2:
+        return model2_visualization.apply(model, parameters=parameters)
 
 def save(gviz, output_file_path):
     """
