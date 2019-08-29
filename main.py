@@ -6,6 +6,8 @@ from pm4py.algo.mvp.gen_framework import factory as gen_fram_disc_factory
 from pm4py.visualization.mvp.gen_framework import factory as gen_vis_factory
 import base64
 
+class Shared:
+    df = generate_log()
 
 app = Flask(__name__, static_url_path='', static_folder="webapp/dist")
 app.add_url_rule(app.static_url_path + '/<path:filename>', endpoint='static',
@@ -15,7 +17,7 @@ CORS(app)
 
 @app.route("/getProcessSchema", methods=["GET"])
 def get_process_schema():
-    df = generate_log()
+
     # process = request.args.get('process', default='receipt', type=str)
     # df, model_type_variant=MODEL1, rel_ev_variant=REL_DFG, node_freq_variant=TYPE1, edge_freq_variant=TYPE11, parameters=None
 
@@ -24,7 +26,7 @@ def get_process_schema():
     node_freq_variant = request.args.get('node_freq_variant', default="type1", type=str)
     edge_freq_variant = request.args.get('edge_freq_variant', default="type11", type=str)
 
-    model = gen_fram_disc_factory.apply(df, model_type_variant=model_type_variant, rel_ev_variant=rel_ev_variant,
+    model = gen_fram_disc_factory.apply(Shared.df, model_type_variant=model_type_variant, rel_ev_variant=rel_ev_variant,
                                         node_freq_variant=node_freq_variant, edge_freq_variant=edge_freq_variant)
     gviz = gen_vis_factory.apply(model, parameters={"format": "svg"})
 
