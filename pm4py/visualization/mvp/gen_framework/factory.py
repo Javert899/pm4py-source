@@ -12,7 +12,6 @@ def apply(model, parameters=None):
     if parameters is None:
         parameters = {}
 
-    print(model.type)
     if model.type == model_factory.MODEL1:
         return model1_visualization.apply(model, parameters=parameters)
     elif model.type == model_factory.MODEL2:
