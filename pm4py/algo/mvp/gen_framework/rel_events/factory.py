@@ -7,8 +7,8 @@ BEING_PRODUCED = "being_produced"
 VERSIONS = {REL_DFG: rel_dfg.apply, BEING_PRODUCED: being_produced.apply}
 
 
-def apply(df, variant=REL_DFG, parameters=None):
+def apply(df, model, variant=REL_DFG, parameters=None):
     if parameters is None:
         parameters = {}
 
-    return VERSIONS[variant](df, parameters=parameters)
+    return VERSIONS[variant](df, model, parameters=parameters)

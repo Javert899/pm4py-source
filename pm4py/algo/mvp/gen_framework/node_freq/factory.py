@@ -5,5 +5,5 @@ TYPE1 = "type1"
 VERSIONS = {TYPE1: type1.apply}
 
 
-def apply(df, rel_ev, rel_act, variant=TYPE1, parameters=None):
-    return VERSIONS[variant](df, rel_ev, rel_act, parameters=parameters)
+def apply(df, model, rel_ev, rel_act, variant=TYPE1, parameters=None):
+    return VERSIONS[variant](df, model, rel_ev, rel_act, parameters=parameters)

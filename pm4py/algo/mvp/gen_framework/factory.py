@@ -20,10 +20,10 @@ def apply(df, model_type_variant=MODEL1, rel_ev_variant=REL_DFG, node_freq_varia
         parameters = {}
 
     model = model_factory.apply(df, variant=model_type_variant)
-    rel_ev = rel_ev_factory.apply(df, variant=rel_ev_variant)
-    rel_act = rel_act_factory.apply(df, rel_ev)
-    node_freq = node_freq_factory.apply(df, rel_ev, rel_act, variant=node_freq_variant)
-    edge_freq = edge_freq_factory.apply(df, rel_ev, rel_act, variant=edge_freq_variant)
+    rel_ev = rel_ev_factory.apply(df, model, variant=rel_ev_variant)
+    rel_act = rel_act_factory.apply(df, model, rel_ev)
+    node_freq = node_freq_factory.apply(df, model, rel_ev, rel_act, variant=node_freq_variant)
+    edge_freq = edge_freq_factory.apply(df, model, rel_ev, rel_act, variant=edge_freq_variant)
 
     model.set_rel_ev(rel_ev)
     model.set_rel_act(rel_act)

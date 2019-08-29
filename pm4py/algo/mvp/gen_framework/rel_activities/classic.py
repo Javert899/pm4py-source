@@ -1,4 +1,4 @@
-def apply(df, rel_ev_dict, parameters=None):
+def apply(df, model, rel_ev_dict, parameters=None):
     if parameters is None:
         parameters = {}
 

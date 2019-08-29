@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def apply(df, parameters=None):
+def apply(df, model, parameters=None):
     if parameters is None:
         parameters = {}
 
