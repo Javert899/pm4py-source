@@ -18,6 +18,8 @@ class DFGPredictor(object):
         self.other_relations = self.possible_other_relations()
         self.normalize()
 
+        self.other_relations_dict = {(x, y): z for (x, y, z) in self.other_relations}
+
     def initialize_A(self):
         for a in self.activities:
             self.A[a] = set(x[0] for x in self.dfg if x[1] == a)
@@ -39,7 +41,9 @@ class DFGPredictor(object):
             return 1.0
         elif x not in self.activities or y not in self.activities:
             return 0.0
-        return self.calculate_similarity_0(x, y)
+        elif (x, y) in self.other_relations_dict:
+            return self.other_relations_dict[(x, y)]
+        return 0.0
 
     def calculate_similarity_0(self, x, y, k=1.0/math.sqrt(3.0), defv=1.0/6.0):
         val1 = self.sim_A(x, y, k=k, defv=defv)
