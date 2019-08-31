@@ -4,10 +4,8 @@ from pm4py.algo.simulation.playout import factory as playout_factory
 from pm4py.algo.discovery.dfg import factory as dfg_factory
 from pm4py.algo.conformance.probabilistic_footprints.versions import classic_pandas
 
-DEVIATIONS_THRESHOLD = "deviations_threshold"
 NO_CASES = "no_cases"
 MAX_LEN_TRACE = "max_len_trace"
-DEFAULT_DEVIATIONS_THRESHOLD = 0.5
 DEFAULT_NO_CASES = 100
 DEFAULT_MAX_LEN_TRACE = 1000
 
@@ -19,8 +17,6 @@ def apply(log, net, im, fm, variant=CLASSIC_PANDAS, parameters=None):
     if parameters is None:
         parameters = {}
 
-    dev_threshold = parameters[
-        DEVIATIONS_THRESHOLD] if DEVIATIONS_THRESHOLD in parameters else DEFAULT_DEVIATIONS_THRESHOLD
     no_cases = parameters[NO_CASES] if NO_CASES in parameters else DEFAULT_NO_CASES
     max_len_trace = parameters[MAX_LEN_TRACE] if MAX_LEN_TRACE in parameters else DEFAULT_MAX_LEN_TRACE
 
@@ -32,4 +28,4 @@ def apply(log, net, im, fm, variant=CLASSIC_PANDAS, parameters=None):
 
     dfg = dfg_factory.apply(playout_traces)
 
-    return VERSIONS[variant](log, dfg, dev_threshold)
+    return VERSIONS[variant](log, dfg)

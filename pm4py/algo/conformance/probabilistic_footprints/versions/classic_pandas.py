@@ -5,7 +5,7 @@ from pm4py.objects.log.util import xes
 from pm4py.algo.discovery.dfg.predictor import DFGPredictor
 
 
-def apply(dataframe, dfg, dev_threshold, parameters=None):
+def apply(dataframe, dfg, parameters=None):
     if parameters is None:
         parameters = {}
 
@@ -21,7 +21,13 @@ def apply(dataframe, dfg, dev_threshold, parameters=None):
     concat_df = pd.concat([dataframe, shifted_df], axis=1)
     concat_df = concat_df[concat_df[case_id_glue] == concat_df[case_id_glue+"_2"]]
     concat_df["@@merged_activities"] = concat_df[activity_key]+"@@"+concat_df[activity_key+"_2"]
-    concat_df["@@fp_couple_fitness"] = dfg_predictor.calculate_similarity_stri(concat_df["@@merged_activities"])
-    print(concat_df[case_id_glue, "@@merged_activities", "@@fp_couple_fitness"])
+    concat_df_red = concat_df["@@merged_activities"]
+    all_paths = concat_df_red.unique()
+    replace_dict = dfg_predictor.merged_dict
+    for path in all_paths:
+        if path not in replace_dict:
+            replace_dict[path] = 0.0
+    concat_df_red = concat_df_red.replace(replace_dict)
+    concat_df["@@fp_couple_fitness"] = concat_df_red
 
-    return None
+    return concat_df

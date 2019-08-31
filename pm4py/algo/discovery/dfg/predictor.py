@@ -19,6 +19,8 @@ class DFGPredictor(object):
         self.normalize()
 
         self.other_relations_dict = {x+"@@"+y: z for (x, y, z) in self.other_relations}
+        self.merged_dict = {x+"@@"+y: 1 for (x, y, z) in self.current_relations}
+        self.merged_dict.update(self.other_relations_dict)
 
     def initialize_A(self):
         for a in self.activities:
