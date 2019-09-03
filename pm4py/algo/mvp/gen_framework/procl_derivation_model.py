@@ -1,5 +1,5 @@
 from pm4py.algo.mvp.gen_framework import factory as gen_fram_factory
-
+from pm4py.algo.discovery.inductive import factory as inductive_miner
 
 class ProclDerivationModel(object):
     def __init__(self, df, parameters=None):
@@ -15,6 +15,14 @@ class ProclDerivationModel(object):
                                                 node_freq_variant="type32", edge_freq_variant="type13")
         self.model_link = gen_fram_factory.apply(df, model_type_variant="model3", rel_ev_variant="link",
                                                  node_freq_variant="type32", edge_freq_variant="type11")
+
+        self.model_inductive = {}
+
+        for cl in self.model_dfg.edge_freq:
+            this_dfg = self.model_dfg.edge_freq[cl]
+            new_dfg = {(x.split("@@")[0], x.split("@@")[1]): this_dfg[x] for x in this_dfg}
+            self.model_inductive[cl] = inductive_miner.apply_dfg(new_dfg)
+
         self.linked_perspectives = {}
 
         self.find_linked_perspectives()
@@ -55,7 +63,12 @@ class ProclDerivationModel(object):
                 current_class = list(self.acti_loop_map[acti])[0]
                 remaining_classes = self.acti_class_map[acti] - self.acti_loop_map[acti]
                 linked_acti_current = set(
-                    x for x in self.model_link.edge_freq[current_class] if x.split("@@")[0] == acti)
+                    (x,
+                     self.model_3_2.node_freq[current_class][x.split("@@")[1]],
+                     self.model_3_2.node_freq[current_class][x.split("@@")[0]]) for x in
+                    self.model_link.edge_freq[current_class] if
+                    x.split("@@")[0] == acti and self.model_link.edge_freq[current_class][x] >=
+                    self.model_3_1.node_freq[current_class][x.split("@@")[1]])
 
                 if linked_acti_current:
                     prod_count_1_source = self.loop_count_1[current_class][acti]
@@ -64,20 +77,40 @@ class ProclDerivationModel(object):
 
                     if prod_count_1_source == acti_count_1_source:
                         if prod_count_2_source > prod_count_1_source:
-                            source_card = "1..N"
+                            source_card = "N"
                         else:
-                            source_card = "1..1"
+                            source_card = "1"
                     else:
                         if prod_count_2_source > prod_count_1_source:
-                            source_card = "0..N"
+                            source_card = "N"
                         else:
-                            source_card = "0..1"
+                            source_card = "1"
 
                     for cl in remaining_classes:
-                        if current_class not in self.production_map:
-                            self.production_map[current_class] = {}
-                        if cl not in self.production_map[current_class]:
-                            self.production_map[current_class][cl] = {}
-                        self.production_map[current_class][cl][acti] = {"linked": [], "source_card": source_card}
+                        linked = None
+                        linked = []
 
-        print(self.production_map)
+                        for x in linked_acti_current:
+                            ta = x[0].split("@@")[1]
+                            if ta in self.act_count_1[cl]:
+                                if x[1] == x[2]:
+                                    linked.append([x[0].split("@@")[1], "="])
+                                else:
+                                    linked.append([x[0].split("@@")[1], "<="])
+
+                        if linked:
+                            if current_class not in self.production_map:
+                                self.production_map[current_class] = {}
+                            if cl not in self.production_map[current_class]:
+                                self.production_map[current_class][cl] = {}
+
+                            acti_count_1_target = self.act_count_1[cl][acti]
+                            acti_count_2_target = self.act_count_2[cl][acti]
+
+                            if acti_count_2_target > acti_count_1_target:
+                                target_card = "N"
+                            else:
+                                target_card = "1"
+
+                            self.production_map[current_class][cl][acti] = {"linked": linked, "source_card": source_card,
+                                                                            "target_card": target_card}
