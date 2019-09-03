@@ -8,6 +8,8 @@ class ProclDerivationModel(object):
         if parameters is None:
             parameters = {}
 
+        self.type = "proclet_derivation_model"
+
         self.df = df
         self.model_dfg = gen_fram_factory.apply(df, model_type_variant="model3", rel_ev_variant="rel_dfg",
                                                 node_freq_variant="type31", edge_freq_variant="type11")
