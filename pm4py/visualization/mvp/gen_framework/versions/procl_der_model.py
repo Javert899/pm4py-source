@@ -64,6 +64,22 @@ def apply(model, parameters=None):
                 g.edge(st, this_uuid, dir="none", xlabel=model.production_map[scl][tcl][acti]["source_card"])
                 g.edge(this_uuid, tt, dir="none", xlabel=model.production_map[scl][tcl][acti]["target_card"])
 
+                for la_el in model.production_map[scl][tcl][acti]["linked"]:
+                    la = la_el[0]
+                    lac = la_el[1]
+
+                    st2 = activities[scl][la]
+                    tt2 = activities[tcl][la]
+
+                    this_uuid = str(uuid.uuid4())
+                    if str(lac) == "<=":
+                        g.node(this_uuid, str(lac), shape="box", fillcolor="#AAEEEE", style="filled")
+                    else:
+                        g.node(this_uuid, str(lac), shape="box", fillcolor="#AAAAFF", style="filled")
+
+                    g.edge(st2, this_uuid, dir="none")
+                    g.edge(this_uuid, tt2, dir="none")
+
     g.attr(overlap='false')
     g.attr(fontsize='11')
 
