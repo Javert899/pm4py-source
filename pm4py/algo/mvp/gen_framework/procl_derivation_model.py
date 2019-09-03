@@ -1,5 +1,7 @@
 from pm4py.algo.mvp.gen_framework import factory as gen_fram_factory
 from pm4py.algo.discovery.inductive import factory as inductive_miner
+from pm4py.algo.discovery.dfg.utils import dfg_utils
+
 
 class ProclDerivationModel(object):
     def __init__(self, df, parameters=None):
@@ -17,11 +19,15 @@ class ProclDerivationModel(object):
                                                  node_freq_variant="type32", edge_freq_variant="type11")
 
         self.model_inductive = {}
+        self.start_activities = {}
+        self.end_activities = {}
 
         for cl in self.model_dfg.edge_freq:
             this_dfg = self.model_dfg.edge_freq[cl]
             new_dfg = {(x.split("@@")[0], x.split("@@")[1]): this_dfg[x] for x in this_dfg}
             self.model_inductive[cl] = inductive_miner.apply_dfg(new_dfg)
+            self.start_activities[cl] = dfg_utils.infer_start_activities(new_dfg)
+            self.end_activities[cl] = dfg_utils.infer_end_activities(new_dfg)
 
         self.linked_perspectives = {}
 
