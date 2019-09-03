@@ -52,6 +52,18 @@ def apply(model, parameters=None):
             for arc in net.arcs:
                 c.edge(all_objs[arc.source], all_objs[arc.target])
 
+    for scl in model.production_map:
+        for tcl in model.production_map[scl]:
+            for acti in model.production_map[scl][tcl]:
+                st = activities[scl][acti]
+                tt = activities[tcl][acti]
+
+                this_uuid = str(uuid.uuid4())
+                g.node(this_uuid, "", shape="box", fillcolor="#99FF99", style="filled")
+
+                g.edge(st, this_uuid, dir="none", xlabel=model.production_map[scl][tcl][acti]["source_card"])
+                g.edge(this_uuid, tt, dir="none", xlabel=model.production_map[scl][tcl][acti]["target_card"])
+
     g.attr(overlap='false')
     g.attr(fontsize='11')
 
