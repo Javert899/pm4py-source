@@ -1,4 +1,4 @@
-from pm4py.algo.mvp.utils import df_to_grouped_stream
+from pm4py.algo.mvp.utils import df_to_grouped_stream_old
 import networkx
 from node2vec import Node2Vec
 
@@ -37,7 +37,7 @@ def from_df(df, parameters=None):
 
     G = networkx.Graph()
 
-    grouped_stream = df_to_grouped_stream.apply(df, remove_common=True, include_activity_timest_in_key=True)
+    grouped_stream = df_to_grouped_stream_old.apply(df, remove_common=True, include_activity_timest_in_key=True)
     keys = list(grouped_stream.keys())
 
     for i in range(min(len(keys), max_no_events)):

@@ -1,3 +1,6 @@
+from pm4py.algo.mvp.utils import df_to_grouped_stream_old
+
+
 def apply(df, remove_common=False, include_activity_timest_in_key=False):
     """
     Dataframe to grouped stream
@@ -12,33 +15,24 @@ def apply(df, remove_common=False, include_activity_timest_in_key=False):
     grouped_stream
         Grouped stream of events
     """
-    stream = df.to_dict('r')
-    grouped_stream = {}
 
-    i = 0
-    while i < len(stream):
-        keys = list(stream[i].keys())
-        for key in keys:
-            if str(stream[i][key]) == "nan" or str(stream[i][key]) == "None":
-                del stream[i][key]
-        event_id = stream[i]["event_id"]
-        event_activity = stream[i]["event_activity"]
-        event_timestamp = stream[i]["event_timestamp"]
-        if include_activity_timest_in_key:
-            if (event_id, event_activity, event_timestamp) not in grouped_stream:
-                grouped_stream[(event_id, event_activity, event_timestamp)] = []
-        else:
-            if event_id not in grouped_stream:
-                grouped_stream[event_id] = []
-        if remove_common:
-            del stream[i]["event_id"]
-            del stream[i]["event_activity"]
-            if "event_timestamp" in stream[i]:
-                del stream[i]["event_timestamp"]
-        if include_activity_timest_in_key:
-            grouped_stream[(event_id, event_activity, event_timestamp)].append(stream[i])
-        else:
-            grouped_stream[event_id].append(stream[i])
-        i = i + 1
+    grouped_stream = df_to_grouped_stream_old.apply(df, remove_common=remove_common,
+                                                    include_activity_timest_in_key=include_activity_timest_in_key)
 
-    return grouped_stream
+    ret = []
+
+    for gk in grouped_stream:
+        g = grouped_stream[gk]
+        if g:
+            ev = {}
+            keys = set()
+            for i in range(len(g)):
+                keys = keys.union(set(g[i].keys()))
+            for key in keys:
+                if key.startswith("event_"):
+                    ev[key] = g[0][key]
+                else:
+                    ev[key] = [g[i][key] for i in range(len(g)) if key in g[i]]
+            ret.append(ev)
+
+    return ret
