@@ -22,14 +22,12 @@ class MVPModel2(BasicModelStructure):
             red_df = self.df[self.df["event_activity"] == act]
 
             non_null_count = dict(red_df.count())
-            del non_null_count["event_id"]
-            del non_null_count["event_activity"]
-            del non_null_count["event_timestamp"]
 
             max_key = None
             max_value = -1
 
-            keys = sorted(list(non_null_count.keys()))
+            keys = sorted([key for key in non_null_count.keys() if not key.startswith("event_")])
+
             for key in keys:
                 if non_null_count[key] > max_value:
                     max_key = key
