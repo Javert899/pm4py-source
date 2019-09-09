@@ -30,7 +30,7 @@ def apply(df, remove_common=False, include_activity_timest_in_key=False):
                 keys = keys.union(set(g[i].keys()))
             for key in keys:
                 if key.startswith("event_"):
-                    ev[key] = g[0][key]
+                    ev[key] = [g[i][key] for i in range(len(g)) if key in g[i]][0]
                 else:
                     ev[key] = [g[i][key] for i in range(len(g)) if key in g[i]]
             ret.append(ev)
