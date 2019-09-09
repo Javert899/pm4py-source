@@ -47,17 +47,21 @@ def generate_log():
 
     for d in range(shared.N*2):
 
-        list_events = list_events + generate_event("create", {"order": [d]})
+        income = randrange(100, 1000)
+        costs = randrange(0, income)
+        profit = income - costs
+
+        event = generate_event("create", {"order": [d]})
+
+        for i in range(len(event)):
+            event[i]["event_income"] = income
+            event[i]["event_costs"] = costs
+            event[i]["event_profit"] = profit
+
+        list_events = list_events + event
 
     i = 0
     while i < shared.N*2:
-        """list_events = list_events + generate_event("split", {"order": [i], "package": [8*i, 8*(i+1)], "delivery": [i]})
-        list_events = list_events + generate_event("split",
-                                                   {"order": [i], "package": [8 * (i + 2), 8 * (i + 3)], "delivery": [i+1]})
-        list_events = list_events + generate_event("split",
-                                                   {"order": [i+1], "package": [8 * (i + 4), 8 * (i + 5)], "delivery": [i]})
-        list_events = list_events + generate_event("split",
-                                                   {"order": [i+1], "package": [8 * (i + 6), 8 * (i + 7)], "delivery": [i+1]})"""
 
         list_events = list_events + generate_event("split", {"package": [8*i, 8*i +1, 8*i +2, 8*i +3], "order": [i]})
         list_events = list_events + generate_event("split", {"package": [8*i + 4, 8*i +5, 8*i +6, 8*i +7], "order": [i+1]})
@@ -110,8 +114,16 @@ def generate_log():
 
     i = 0
     while i < shared.N*2:
-        list_events = list_events + generate_event("bill", {"package": [8*i, 8*i +1, 8*i +2, 8*i +3], "order": [i]})
-        list_events = list_events + generate_event("bill", {"package": [8*i + 4, 8*i +5, 8*i +6, 8*i +7], "order": [i+1]})
+        additional_fee = randrange(0, 200)
+        event = generate_event("bill", {"package": [8*i, 8*i +1, 8*i +2, 8*i +3], "order": [i]})
+        for j in range(len(event)):
+            event[j]["event_add_fee"] = additional_fee
+        list_events = list_events + event
+
+        event = generate_event("bill", {"package": [8*i + 4, 8*i +5, 8*i +6, 8*i +7], "order": [i+1]})
+        for j in range(len(event)):
+            event[j]["event_add_fee"] = additional_fee
+        list_events = list_events + event
 
         i = i + 2
 
