@@ -2,7 +2,7 @@ from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.algo.mvp.utils import df_to_grouped_stream_old
+from pm4py.algo.mvp.utils import exploded_mdl_to_grouped_stream_old
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.log.util import sorting
 
@@ -51,7 +51,7 @@ def apply(df, perspectives_list, parameters=None):
     trace_by_persp_value = {}
     for p in perspectives_list:
         trace_by_persp_value[p] = {}
-    grouped_stream = df_to_grouped_stream_old.apply(df, remove_common=True, include_activity_timest_in_key=True)
+    grouped_stream = exploded_mdl_to_grouped_stream_old.apply(df, remove_common=True, include_activity_timest_in_key=True)
     for event in grouped_stream:
         key_value = {k: v for x in grouped_stream[event] for k, v in x.items()}
         keys_set = set(key_value.keys())

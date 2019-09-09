@@ -1,4 +1,4 @@
-from pm4py.algo.mvp.utils import df_to_grouped_stream_old
+from pm4py.algo.mvp.utils import exploded_mdl_to_grouped_stream_old
 
 
 def apply(df, remove_common=False, include_activity_timest_in_key=False):
@@ -16,8 +16,8 @@ def apply(df, remove_common=False, include_activity_timest_in_key=False):
         Grouped stream of events
     """
 
-    grouped_stream = df_to_grouped_stream_old.apply(df, remove_common=remove_common,
-                                                    include_activity_timest_in_key=include_activity_timest_in_key)
+    grouped_stream = exploded_mdl_to_grouped_stream_old.apply(df, remove_common=remove_common,
+                                                              include_activity_timest_in_key=include_activity_timest_in_key)
 
     ret = []
 

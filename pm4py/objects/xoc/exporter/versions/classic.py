@@ -1,4 +1,4 @@
-from pm4py.algo.mvp.utils import df_to_grouped_stream_old
+from pm4py.algo.mvp.utils import exploded_mdl_to_grouped_stream_old
 
 def apply(df, dest_path, parameters=None):
     """
@@ -16,7 +16,7 @@ def apply(df, dest_path, parameters=None):
     if parameters is None:
         parameters = {}
 
-    grouped_stream = df_to_grouped_stream_old.apply(df)
+    grouped_stream = exploded_mdl_to_grouped_stream_old.apply(df)
 
     F = open(dest_path, "w")
     F.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n")

@@ -7,7 +7,7 @@ import sys
 import subprocess
 
 
-from pm4py.algo.mvp.utils import df_to_grouped_stream_old
+from pm4py.algo.mvp.utils import exploded_mdl_to_grouped_stream_old
 
 
 def apply(df, parameters=None):
@@ -30,7 +30,7 @@ def apply(df, parameters=None):
         parameters = {}
     image_format = parameters["format"] if "format" in parameters else "png"
 
-    grouped_stream = df_to_grouped_stream_old.apply(df, remove_common=True, include_activity_timest_in_key=True)
+    grouped_stream = exploded_mdl_to_grouped_stream_old.apply(df, remove_common=True, include_activity_timest_in_key=True)
     graph = pydotplus.Dot()
     obj_corr = {}
     for event in grouped_stream:
