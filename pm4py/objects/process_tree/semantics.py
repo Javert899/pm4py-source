@@ -28,7 +28,6 @@ def generate_log(pt, no_traces=100):
     for i in range(no_traces):
         ex_seq = execute(pt)
         ex_seq_labels = pt_util.project_execution_sequence_to_labels(ex_seq)
-
         trace = Trace()
         trace.attributes[xes.DEFAULT_NAME_KEY] = str(i)
         for label in ex_seq_labels:
@@ -56,7 +55,7 @@ def execute(pt):
     """
     enabled, open, closed = set(), set(), set()
     enabled.add(pt)
-    populate_closed(pt.children, closed)
+    #populate_closed(pt.children, closed)
     execution_sequence = list()
     while len(enabled) > 0:
         execute_enabled(enabled, open, closed, execution_sequence)
@@ -112,7 +111,8 @@ def execute_enabled(enabled, open, closed, execution_sequence=None):
         elif vertex.operator is pt_opt.Operator.PARALLEL:
             enabled |= set(vertex.children)
             map(lambda c: execution_sequence.append((c, pt_st.State.ENABLED)), vertex.children)
-        elif vertex.operator is pt_opt.Operator.XOR:
+        # TODO: add proper support to OR (during the log generation, is considered as a XOR)
+        elif vertex.operator is pt_opt.Operator.XOR or vertex.operator is pt_opt.Operator.OR:
             vc = vertex.children
             c = vc[random.randint(0, len(vc) - 1)]
             enabled.add(c)
