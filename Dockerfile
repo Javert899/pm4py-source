@@ -10,5 +10,5 @@ RUN apt-get -y install zip unzip
 RUN pip install pyvis networkx==2.2 matplotlib numpy ciso8601 pyarrow==0.13.0 lxml graphviz pandas scipy scikit-learn pytz==2018.9
 RUN pip install pydotplus
 
-RUN pip install pulp ortools
+RUN pip install pulp ortools prefixspan fasttext pybind11
 COPY . /app
