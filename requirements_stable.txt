@@ -16,3 +16,6 @@ pytz==2018.9
 joblib==0.13.2
 lime
 ortools
+prefixspan
+fasttext
+pybind11

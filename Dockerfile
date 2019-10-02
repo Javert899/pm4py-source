@@ -11,6 +11,6 @@ RUN apt-get -y install zip unzip
 RUN pip install pyvis networkx==2.2 matplotlib numpy ciso8601 pyarrow==0.13.0 lxml graphviz pandas scipy scikit-learn pytz==2018.9 lime joblib
 RUN pip install pydotplus bpmn_python==0.0.18
 
-RUN pip install pulp ortools
+RUN pip install pulp ortools prefixspan fasttext pybind11
 COPY . /app
 RUN cd /app && cp tests/test_dockers/setups/setup_bpmnIntegration2.py setup.py && python setup.py install
