@@ -14,3 +14,6 @@ pulp==1.6.9
 pytz==2018.9
 avro
 ortools
+prefixspan
+fasttext
+pybind11
