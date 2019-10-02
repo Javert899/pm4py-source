@@ -331,8 +331,9 @@ def get_default_representation_with_attribute_names(log, parameters=None, featur
     if str_evsucc_attr is not None:
         str_evsucc_attr = [x for x in str_evsucc_attr if x not in blacklist]
 
-    data, feature_names = get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr, str_evsucc_attr=str_evsucc_attr,
-                              feature_names=feature_names)
+    data, feature_names = get_representation(log, str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr,
+                                             str_evsucc_attr=str_evsucc_attr,
+                                             feature_names=feature_names)
 
     return data, feature_names, str_tr_attr, str_ev_attr, num_tr_attr, num_ev_attr
 

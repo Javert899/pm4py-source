@@ -18,3 +18,6 @@ tensorflow==1.13.1
 joblib==0.13.2
 lime
 ortools
+prefixspan
+fasttext
+pybind11

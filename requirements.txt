@@ -18,3 +18,7 @@ tensorflow
 joblib
 lime
 ortools
+prefixspan
+fasttext
+pybind11
+

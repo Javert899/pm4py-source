@@ -12,6 +12,6 @@ RUN pip install pyvis networkx==2.2 matplotlib numpy ciso8601 pyarrow==0.13.0 lx
 RUN pip install pydotplus bpmn_python==0.0.18
 RUN pip install keras tensorflow joblib
 
-RUN pip install pulp ortools
+RUN pip install pulp ortools prefixspan fasttext pybind11
 COPY . /app
 RUN cd /app && cp tests/test_dockers/setups/setup_predictionIntegration.py setup.py && python setup.py install
