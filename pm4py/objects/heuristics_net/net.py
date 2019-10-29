@@ -1,7 +1,7 @@
 from copy import deepcopy
 
-from pm4py.algo.discovery.dfg.utils import dfg_utils
-from pm4py.algo.filtering.dfg.dfg_filtering import clean_dfg_based_on_noise_thresh
+from pm4py.objects.dfg.utils import dfg_utils
+from pm4py.objects.dfg.filtering.dfg_filtering import clean_dfg_based_on_noise_thresh
 from pm4py.objects.heuristics_net import defaults
 from pm4py.objects.heuristics_net.node import Node
 
@@ -212,6 +212,9 @@ class HeuristicsNet:
                                                   nodes_dictionary=self.nodes)
                         v_n1_n2 = self.dfg_matrix[n1][n2] if n1 in self.dfg_matrix and n2 in self.dfg_matrix[n1] else 0
                         v_n2_n1 = self.dfg_matrix[n2][n1] if n2 in self.dfg_matrix and n1 in self.dfg_matrix[n2] else 0
+
+                        repr_value = self.performance_matrix[n1][n2] if n1 in self.performance_matrix and n2 in self.performance_matrix[n1] else 0
+
                         if (n1, n2) not in added_loops:
                             added_loops.add((n1, n2))
                             self.nodes[n1].add_output_connection(self.nodes[n2], 0,
