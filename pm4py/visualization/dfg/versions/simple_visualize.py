@@ -3,11 +3,12 @@ from copy import copy
 
 from graphviz import Digraph
 
-from pm4py.algo.filtering.log.attributes import attributes_filter
+from pm4py.statistics.attributes.log import get as attr_get
 from pm4py.objects.dfg.utils import dfg_utils
-from pm4py.objects.log.util import xes
-from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY
+from pm4py.util import xes_constants as xes
 from pm4py.visualization.common.utils import *
+from pm4py.util import exec_utils
+from pm4py.visualization.dfg.parameters import Parameters
 
 
 def get_min_max_value(dfg):
@@ -97,7 +98,7 @@ def get_activities_color(activities_count):
 
 def apply_frequency(dfg, log=None, activities_count=None, parameters=None):
     """
-    Apply method (to be called from the factory method; calls the graphviz_visualization method)
+    Apply method (calls the graphviz_visualization method)
 
     Parameters
     -----------
@@ -117,7 +118,7 @@ def apply_frequency(dfg, log=None, activities_count=None, parameters=None):
 
 def apply_performance(dfg, log=None, activities_count=None, parameters=None):
     """
-    Apply method (to be called from the factory method; calls the graphviz_visualization method)
+    Apply method (calls the graphviz_visualization method)
 
     Parameters
     -----------
@@ -170,7 +171,9 @@ def graphviz_visualization(activities_count, dfg, image_format="png", measure="f
     dfg_key_value_list = []
     for edge in dfg:
         dfg_key_value_list.append([edge, dfg[edge]])
-    dfg_key_value_list = sorted(dfg_key_value_list, key=lambda x: x[1], reverse=True)
+    # more fine grained sorting to avoid that edges that are below the threshold are
+    # undeterministically removed
+    dfg_key_value_list = sorted(dfg_key_value_list, key=lambda x: (x[1], x[0][0], x[0][1]), reverse=True)
     dfg_key_value_list = dfg_key_value_list[0:min(len(dfg_key_value_list), max_no_of_edges_in_diagram)]
     dfg_allowed_keys = [x[0] for x in dfg_key_value_list]
     dfg_keys = list(dfg.keys())
@@ -182,15 +185,10 @@ def graphviz_visualization(activities_count, dfg, image_format="png", measure="f
     penwidth = assign_penwidth_edges(dfg)
     activities_in_dfg = set()
     activities_count_int = copy(activities_count)
-    ackeys = copy(list(activities_count_int.keys()))
 
     for edge in dfg:
         activities_in_dfg.add(edge[0])
         activities_in_dfg.add(edge[1])
-
-    """for act in ackeys:
-        if act not in activities_in_dfg:
-            del activities_count_int[act]"""
 
     # assign attributes color
     activities_color = get_activities_color(activities_count_int)
@@ -199,9 +197,10 @@ def graphviz_visualization(activities_count, dfg, image_format="png", measure="f
     viz.attr('node', shape='box')
 
     if len(activities_in_dfg) == 0:
-        activities_to_include = set(activities_count_int)
+        activities_to_include = sorted(list(set(activities_count_int)))
     else:
-        activities_to_include = set(activities_in_dfg)
+        # take unique elements as a list not as a set (in this way, nodes are added in the same order to the graph)
+        activities_to_include = sorted(list(set(activities_in_dfg)))
 
     activities_map = {}
 
@@ -214,8 +213,11 @@ def graphviz_visualization(activities_count, dfg, image_format="png", measure="f
             viz.node(str(hash(act)), act)
             activities_map[act] = str(hash(act))
 
+    # make edges addition always in the same order
+    dfg_edges = sorted(list(dfg.keys()))
+
     # represent edges
-    for edge in dfg:
+    for edge in dfg_edges:
         if "frequency" in measure:
             label = str(dfg[edge])
         else:
@@ -247,23 +249,15 @@ def apply(dfg, log=None, parameters=None, activities_count=None, measure="freque
     if parameters is None:
         parameters = {}
 
-    activity_key = parameters[
-        PARAMETER_CONSTANT_ACTIVITY_KEY] if PARAMETER_CONSTANT_ACTIVITY_KEY in parameters else xes.DEFAULT_NAME_KEY
-
-    image_format = "png"
-    max_no_of_edges_in_diagram = 75
-
-    if "format" in parameters:
-        image_format = parameters["format"]
-    if "maxNoOfEdgesInDiagram" in parameters:
-        max_no_of_edges_in_diagram = parameters["maxNoOfEdgesInDiagram"]
-
-    start_activities = parameters["start_activities"] if "start_activities" in parameters else []
-    end_activities = parameters["end_activities"] if "end_activities" in parameters else []
+    activity_key = exec_utils.get_param_value(Parameters.ACTIVITY_KEY, parameters, xes.DEFAULT_NAME_KEY)
+    image_format = exec_utils.get_param_value(Parameters.FORMAT, parameters, "png")
+    max_no_of_edges_in_diagram = exec_utils.get_param_value(Parameters.MAX_NO_EDGES_IN_DIAGRAM, parameters, 75)
+    start_activities = exec_utils.get_param_value(Parameters.START_ACTIVITIES, parameters, [])
+    end_activities = exec_utils.get_param_value(Parameters.END_ACTIVITIES, parameters, [])
 
     if activities_count is None:
         if log is not None:
-            activities_count = attributes_filter.get_attribute_values(log, activity_key, parameters=parameters)
+            activities_count = attr_get.get_attribute_values(log, activity_key, parameters=parameters)
         else:
             activities = dfg_utils.get_activities_from_dfg(dfg)
             activities_count = {key: 1 for key in activities}

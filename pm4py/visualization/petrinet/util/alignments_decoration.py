@@ -1,54 +1,4 @@
-def get_corr_hex(num):
-    """
-    Gets correspondence between a number
-    and an hexadecimal string
-
-    Parameters
-    -------------
-    num
-        Number
-
-    Returns
-    -------------
-    hex_string
-        Hexadecimal string
-    """
-    if num < 10:
-        return str(int(num))
-    elif num < 11:
-        return "A"
-    elif num < 12:
-        return "B"
-    elif num < 13:
-        return "C"
-    elif num < 14:
-        return "D"
-    elif num < 15:
-        return "E"
-    elif num < 16:
-        return "F"
-
-
-def get_transitions_color(count_move_on_model, count_fit):
-    """
-    Gets the color associated to the transition
-
-    Parameters
-    ------------
-    count_move_on_model
-        Number of move on models
-    count_fit
-        Number of fit moves
-
-    Returns
-    -----------
-    color
-        Color associated to the transition
-    """
-    factor = int(255.0 * float(count_fit) / float(count_move_on_model + count_fit + 0.00001))
-    first = get_corr_hex(int(factor / 16))
-    second = get_corr_hex(factor % 16)
-    return "#FF" + first + second + first + second
+from pm4py.util.colors import get_transitions_color
 
 
 def get_alignments_decoration(net, im, fm, log=None, aligned_traces=None, parameters=None):
@@ -78,8 +28,8 @@ def get_alignments_decoration(net, im, fm, log=None, aligned_traces=None, parame
     if parameters is None:
         parameters = {}
     if aligned_traces is None and log is not None:
-        from pm4py.algo.conformance.alignments import factory as alignments_factory
-        aligned_traces = alignments_factory.apply(log, net, im, fm, parameters={"ret_tuple_as_trans_desc": True})
+        from pm4py.algo.conformance.alignments import algorithm as alignments
+        aligned_traces = alignments.apply(log, net, im, fm, parameters={"ret_tuple_as_trans_desc": True})
     decorations = {}
     net_transitions = {}
     for trans in net.transitions:

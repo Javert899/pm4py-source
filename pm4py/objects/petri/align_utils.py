@@ -1,6 +1,8 @@
 import numpy as np
-from pm4py.util.lp import factory as lp_solver_factory
+from pm4py.util.lp import solver as lp_solver
 from pm4py.objects.petri.petrinet import Marking
+from pm4py.objects.petri import semantics
+from copy import copy
 import sys
 
 
@@ -17,7 +19,6 @@ def construct_standard_cost_function(synchronous_product_net, skip):
     * model moves: cost 1000
     * tau moves: cost 1
     * sync moves: cost 0
-
     :param synchronous_product_net:
     :param skip:
     :return:
@@ -40,7 +41,6 @@ def pretty_print_alignments(alignments):
      A  | B  | C  | D  |
     --------------------
      A  | B  | C  | >> |
-
     :param alignment: <class 'list'>
     :return: Nothing
     """
@@ -159,10 +159,10 @@ def __compute_exact_heuristic_new_version(sync_net, a_matrix, h_cvx, g_matrix, c
 
     parameters_solving = {"solver": "glpk"}
 
-    sol = lp_solver_factory.apply(cost_vec, g_matrix, h_cvx, a_matrix, b_term, parameters=parameters_solving,
+    sol = lp_solver.apply(cost_vec, g_matrix, h_cvx, a_matrix, b_term, parameters=parameters_solving,
                                   variant=variant)
-    prim_obj = lp_solver_factory.get_prim_obj_from_sol(sol, variant=variant)
-    points = lp_solver_factory.get_points_from_sol(sol, variant=variant)
+    prim_obj = lp_solver.get_prim_obj_from_sol(sol, variant=variant)
+    points = lp_solver.get_points_from_sol(sol, variant=variant)
 
     prim_obj = prim_obj if prim_obj is not None else sys.maxsize
     points = points if points is not None else [0.0] * len(sync_net.transitions)
@@ -219,3 +219,73 @@ class SearchTuple:
         string_build = ["\nm=" + str(self.m), " f=" + str(self.f), ' g=' + str(self.g), " h=" + str(self.h),
                         " path=" + str(self.__get_firing_sequence()) + "\n\n"]
         return " ".join(string_build)
+
+
+class DijkstraSearchTuple:
+    def __init__(self, g, m, p, t, l):
+        self.g = g
+        self.m = m
+        self.p = p
+        self.t = t
+        self.l = l
+
+    def __lt__(self, other):
+        if self.g < other.g:
+            return True
+        elif other.g < self.g:
+            return False
+        else:
+            return other.l < self.l
+
+    def __get_firing_sequence(self):
+        ret = []
+        if self.p is not None:
+            ret = ret + self.p.__get_firing_sequence()
+        if self.t is not None:
+            ret.append(self.t)
+        return ret
+
+    def __repr__(self):
+        string_build = ["\nm=" + str(self.m), " g=" + str(self.g),
+                        " path=" + str(self.__get_firing_sequence()) + "\n\n"]
+        return " ".join(string_build)
+
+
+def get_visible_transitions_eventually_enabled_by_marking(net, marking):
+    """
+    Get visible transitions eventually enabled by marking (passing possibly through hidden transitions)
+    Parameters
+    ----------
+    net
+        Petri net
+    marking
+        Current marking
+    """
+    all_enabled_transitions = list(semantics.enabled_transitions(net, marking))
+    initial_all_enabled_transitions_marking_dictio = {}
+    all_enabled_transitions_marking_dictio = {}
+    for trans in all_enabled_transitions:
+        all_enabled_transitions_marking_dictio[trans] = marking
+        initial_all_enabled_transitions_marking_dictio[trans] = marking
+    visible_transitions = set()
+    visited_transitions = set()
+
+    i = 0
+    while i < len(all_enabled_transitions):
+        t = all_enabled_transitions[i]
+        marking_copy = copy(all_enabled_transitions_marking_dictio[t])
+
+        if repr([t, marking_copy]) not in visited_transitions:
+            if t.label is not None:
+                visible_transitions.add(t)
+            else:
+                if semantics.is_enabled(t, net, marking_copy):
+                    new_marking = semantics.execute(t, net, marking_copy)
+                    new_enabled_transitions = list(semantics.enabled_transitions(net, new_marking))
+                    for t2 in new_enabled_transitions:
+                        all_enabled_transitions.append(t2)
+                        all_enabled_transitions_marking_dictio[t2] = new_marking
+            visited_transitions.add(repr([t, marking_copy]))
+        i = i + 1
+
+    return visible_transitions

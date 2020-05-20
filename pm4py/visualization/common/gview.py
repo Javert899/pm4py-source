@@ -1,3 +1,7 @@
+import deprecation
+
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use visualizer module instead.')
 def view(gviz):
     """
     View the diagram
@@ -22,4 +26,4 @@ def view(gviz):
         from IPython.display import display
         return display(image)
     else:
-        return gviz.view()
+        return gviz.view(cleanup=True)

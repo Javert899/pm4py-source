@@ -1,19 +1,45 @@
-from pm4py.objects.log.importer.parquet.versions import pyarrow
 import os
 import pandas as pd
+import deprecation
+
 from pm4py.util import constants
-from pm4py.objects.log.util import xes
-from pm4py.algo.filtering.common.filtering_constants import CASE_CONCEPT_NAME
+from pm4py.util import xes_constants as xes
 
 PYARROW = "pyarrow"
+FASTPARQUET = "fastparquet"
 
-VERSIONS = {PYARROW: pyarrow.apply}
-VERSIONS_LOG = {PYARROW: pyarrow.import_log}
+VERSIONS = {}
+VERSIONS_LOG = {}
+
+DEFAULT_VARIANT = None
+DEFAULT_VARIANT_LOG = None
+
+try:
+    from pm4py.objects.log.importer.parquet.versions import fastparquet
+    VERSIONS[FASTPARQUET] = fastparquet.apply
+
+    DEFAULT_VARIANT = FASTPARQUET
+except:
+    # Fastparquet is not installed
+    pass
+
+try:
+    from pm4py.objects.log.importer.parquet.versions import pyarrow
+    VERSIONS[PYARROW] = pyarrow.apply
+    VERSIONS_LOG[PYARROW] = pyarrow.import_log
+
+    DEFAULT_VARIANT = PYARROW
+    DEFAULT_VARIANT_LOG = PYARROW
+except:
+    # Pyarrow is not installed
+    pass
 
 COLUMNS = "columns"
 
 
-def apply(path, parameters=None, variant=PYARROW):
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Please import the parquet to a pandas df, then convert it to an event log, if needed')
+def apply(path, parameters=None, variant=DEFAULT_VARIANT):
     """
     Import a Parquet file
 
@@ -38,7 +64,7 @@ def apply(path, parameters=None, variant=PYARROW):
     timestamp_key = parameters[
         constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] if constants.PARAMETER_CONSTANT_TIMESTAMP_KEY in parameters else xes.DEFAULT_TIMESTAMP_KEY
     case_id_key = parameters[
-        constants.PARAMETER_CONSTANT_CASEID_KEY] if constants.PARAMETER_CONSTANT_CASEID_KEY in parameters else CASE_CONCEPT_NAME
+        constants.PARAMETER_CONSTANT_CASEID_KEY] if constants.PARAMETER_CONSTANT_CASEID_KEY in parameters else constants.CASE_CONCEPT_NAME
 
     if os.path.isdir(path):
         all_parquets = get_list_parquet(path, parameters=parameters)
@@ -53,7 +79,9 @@ def apply(path, parameters=None, variant=PYARROW):
     return df
 
 
-def import_log(path, parameters=None, variant=PYARROW):
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Please import the parquet to a pandas df, then convert it to an event log, if needed')
+def import_log(path, parameters=None, variant=DEFAULT_VARIANT_LOG):
     """
     Import a Parquet file
 
@@ -78,7 +106,9 @@ def import_log(path, parameters=None, variant=PYARROW):
     return VERSIONS_LOG[variant](path, parameters=parameters)
 
 
-def import_minimal_log(path, parameters=None, variant=PYARROW):
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Please import the parquet to a pandas df, then convert it to an event log, if needed')
+def import_minimal_log(path, parameters=None, variant=DEFAULT_VARIANT_LOG):
     """
     Import a Parquet file (as a minimal log with only the essential columns)
 
@@ -100,12 +130,14 @@ def import_minimal_log(path, parameters=None, variant=PYARROW):
     if parameters is None:
         parameters = {}
 
-    parameters[COLUMNS] = [CASE_CONCEPT_NAME, xes.DEFAULT_NAME_KEY, xes.DEFAULT_TIMESTAMP_KEY]
+    parameters[COLUMNS] = [constants.CASE_CONCEPT_NAME, xes.DEFAULT_NAME_KEY, xes.DEFAULT_TIMESTAMP_KEY]
 
     return VERSIONS_LOG[variant](path, parameters=parameters)
 
 
-def import_df(path, parameters=None, variant=PYARROW):
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Please import the parquet to a pandas df, then convert it to an event log, if needed')
+def import_df(path, parameters=None, variant=DEFAULT_VARIANT):
     """
     Import a Parquet file
 
@@ -127,6 +159,8 @@ def import_df(path, parameters=None, variant=PYARROW):
     return apply(path, variant=variant, parameters=parameters)
 
 
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Please import the parquet to a pandas df, then convert it to an event log, if needed')
 def get_list_parquet(path, parameters=None):
     """
     Gets the list of Parquets contained into a dataset

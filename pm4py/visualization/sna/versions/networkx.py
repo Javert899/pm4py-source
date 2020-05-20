@@ -4,11 +4,16 @@ import subprocess
 import sys
 import tempfile
 
-import networkx as nx
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
-from matplotlib import pyplot
+from copy import copy
+from enum import Enum
+from pm4py.util import exec_utils
+
+
+class Parameters(Enum):
+    WEIGHT_THRESHOLD = "weight_threshold"
+    FORMAT = "format"
 
 
 def get_temp_file_name(format):
@@ -36,20 +41,23 @@ def apply(metric_values, parameters=None):
         Value of the metrics
     parameters
         Possible parameters of the algorithm, including:
-            weight_threshold: the weight threshold to use in displaying the graph
-            format: format of the output image (png, svg ...)
+            - Parameters.WEIGHT_THRESHOLD -> the weight threshold to use in displaying the graph
+            - Parameters.FORMAT -> format of the output image (png, svg ...)
 
     Returns
     -------------
     temp_file_name
         Name of a temporary file where the visualization is placed
     """
+    import networkx as nx
+
     if parameters is None:
         parameters = {}
 
-    weight_threshold = parameters["weight_threshold"] if "weight_threshold" in parameters else 0
+    weight_threshold = exec_utils.get_param_value(Parameters.WEIGHT_THRESHOLD, parameters, 0)
+    format = exec_utils.get_param_value(Parameters.FORMAT, parameters, "svg")
+
     directed = metric_values[2]
-    format = parameters["format"] if "format" in parameters else "png"
 
     temp_file_name = get_temp_file_name(format)
 
@@ -70,10 +78,16 @@ def apply(metric_values, parameters=None):
     graph.add_nodes_from(nodes)
     graph.add_edges_from(edges)
 
+    current_backend = copy(matplotlib.get_backend())
+    matplotlib.use('Agg')
+    from matplotlib import pyplot
+
     pyplot.clf()
     nx.draw(graph, with_labels=True, labels=labels, node_size=500, pos=nx.circular_layout(graph))
     pyplot.savefig(temp_file_name, bbox_inches="tight")
     pyplot.clf()
+
+    matplotlib.use(current_backend)
 
     return temp_file_name
 

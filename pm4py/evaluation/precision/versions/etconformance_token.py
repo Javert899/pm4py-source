@@ -1,10 +1,12 @@
-from collections import Counter
+from pm4py.algo.conformance.tokenreplay.versions import token_replay
+from pm4py.algo.conformance.tokenreplay import algorithm as executor
 
-from pm4py import util as pmutil
-from pm4py.algo.conformance.tokenreplay import factory as token_replay
 from pm4py.objects import log as log_lib
-from pm4py.objects.log.log import EventLog, Event, Trace
-from pm4py.objects.log.util import xes as xes_util
+from pm4py.evaluation.precision import utils as precision_utils
+from pm4py.statistics.start_activities.log.get import get_start_activities
+from pm4py.objects.petri.align_utils import get_visible_transitions_eventually_enabled_by_marking
+from pm4py.evaluation.precision.parameters import Parameters
+from pm4py.util import exec_utils
 
 """
 Implementation of the approach described in paper
@@ -24,58 +26,6 @@ At the moment, the precision value is different from the one provided by the Pro
 although the implementation seems to follow the paper concept
 """
 
-PARAM_ACTIVITY_KEY = pmutil.constants.PARAMETER_CONSTANT_ACTIVITY_KEY
-
-PARAMETERS = [PARAM_ACTIVITY_KEY]
-
-
-def get_log_prefixes(log, activity_key=xes_util.DEFAULT_NAME_KEY):
-    """
-    Get log prefixes
-
-    Parameters
-    ----------
-    log
-        Trace log
-    activity_key
-        Activity key (must be provided if different from concept:name)
-    """
-    prefixes = {}
-    prefix_count = Counter()
-    for trace in log:
-        for i in range(1, len(trace)):
-            red_trace = trace[0:i]
-            prefix = ",".join([x[activity_key] for x in red_trace])
-            next_activity = trace[i][activity_key]
-            if prefix not in prefixes:
-                prefixes[prefix] = set()
-            prefixes[prefix].add(next_activity)
-            prefix_count[prefix] += 1
-    return prefixes, prefix_count
-
-
-def form_fake_log(prefixes_keys, activity_key=xes_util.DEFAULT_NAME_KEY):
-    """
-    Form fake log for replay (putting each prefix as separate trace to align)
-
-    Parameters
-    ----------
-    prefixes_keys
-        Keys of the prefixes (to form a log with a given order)
-    activity_key
-        Activity key (must be provided if different from concept:name)
-    """
-    fake_log = EventLog()
-    for prefix in prefixes_keys:
-        trace = Trace()
-        prefix_activities = prefix.split(",")
-        for activity in prefix_activities:
-            event = Event()
-            event[activity_key] = activity
-            trace.append(event)
-        fake_log.append(trace)
-    return fake_log
-
 
 def apply(log, net, marking, final_marking, parameters=None):
     """
@@ -93,30 +43,44 @@ def apply(log, net, marking, final_marking, parameters=None):
         Final marking
     parameters
         Parameters of the algorithm, including:
-            pm4py.util.constants.PARAMETER_CONSTANT_ACTIVITY_KEY -> Activity key
+            Parameters.ACTIVITY_KEY -> Activity key
     """
 
     if parameters is None:
         parameters = {}
 
-    activity_key = parameters[
-        PARAM_ACTIVITY_KEY] if PARAM_ACTIVITY_KEY in parameters else log_lib.util.xes.DEFAULT_NAME_KEY
-    precision = 0.0
+    cleaning_token_flood = exec_utils.get_param_value(Parameters.CLEANING_TOKEN_FLOOD, parameters, False)
+    token_replay_variant = exec_utils.get_param_value(Parameters.TOKEN_REPLAY_VARIANT, parameters,
+                                                      executor.Variants.TOKEN_REPLAY)
+    activity_key = exec_utils.get_param_value(Parameters.ACTIVITY_KEY, parameters, log_lib.util.xes.DEFAULT_NAME_KEY)
+    # default value for precision, when no activated transitions (not even by looking at the initial marking) are found
+    precision = 1.0
     sum_ee = 0
     sum_at = 0
-    prefixes, prefix_count = get_log_prefixes(log, activity_key=activity_key)
-    prefixes_keys = list(prefixes.keys())
-    fake_log = form_fake_log(prefixes_keys, activity_key=activity_key)
 
     parameters_tr = {
-        "consider_remaining_in_fitness": False,
-        "try_to_reach_final_marking_through_hidden": False,
-        "stop_immediately_unfit": True,
-        "walk_through_hidden_trans": True,
-        PARAM_ACTIVITY_KEY: activity_key
+        token_replay.Parameters.CONSIDER_REMAINING_IN_FITNESS: False,
+        token_replay.Parameters.TRY_TO_REACH_FINAL_MARKING_THROUGH_HIDDEN: False,
+        token_replay.Parameters.STOP_IMMEDIATELY_UNFIT: True,
+        token_replay.Parameters.WALK_THROUGH_HIDDEN_TRANS: True,
+        token_replay.Parameters.CLEANING_TOKEN_FLOOD: cleaning_token_flood,
+        token_replay.Parameters.ACTIVITY_KEY: activity_key
     }
 
-    aligned_traces = token_replay.apply(fake_log, net, marking, final_marking, parameters=parameters_tr)
+    prefixes, prefix_count = precision_utils.get_log_prefixes(log, activity_key=activity_key)
+    prefixes_keys = list(prefixes.keys())
+    fake_log = precision_utils.form_fake_log(prefixes_keys, activity_key=activity_key)
+
+    aligned_traces = executor.apply(fake_log, net, marking, final_marking, variant=token_replay_variant,
+                                        parameters=parameters_tr)
+
+    # fix: also the empty prefix should be counted!
+    start_activities = set(get_start_activities(log, parameters=parameters))
+    trans_en_ini_marking = set([x.label for x in get_visible_transitions_eventually_enabled_by_marking(net, marking)])
+    diff = trans_en_ini_marking.difference(start_activities)
+    sum_at += len(log) * len(trans_en_ini_marking)
+    sum_ee += len(log) * len(diff)
+    # end fix
 
     for i in range(len(aligned_traces)):
         if aligned_traces[i]["trace_is_fit"]:

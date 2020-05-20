@@ -1,12 +1,11 @@
 from pm4py.objects.log.log import EventLog, Trace, Event
-from pm4py.statistics.traces.pandas import case_statistics
-from pm4py.objects.log.util import xes
+from pm4py.util import xes_constants as xes
 from pm4py.util import constants as pm4_constants
-from pm4py.algo.filtering.common.filtering_constants import CASE_CONCEPT_NAME
-
+import deprecation
 RETURN_VARIANTS = 'return_variants'
 
-
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='conversion versions are deprecated; use conversion variants instead')
 def apply(df, parameters=None):
     """
     Convert a dataframe into a log containing N case per variant (only control-flow
@@ -24,13 +23,15 @@ def apply(df, parameters=None):
     log
         Event log
     """
+    from pm4py.statistics.traces.pandas import case_statistics
+
     if parameters is None:
         parameters = {}
 
     return_variants = parameters[RETURN_VARIANTS] if RETURN_VARIANTS in parameters else False
 
     case_glue = parameters[
-        pm4_constants.PARAMETER_CONSTANT_CASEID_KEY] if pm4_constants.PARAMETER_CONSTANT_CASEID_KEY in parameters else CASE_CONCEPT_NAME
+        pm4_constants.PARAMETER_CONSTANT_CASEID_KEY] if pm4_constants.PARAMETER_CONSTANT_CASEID_KEY in parameters else pm4_constants.CASE_CONCEPT_NAME
 
     variant_stats = case_statistics.get_variant_statistics(df, parameters=parameters)
 

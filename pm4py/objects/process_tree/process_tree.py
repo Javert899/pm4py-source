@@ -1,3 +1,6 @@
+from pm4py.objects.process_tree import pt_operator
+
+
 class ProcessTree(object):
 
     def __init__(self, operator=None, parent=None, children=None, label=None):
@@ -20,6 +23,27 @@ class ProcessTree(object):
         self._children = list() if children is None else children
         self._label = label
 
+    def __hash__(self):
+        if self.label is not None:
+            return hash(self.label)
+        elif len(self.children) == 0:
+            return 37
+        else:
+            h = 1337
+            for i in range(len(self.children)):
+                h += 41 * i * hash(self.children[i])
+            if self.operator == pt_operator.Operator.SEQUENCE:
+                h = h * 13
+            elif self.operator == pt_operator.Operator.XOR:
+                h = h * 17
+            elif self.operator == pt_operator.Operator.OR:
+                h = h * 23
+            elif self.operator == pt_operator.Operator.PARALLEL:
+                h = h * 29
+            elif self.operator == pt_operator.Operator.LOOP:
+                h = h * 37
+            return h % 268435456
+
     def _set_operator(self, operator):
         self._operator = operator
 
@@ -30,7 +54,7 @@ class ProcessTree(object):
         self._label = label
 
     def _set_children(self, children):
-        self.children = children
+        self._children = children
 
     def _get_children(self):
         return self._children
@@ -43,6 +67,23 @@ class ProcessTree(object):
 
     def _get_label(self):
         return self._label
+
+    def __eq__(self, other):
+        if self.label is not None:
+            return True if other.label == self.label else False
+        elif len(self.children) == 0:
+            return other.label is None and len(other.children) == 0
+        else:
+            if self.operator == other.operator:
+                if len(self.children) != len(other.children):
+                    return False
+                else:
+                    for i in range(len(self.children)):
+                        if self.children[i] != other.children[i]:
+                            return False
+                    return True
+            else:
+                return False
 
     def __repr__(self):
         """
@@ -57,7 +98,14 @@ class ProcessTree(object):
             rep = str(self._operator) + '( '
             for i in range(0, len(self._children)):
                 child = self._children[i]
-                rep += str(child) + ', ' if i < len(self._children) - 1 else str(child)
+                if len(child.children) == 0:
+                    if child.label is not None:
+                        rep += '\'' + str(child) + '\'' + ', ' if i < len(self._children) - 1 else '\'' + str(
+                            child) + '\''
+                    else:
+                        rep += str(child) + ', ' if i < len(self._children) - 1 else str(child)
+                else:
+                    rep += str(child) + ', ' if i < len(self._children) - 1 else str(child)
             return rep + ' )'
         elif self.label is not None:
             return self.label

@@ -1,9 +1,11 @@
+import deprecation
+
 from pm4py.util.lp.versions import pulp_solver
 
 # not available in the latest version of PM4Py
 CVXOPT = "cvxopt"
 PULP = "pulp"
-# not available in the latest version of PM4PyKop
+# not available in the latest version of PM4Py
 CVXOPT_SOLVER_CUSTOM_ALIGN = "cvxopt_solver_custom_align"
 CVXOPT_SOLVER_CUSTOM_ALIGN_ILP = "cvxopt_solver_custom_align_ilp"
 ORTOOLS_SOLVER = "ortools_solver"
@@ -29,6 +31,8 @@ except:
     # in this case, ortools is not installed since it is broken
     pass
 
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use solver module instead.')
 def apply(c, Aub, bub, Aeq, beq, parameters=None, variant=DEFAULT_LP_SOLVER_VARIANT):
     """
     Gets the overall solution of the problem
@@ -57,7 +61,8 @@ def apply(c, Aub, bub, Aeq, beq, parameters=None, variant=DEFAULT_LP_SOLVER_VARI
     """
     return VERSIONS_APPLY[variant](c, Aub, bub, Aeq, beq, parameters=parameters)
 
-
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use solver module instead.')
 def get_prim_obj_from_sol(sol, parameters=None, variant=DEFAULT_LP_SOLVER_VARIANT):
     """
     Gets the primal objective from the solution of the LP problem
@@ -78,7 +83,8 @@ def get_prim_obj_from_sol(sol, parameters=None, variant=DEFAULT_LP_SOLVER_VARIAN
     """
     return VERSIONS_GET_PRIM_OBJ[variant](sol, parameters=parameters)
 
-
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use solver module instead.')
 def get_points_from_sol(sol, parameters=None, variant=DEFAULT_LP_SOLVER_VARIANT):
     """
     Gets the points from the solution

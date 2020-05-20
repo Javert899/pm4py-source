@@ -1,15 +1,18 @@
 from copy import deepcopy
 
 import numpy as np
-from sklearn import tree
 
-from pm4py.algo.filtering.log.attributes import attributes_filter
+from pm4py.objects.log.util import basic_filter
 from pm4py.objects.log.log import EventLog, Trace, Event
+from enum import Enum
+from pm4py.util import exec_utils
+from pm4py.util import constants
 
-try:
-    from Lib.statistics import median
-except:
-    from statistics import median
+
+class Parameters(Enum):
+    STRING_ATTRIBUTES = "string_attributes"
+    NUMERIC_ATTRIBUTES = "numeric_attributes"
+    ENABLE_MULTIPLIER = "enable_multiplier"
 
 
 def form_log_from_dictio_couple(first_cases_repr, second_cases_repr, enable_multiplier=False):
@@ -119,13 +122,15 @@ def diagnose_from_trans_fitness(log, trans_fitness, parameters=None):
             - feature names
             - classes
     """
+    from sklearn import tree
+
     if parameters is None:
         parameters = {}
 
     diagnostics = {}
-    string_attributes = parameters["string_attributes"] if "string_attributes" in parameters else []
-    numeric_attributes = parameters["numeric_attributes"] if "numeric_attributes" in parameters else []
-    enable_multiplier = parameters["enable_multiplier"] if "enable_multiplier" in parameters else False
+    string_attributes = exec_utils.get_param_value(Parameters.STRING_ATTRIBUTES, parameters, [])
+    numeric_attributes = exec_utils.get_param_value(Parameters.NUMERIC_ATTRIBUTES, parameters, [])
+    enable_multiplier = exec_utils.get_param_value(Parameters.ENABLE_MULTIPLIER, parameters, False)
 
     for trans in trans_fitness:
         if len(trans_fitness[trans]["underfed_traces"]) > 0:
@@ -198,19 +203,21 @@ def diagnose_from_notexisting_activities(log, notexisting_activities_in_model, p
             - feature names
             - classes
     """
+    from sklearn import tree
+
     if parameters is None:
         parameters = {}
 
     diagnostics = {}
-    string_attributes = parameters["string_attributes"] if "string_attributes" in parameters else []
-    numeric_attributes = parameters["numeric_attributes"] if "numeric_attributes" in parameters else []
-    enable_multiplier = parameters["enable_multiplier"] if "enable_multiplier" in parameters else False
+    string_attributes = exec_utils.get_param_value(Parameters.STRING_ATTRIBUTES, parameters, [])
+    numeric_attributes = exec_utils.get_param_value(Parameters.NUMERIC_ATTRIBUTES, parameters, [])
+    enable_multiplier = exec_utils.get_param_value(Parameters.ENABLE_MULTIPLIER, parameters, False)
 
     parameters_filtering = deepcopy(parameters)
     parameters_filtering["positive"] = False
     values = list(notexisting_activities_in_model.keys())
 
-    filtered_log = attributes_filter.apply(log, values, parameters=parameters_filtering)
+    filtered_log = basic_filter.filter_log_traces_attr(log, values, parameters=parameters_filtering)
 
     for act in notexisting_activities_in_model:
         fit_cases_repr = []

@@ -1,16 +1,15 @@
 from copy import deepcopy
 
-import networkx as nx
 import numpy as np
 
 from pm4py.objects.petri import incidence_matrix
 from pm4py.objects.petri import utils as petri_utils
 from pm4py.objects.petri import petrinet
 from pm4py.objects.petri.networkx_graph import create_networkx_undirected_graph
-from pm4py.util.lp import factory as lp_solver_factory
+from pm4py.util.lp import solver as lp_solver
 from pm4py.objects.petri import explore_path
 
-DEFAULT_LP_SOLVER_VARIANT = lp_solver_factory.PULP
+DEFAULT_LP_SOLVER_VARIANT = lp_solver.PULP
 
 
 def check_source_and_sink_reachability(net, unique_source, unique_sink):
@@ -32,6 +31,8 @@ def check_source_and_sink_reachability(net, unique_source, unique_sink):
     boolean
         Boolean value that is true if each node is in a path from the source place to the sink place
     """
+    import networkx as nx
+
     graph, unique_source_corr, unique_sink_corr, inv_dictionary = create_networkx_undirected_graph(net, unique_source,
                                                                                                    unique_sink)
     if unique_source_corr is not None and unique_sink_corr is not None:
@@ -111,18 +112,6 @@ def check_wfnet(net):
     unique_sink_place = check_sink_place_presence(net)
     source_sink_reachability = check_source_and_sink_reachability(net, unique_source_place, unique_sink_place)
 
-    # check also that the transitions connected to the source/sink place have unique arcs
-    if unique_source_place is not None:
-        for arc in unique_source_place.out_arcs:
-            trans = arc.target
-            if len(trans.in_arcs) > 1:
-                return False
-    if unique_sink_place is not None:
-        for arc in unique_sink_place.in_arcs:
-            trans = arc.source
-            if len(trans.out_arcs) > 1:
-                return False
-
     return (unique_source_place is not None) and (unique_sink_place is not None) and source_sink_reachability
 
 
@@ -140,6 +129,8 @@ def check_loops_generating_tokens(net0):
     boolean
         Boolean value (True if the net has loops generating tokens)
     """
+    import networkx as nx
+
     net = deepcopy(net0)
     petri_utils.decorate_transitions_prepostset(net)
     graph, inv_dictionary = petri_utils.create_networkx_directed_graph(net)
@@ -213,6 +204,8 @@ def check_non_blocking(net0):
     boolean
         Boolean value
     """
+    import networkx as nx
+
     net = deepcopy(net0)
     petri_utils.decorate_transitions_prepostset(net)
     graph, inv_dictionary = petri_utils.create_networkx_directed_graph(net)
@@ -286,13 +279,44 @@ def check_stability_wfnet(net):
         i = i + 1
 
     try:
-        sol = lp_solver_factory.apply(c, vstack_matrix, bub, None, None, variant=DEFAULT_LP_SOLVER_VARIANT)
+        sol = lp_solver.apply(c, vstack_matrix, bub, None, None, variant=DEFAULT_LP_SOLVER_VARIANT)
         if sol:
             return True
     except:
         return False
 
     return False
+
+
+def check_source_sink_place_conditions(net):
+    """
+    Check some conditions on the source/sink place important
+    for a sound workflow net
+
+    Parameters
+    --------------
+    net
+        Petri net
+
+    Returns
+    --------------
+    boolean
+        Boolean value (True is good)
+    """
+    # check also that the transitions connected to the source/sink place have unique arcs
+    unique_source_place = check_source_place_presence(net)
+    unique_sink_place = check_sink_place_presence(net)
+    if unique_source_place is not None:
+        for arc in unique_source_place.out_arcs:
+            trans = arc.target
+            if len(trans.in_arcs) > 1:
+                return False
+    if unique_sink_place is not None:
+        for arc in unique_sink_place.in_arcs:
+            trans = arc.source
+            if len(trans.out_arcs) > 1:
+                return False
+    return True
 
 
 def check_relaxed_soundness_net_in_fin_marking(net, ini, fin):
@@ -367,21 +391,25 @@ def check_petri_wfnet_and_soundness(net, debug=False):
     if debug:
         print("is_wfnet=",is_wfnet)
     if is_wfnet:
-        relaxed_soundness = check_relaxed_soundness_of_wfnet(net)
+        check_conditions_source_sink = check_source_sink_place_conditions(net)
         if debug:
-            print("relaxed_soundness",relaxed_soundness)
-        if relaxed_soundness:
-            is_stable = check_stability_wfnet(net)
+            print("check_conditions_source_sink", check_conditions_source_sink)
+        if check_conditions_source_sink:
+            relaxed_soundness = check_relaxed_soundness_of_wfnet(net)
             if debug:
-                print("is_stable=",is_stable)
-            if is_stable:
-                is_non_blocking = check_non_blocking(net)
+                print("relaxed_soundness",relaxed_soundness)
+            if relaxed_soundness:
+                is_stable = check_stability_wfnet(net)
                 if debug:
-                    print("is_non_blocking", is_non_blocking)
-                if is_non_blocking:
-                    contains_loops_generating_tokens = check_loops_generating_tokens(net)
+                    print("is_stable=",is_stable)
+                if is_stable:
+                    is_non_blocking = check_non_blocking(net)
                     if debug:
-                        print("contains_loops_generating_tokens",contains_loops_generating_tokens)
-                    if not contains_loops_generating_tokens:
-                        return True
+                        print("is_non_blocking", is_non_blocking)
+                    if is_non_blocking:
+                        contains_loops_generating_tokens = check_loops_generating_tokens(net)
+                        if debug:
+                            print("contains_loops_generating_tokens",contains_loops_generating_tokens)
+                        if not contains_loops_generating_tokens:
+                            return True
     return False

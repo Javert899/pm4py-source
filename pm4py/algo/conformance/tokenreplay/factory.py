@@ -1,22 +1,26 @@
 from pm4py import util as pmutil
-from pm4py.algo.conformance.tokenreplay.versions import token_replay
-from pm4py.objects.conversion.log import factory as log_converter
-from pm4py.objects.log.util import general as log_util
-from pm4py.objects.log.util import xes as xes_util
+from pm4py.algo.conformance.tokenreplay.versions import token_replay, backwards
+from pm4py.objects.conversion.log import converter as log_converter
+from pm4py.util import xes_constants as xes_util
 from pm4py.objects.petri.exporter.versions import pnml as petri_exporter
-from pm4py.algo.filtering.log.variants import variants_filter as variants_module
+from pm4py.statistics.variants.log import get as variants_module
 import multiprocessing as mp
 import math
+import deprecation, warnings
 
 TOKEN_REPLAY = "token_replay"
-VERSIONS = {TOKEN_REPLAY: token_replay.apply}
+BACKWARDS = "backwards"
+
+VERSIONS = {TOKEN_REPLAY: token_replay.apply, BACKWARDS: backwards.apply}
 VERSIONS_MULTIPROCESSING = {TOKEN_REPLAY: token_replay.apply_variants_list_petri_string_multiprocessing}
 VARIANTS_IDX = 'variants_idx'
 
 
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use algorithm entrypoint instead')
 def apply(log, net, initial_marking, final_marking, parameters=None, variant=TOKEN_REPLAY):
     """
-    Factory method to apply token-based replay
+    Method to apply token-based replay
     
     Parameters
     -----------
@@ -35,6 +39,7 @@ def apply(log, net, initial_marking, final_marking, parameters=None, variant=TOK
     variant
         Variant of the algorithm to use
     """
+    warnings.warn('factory methods are deprecated, use algorithm entrypoint instead', DeprecationWarning)
     if parameters is None:
         parameters = {}
     if pmutil.constants.PARAMETER_CONSTANT_ACTIVITY_KEY not in parameters:
@@ -42,15 +47,23 @@ def apply(log, net, initial_marking, final_marking, parameters=None, variant=TOK
     if pmutil.constants.PARAMETER_CONSTANT_TIMESTAMP_KEY not in parameters:
         parameters[pmutil.constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] = xes_util.DEFAULT_TIMESTAMP_KEY
     if pmutil.constants.PARAMETER_CONSTANT_CASEID_KEY not in parameters:
-        parameters[pmutil.constants.PARAMETER_CONSTANT_CASEID_KEY] = log_util.CASE_ATTRIBUTE_GLUE
+        parameters[pmutil.constants.PARAMETER_CONSTANT_CASEID_KEY] = pmutil.constants.CASE_ATTRIBUTE_GLUE
     return VERSIONS[variant](log_converter.apply(log, parameters, log_converter.TO_EVENT_LOG), net, initial_marking,
                              final_marking, parameters=parameters)
 
+
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use algorithm entrypoint instead')
 def chunks(l, n):
+    warnings.warn('factory methods are deprecated, use algorithm entrypoint instead', DeprecationWarning)
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
+
+@deprecation.deprecated(deprecated_in='1.3.0', removed_in='2.0.0', current_version='',
+                        details='Use algorithm entrypoint instead')
 def apply_multiprocessing(log, net, initial_marking, final_marking, parameters=None, variant=TOKEN_REPLAY):
+    warnings.warn('factory methods are deprecated, use algorithm entrypoint instead', DeprecationWarning)
     if parameters is None:
         parameters = {}
     if pmutil.constants.PARAMETER_CONSTANT_ACTIVITY_KEY not in parameters:
@@ -58,9 +71,7 @@ def apply_multiprocessing(log, net, initial_marking, final_marking, parameters=N
     if pmutil.constants.PARAMETER_CONSTANT_TIMESTAMP_KEY not in parameters:
         parameters[pmutil.constants.PARAMETER_CONSTANT_TIMESTAMP_KEY] = xes_util.DEFAULT_TIMESTAMP_KEY
     if pmutil.constants.PARAMETER_CONSTANT_CASEID_KEY not in parameters:
-        parameters[pmutil.constants.PARAMETER_CONSTANT_CASEID_KEY] = log_util.CASE_ATTRIBUTE_GLUE
-
-    petri_string = petri_exporter.export_petri_as_string(net, initial_marking, final_marking)
+        parameters[pmutil.constants.PARAMETER_CONSTANT_CASEID_KEY] = pmutil.constants.CASE_ATTRIBUTE_GLUE
 
     variants_idxs = parameters[VARIANTS_IDX] if VARIANTS_IDX in parameters else None
     if variants_idxs is None:
@@ -71,14 +82,16 @@ def apply_multiprocessing(log, net, initial_marking, final_marking, parameters=N
 
     petri_net_string = petri_exporter.export_petri_as_string(net, initial_marking, final_marking)
 
-    n = math.ceil(len(variants_list)/no_cores)
+    n = math.ceil(len(variants_list) / no_cores)
 
     variants_list_split = list(chunks(variants_list, n))
 
     # Define an output queue
     output = mp.Queue()
 
-    processes = [mp.Process(target=VERSIONS_MULTIPROCESSING[variant](output, x, petri_net_string, parameters=parameters)) for x in variants_list_split]
+    processes = [
+        mp.Process(target=VERSIONS_MULTIPROCESSING[variant](output, x, petri_net_string, parameters=parameters)) for x
+        in variants_list_split]
 
     # Run processes
     for p in processes:

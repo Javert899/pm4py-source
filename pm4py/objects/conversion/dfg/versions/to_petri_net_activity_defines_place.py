@@ -1,9 +1,17 @@
 from pm4py.objects.dfg.utils import dfg_utils
 from pm4py.objects.petri.petrinet import PetriNet, Marking
-from pm4py.objects.petri.utils import add_arc_from_to
+from pm4py.objects.petri import utils as pn_util
+from enum import Enum
+from pm4py.util import exec_utils
 
-PARAM_KEY_START_ACTIVITIES = 'start_activities'
-PARAM_KEY_END_ACTIVITIES = 'end_activities'
+
+class Parameters(Enum):
+    START_ACTIVITIES = 'start_activities'
+    END_ACTIVITIES = 'end_activities'
+
+
+PARAM_KEY_START_ACTIVITIES = Parameters.START_ACTIVITIES
+PARAM_KEY_END_ACTIVITIES = Parameters.END_ACTIVITIES
 
 
 def apply(dfg, parameters=None):
@@ -21,8 +29,11 @@ def apply(dfg, parameters=None):
         parameters = {}
 
     dfg = dfg
-    start_activities = parameters[PARAM_KEY_START_ACTIVITIES] if PARAM_KEY_START_ACTIVITIES in parameters else dfg_utils.infer_start_activities(dfg)
-    end_activities = parameters[PARAM_KEY_END_ACTIVITIES] if PARAM_KEY_END_ACTIVITIES in parameters else dfg_utils.infer_end_activities(dfg)
+    start_activities = exec_utils.get_param_value(Parameters.START_ACTIVITIES, parameters,
+                                                  dfg_utils.infer_start_activities(
+                                                      dfg))
+    end_activities = exec_utils.get_param_value(Parameters.END_ACTIVITIES, parameters,
+                                                dfg_utils.infer_end_activities(dfg))
     activities = dfg_utils.get_activities_from_dfg(dfg)
 
     net = PetriNet("")
@@ -48,16 +59,16 @@ def apply(dfg, parameters=None):
             index = index + 1
             trans = PetriNet.Transition(act + "_" + str(index), act)
             net.transitions.add(trans)
-            add_arc_from_to(source, trans, net)
-            add_arc_from_to(trans, places_corr[act], net)
+            pn_util.add_arc_from_to(source, trans, net)
+            pn_util.add_arc_from_to(trans, places_corr[act], net)
 
     for act in end_activities:
         if act in places_corr:
             index = index + 1
             inv_trans = PetriNet.Transition(act + "_" + str(index), None)
             net.transitions.add(inv_trans)
-            add_arc_from_to(places_corr[act], inv_trans, net)
-            add_arc_from_to(inv_trans, sink, net)
+            pn_util.add_arc_from_to(places_corr[act], inv_trans, net)
+            pn_util.add_arc_from_to(inv_trans, sink, net)
 
     for el in dfg.keys():
         act1 = el[0]
@@ -67,7 +78,7 @@ def apply(dfg, parameters=None):
         trans = PetriNet.Transition(act2 + "_" + str(index), act2)
         net.transitions.add(trans)
 
-        add_arc_from_to(places_corr[act1], trans, net)
-        add_arc_from_to(trans, places_corr[act2], net)
+        pn_util.add_arc_from_to(places_corr[act1], trans, net)
+        pn_util.add_arc_from_to(trans, places_corr[act2], net)
 
     return net, im, fm
