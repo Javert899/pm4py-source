@@ -3,6 +3,8 @@ from enum import Enum
 
 from lxml import etree
 
+from tqdm.auto import tqdm
+
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.log.util import sorting, index_attribute
 from pm4py.objects.log.util import xes as xes_util
@@ -58,12 +60,20 @@ def import_log(filename, parameters=None):
     date_parser = dt_parser.get()
     context = etree.iterparse(filename, events=[_EVENT_START, _EVENT_END])
 
+    # check to see if log has a namespace before looking for traces  (but this might be more effort than worth)
+    # but you could just assume that log use on the standard namespace desbried in XES
+    # to only find elements that start a trace use tag="{http://www.xes-standard.org}trace"
+    # or just use the {*} syntax to match to all namespaces with a trace element
+
+    #count number of traces and setup progress bar
+    no_trace = sum ( [ 1 for trace in  etree.iterparse(filename, events=[_EVENT_START],tag="{*}trace") ])
+    progress = tqdm(total=no_trace,desc="parsing log, completed traces :: ")
+
     log = None
     trace = None
     event = None
 
     tree = {}
-
     for tree_event, elem in context:
         if tree_event == _EVENT_START:  # starting to read
             parent = tree[elem.getparent()] if elem.getparent() in tree else None
@@ -197,13 +207,19 @@ def import_log(filename, parameters=None):
 
             elif elem.tag.endswith(xes_constants.TAG_TRACE):
                 log.append(trace)
+
+                #update progress bar as we have a completed trace
+                progress.update()
+
                 trace = None
                 continue
 
             elif elem.tag.endswith(xes_constants.TAG_LOG):
                 continue
-
-    del context
+            
+    #gracefully close progress bar
+    progress.close()
+    del context, progress
 
     if Parameters.TIMESTAMP_SORT in parameters and parameters[Parameters.TIMESTAMP_SORT]:
         log = sorting.sort_timestamp(log,
@@ -217,12 +233,18 @@ def import_log(filename, parameters=None):
 
 def __parse_attribute(elem, store, key, value, tree):
     if len(elem.getchildren()) == 0:
-        store[key] = value
+        if type(store) is list:
+            # changes to the store of lists: not dictionaries anymore
+            # but pairs of key-values.
+            store.append((key, value))
+        else:
+            store[key] = value
     else:
-        store[key] = {xes_constants.KEY_VALUE: value, xes_constants.KEY_CHILDREN: {}}
         if elem.getchildren()[0].tag.endswith(xes_constants.TAG_VALUES):
+            store[key] = {xes_constants.KEY_VALUE: value, xes_constants.KEY_CHILDREN: list()}
             tree[elem] = store[key][xes_constants.KEY_CHILDREN]
             tree[elem.getchildren()[0]] = tree[elem]
         else:
+            store[key] = {xes_constants.KEY_VALUE: value, xes_constants.KEY_CHILDREN: dict()}
             tree[elem] = store[key][xes_constants.KEY_CHILDREN]
     return tree
