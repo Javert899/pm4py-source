@@ -1,4 +1,4 @@
-VERSION = '2.1.3.2'
+VERSION = '2.1.4'
 
 import logging
 import pkgutil
@@ -6,12 +6,6 @@ import sys
 import time
 
 time.clock = time.process_time
-
-try:
-    import pm4pycvxopt
-except:
-    pass
-
 
 from pm4py import util, objects, statistics, algo, visualization, evaluation, simulation
 
